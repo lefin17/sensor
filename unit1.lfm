@@ -1,0 +1,71 @@
+object Form1: TForm1
+  Left = 373
+  Height = 858
+  Top = 236
+  Width = 1000
+  Caption = 'Настройка и поверка плат АЦП'
+  ClientHeight = 838
+  ClientWidth = 1000
+  Menu = MainMenu1
+  LCLVersion = '2.0.10.0'
+  object Memo1: TMemo
+    Left = 8
+    Height = 130
+    Top = 704
+    Width = 984
+    Lines.Strings = (
+      'Старт программы. Здесь будет выводиться информация по обмену по шине Modbus или ошибки'
+    )
+    ScrollBars = ssAutoVertical
+    TabOrder = 0
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 32
+    Top = 400
+    Width = 128
+    Caption = 'Экспорт таблицы'
+    TabOrder = 1
+  end
+  object StringGrid1: TStringGrid
+    Left = 8
+    Height = 688
+    Top = 8
+    Width = 984
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goSmoothScroll]
+    ScrollBars = ssVertical
+    TabOrder = 2
+  end
+  object MainMenu1: TMainMenu
+    Left = 912
+    Top = 680
+    object MenuItem1: TMenuItem
+      Caption = 'Меню программы'
+      object MenuItem3: TMenuItem
+        Caption = 'Настройка COM'
+        ShortCut = 114
+        ShortCutKey2 = 16450
+        OnClick = MenuItem3Click
+      end
+      object MenuItem8: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem6: TMenuItem
+        Caption = 'Поиск модулей'
+        ShortCut = 16454
+      end
+      object MenuItem5: TMenuItem
+        Caption = 'Экспорт таблицы'
+        ShortCut = 16467
+      end
+      object MenuItem7: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem4: TMenuItem
+        Caption = 'Выход'
+        ShortCut = 32883
+        OnClick = MenuItem4Click
+      end
+    end
+  end
+end
