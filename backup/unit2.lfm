@@ -52,29 +52,4 @@ object Form2: TForm2
     Caption = 'Отменить'
     TabOrder = 2
   end
-  object Label3: TLabel
-    Left = 51
-    Height = 21
-    Top = 88
-    Width = 57
-    Caption = 'Частота'
-    Font.Height = -16
-    ParentColor = False
-    ParentFont = False
-  end
-  object ComboBox2: TComboBox
-    Left = 128
-    Height = 23
-    Top = 86
-    Width = 136
-    ItemHeight = 15
-    ItemIndex = 0
-    Items.Strings = (
-      '9600'
-      '14400'
-      '115200'
-    )
-    TabOrder = 3
-    Text = '9600'
-  end
 end
