@@ -70,6 +70,22 @@ object Form1: TForm1
     TabOrder = 5
     Text = 'EditDevice'
   end
+  object Button3: TButton
+    Left = 29
+    Height = 25
+    Top = 666
+    Width = 211
+    Caption = 'Send Test line to 16 address'
+    OnClick = Button3Click
+    TabOrder = 6
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 815
+    Width = 1000
+    Panels = <>
+  end
   object MainMenu1: TMainMenu
     Left = 944
     Top = 664
@@ -105,6 +121,10 @@ object Form1: TForm1
         Caption = 'Настройки Com'
         OnClick = MenuItem9Click
       end
+      object MenuItem10: TMenuItem
+        Caption = 'Настройки поверки'
+        OnClick = MenuItem10Click
+      end
     end
   end
   object Serial: TLazSerial
@@ -117,7 +137,15 @@ object Form1: TForm1
     Device = 'COM2'
     RcvLineCRLF = False
     OnRxData = SerialRxData
+    OnStatus = SerialStatus
     Left = 936
     Top = 608
+  end
+  object Timer1: TTimer
+    Enabled = False
+    OnTimer = Timer1Timer
+    OnStopTimer = Timer1StopTimer
+    Left = 870
+    Top = 605
   end
 end
