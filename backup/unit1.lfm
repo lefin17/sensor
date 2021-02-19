@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 546
+  Left = 562
   Height = 858
-  Top = 131
+  Top = 142
   Width = 1000
   Caption = 'Настройка и поверка плат АЦП'
   ClientHeight = 838
@@ -86,9 +86,18 @@ object Form1: TForm1
     Width = 1000
     Panels = <>
   end
+  object Button4: TButton
+    Left = 340
+    Height = 25
+    Top = 649
+    Width = 75
+    Caption = 'Button4'
+    OnClick = Button4Click
+    TabOrder = 8
+  end
   object MainMenu1: TMainMenu
-    Left = 944
-    Top = 664
+    Left = 912
+    Top = 605
     object MenuItem1: TMenuItem
       Caption = 'Действия'
       object MenuItem8: TMenuItem
@@ -126,20 +135,6 @@ object Form1: TForm1
         OnClick = MenuItem10Click
       end
     end
-  end
-  object Serial: TLazSerial
-    Active = False
-    BaudRate = br115200
-    DataBits = db8bits
-    Parity = pNone
-    FlowControl = fcNone
-    StopBits = sbOne
-    Device = 'COM2'
-    RcvLineCRLF = False
-    OnRxData = SerialRxData
-    OnStatus = SerialStatus
-    Left = 936
-    Top = 608
   end
   object Timer1: TTimer
     Enabled = False
