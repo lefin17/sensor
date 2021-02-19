@@ -16,9 +16,13 @@ type
     Button2: TButton;
     ComboBox1: TComboBox;
     ComboBox2: TComboBox;
+    ComboBox3: TComboBox;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    procedure Label4Click(Sender: TObject);
   private
 
   public
@@ -31,6 +35,13 @@ var
 implementation
 
 {$R *.lfm}
+
+{ TForm2 }
+
+procedure TForm2.Label4Click(Sender: TObject);
+begin
+
+end;
 
 end.
 

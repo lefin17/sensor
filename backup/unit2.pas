@@ -15,8 +15,10 @@ type
     Button1: TButton;
     Button2: TButton;
     ComboBox1: TComboBox;
+    ComboBox2: TComboBox;
     Label1: TLabel;
     Label2: TLabel;
+    Label3: TLabel;
   private
 
   public
