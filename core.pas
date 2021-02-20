@@ -17,6 +17,7 @@ type
     minAddr: integer; //минимальный адрес для начала поиска на плате
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
+    function cmd(addr, mode, command, param: string):string;
   end;
 
 type TVerification = Object
@@ -29,6 +30,18 @@ var
 
 implementation
 
+
+function TModbus.cmd(addr, mode, command, param: string):string;
+var
+   res : string;
+begin
+ //библиотека комманд к контроллеру по заданному адресу - без выполнения и HEX подготовки
+ res := addr + ' ' + mode;
+     case command of
+     'temp': res := 'AA BB';
+     end;
+     Result := res;
+end;
 
 function TModbus.replace(text, s_old, s_new: string):string;
 var
