@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, Grids,
   CheckLst, ExtCtrls, PairSplitter, ComCtrls, LazSerial, Unit2, inifiles,
-  lazsynaser,
+  lazsynaser, core,
   //DataPortSerial,
   // DataPort,
   strutils, dateutils;
@@ -78,17 +78,6 @@ implementation
 { TForm1 }
 
 
- (* {$IFDEF LINUX}
- IniFile := TIniFile.Create(
- GetAppConfigFile(False) + '.conf');
-
-{$ELSE}
- IniFile := TIniFile.Create(
- ExtractFilePath(Application.EXEName) + 'SerTest.ini');
-{$ENDIF}    *)
-
-
-
 function TForm1.hex_to_asci(hex:string):string;
 var i,j:integer;
     conc:string;
@@ -115,6 +104,8 @@ begin
 
 end;
 
+
+
 procedure TForm1.Button3Click(Sender: TObject);
 var A: string;
     D: array of byte;
@@ -122,6 +113,9 @@ begin
   A := '$16$03$a7$80$00$05$de$ad';
 
   A := '$16$03$a7$80$00$05$de$ad';
+  A := '16 03 a7 80 00 05 de ad';
+  Memo1.Append(A);
+  Memo1.Append(Modbus.StrToHexStr(A));
   Setlength(D, 8);
   D[0] := $16;
   D[1] := $03;
@@ -132,23 +126,7 @@ begin
   D[6] := $DE;
   D[7] := $AD;
 
- (* D[0] := 0x16;
-  D[1] := 0x03;
-  D[2] := 0xA7;
-  D[3] := 0x80;
-  D[4] := 0x00;
-  D[5] := 0x05;
-  D[6] := 0xDE;
-  D[7] := 0xAD;  *)
 
-//  A := hex_to_asci('1603A7800005DEAD');
-
-//  Serial.Open;
- //  DataPortSerial1.Open('COM2,115200,8,N,1,1,0');
-//   DataPortSerial1.Active := True;
-
-//   DataPortSerial1.Push(A);
-//   Memo1.Append('start work with com');
   Timer1.Enabled := True;
 //  Serial.Close;
 
@@ -265,8 +243,9 @@ D[7] := $AD;
 // -> good
 // stringToSend := Chr($16) + Chr($03) + Chr($a7) + Chr($80) + Chr($00) + Chr($05) + Chr($de) + Chr($ad);  // Modbus-запрос
 // ID номер модуля
-stringToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
+// stringToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
 // stringToSend := $16 + $03 + $a7 + $80 + $00 + $05 + $de + $ad;
+stringToSend := Modbus.StrToHexStr('16 03 a7 80 00 05 de ad');
  response := send('COM2', stringToSend);
 // response := send('COM2', D, 8);
    Memo1.Append(response);

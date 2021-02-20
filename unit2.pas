@@ -35,7 +35,7 @@ type
 var
   Form2: TForm2;
   IniFile: TINIFile; //file of settings
-  Modbus: TModbus; //Настройки шины с модулями АЦП
+
 implementation
 
 {$R *.lfm}
@@ -51,10 +51,16 @@ procedure TForm2.FormCreate(Sender: TObject);
 
 begin
 
+Modbus := TModbus.Create;   //создание объекта класса modbus...
+
 IniFile := TIniFile.Create('settings.ini');
+
 Modbus.speed := StrToInt(IniFile.ReadString('Modbus', 'Speed', '115200'));
 Modbus.port := IniFile.ReadString('Modbus', 'Port', 'COM2');
 Modbus.minAddr := StrToInt(IniFile.ReadString('Modbus', 'minAddr', '10'));
+
+Verification.N := StrToInt(IniFile.ReadString('Verification', 'Attemts', '5'));
+
 IniFile.Free;
 end;
 
