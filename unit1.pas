@@ -231,14 +231,7 @@ end;
 
 begin
 Setlength(D, 8);
-D[0] := $16;
-D[1] := $03;
-D[2] := $A7;
-D[3] := $80;
-D[4] := $00;
-D[5] := $05;
-D[6] := $DE;
-D[7] := $AD;
+
 //A := '$16$03$a7$80$00$05$de$ad';
 // -> good
 // stringToSend := Chr($16) + Chr($03) + Chr($a7) + Chr($80) + Chr($00) + Chr($05) + Chr($de) + Chr($ad);  // Modbus-запрос

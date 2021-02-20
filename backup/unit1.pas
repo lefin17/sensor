@@ -245,7 +245,7 @@ D[7] := $AD;
 // ID номер модуля
 // stringToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
 // stringToSend := $16 + $03 + $a7 + $80 + $00 + $05 + $de + $ad;
-stringToSend := Modbus.StrToHexStr('16 03 a7 80 00 05 de ad')
+stringToSend := Modbus.StrToHexStr('16 03 a7 80 00 05 de ad');
  response := send('COM2', stringToSend);
 // response := send('COM2', D, 8);
    Memo1.Append(response);

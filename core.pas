@@ -15,7 +15,7 @@ type
     port: string; //номер порта
     speed: integer;
     minAddr: integer; //минимальный адрес для начала поиска на плате
-    function replace(text, s_old: string):string; //подготовка строки к преобразованию
+    function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
   end;
 
@@ -30,7 +30,7 @@ var
 implementation
 
 
-function TModbus.replace(text, s_old: string):string;
+function TModbus.replace(text, s_old, s_new: string):string;
 var
     s: string;
     i, l_old: byte;
@@ -42,6 +42,7 @@ begin
         i := pos(s_old, s);
         if i <> 0 then begin
             delete(s, i, l_old);
+            insert(s_new, s, i);
         end;
     end;
     Result := s;
@@ -55,7 +56,7 @@ var
  output: string;
 begin
  output := '';
- SHex := replace(SHex, ' ');
+ SHex := replace(SHex, ' ', '');
  // SHex := "6D 6F 75 73 65";
  Len := Length(SHex);
  if (Len > 0) and (Len mod 2 = 0) then
