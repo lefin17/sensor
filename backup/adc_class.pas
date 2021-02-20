@@ -8,7 +8,7 @@ uses
   Classes, SysUtils;
 
 type
-  AdcModule = class()
+  Modbus = Object
     livetime: integer; { Время жизни платы в секундах }
 
   end;

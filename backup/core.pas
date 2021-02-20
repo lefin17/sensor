@@ -8,10 +8,12 @@ uses
   Classes, SysUtils;
 
 type
-  TCore = Class()
-    fromAddress: integer;
-    units: integer;
-
+  TModbus = Object
+    fromAddress: integer; //адрес с которого проходит поиск по шине
+    units: integer;  //число найденых объектов
+    items: array[0..256] of byte; //массив объектов найденых на шине
+    port: string;
+    speed: integer;
   end;
 
 implementation
