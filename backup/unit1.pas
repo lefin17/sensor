@@ -243,7 +243,7 @@ begin
  for i := 0 to Length (resp) - 1 do
   begin
     output += IntToHex(resp[i], 2) + ' ';  // Строка hex значений, разделённая пробелами
-    break;
+   // break;
   end; (* *)
 
  (* Delete(output, Length(output), 1);  // Удаление последнего пробела в строке *)
@@ -262,7 +262,9 @@ D[5] := $05;
 D[6] := $DE;
 D[7] := $AD;
 //A := '$16$03$a7$80$00$05$de$ad';
-  stringToSend := Chr($16) + Chr($03) + Chr($a7) + Chr($80) + Chr($00) + Chr($05) + Chr($de) + Chr($ad);  // Modbus-запрос
+// -> good
+// stringToSend := Chr($16) + Chr($03) + Chr($a7) + Chr($80) + Chr($00) + Chr($05) + Chr($de) + Chr($ad);  // Modbus-запрос
+stringToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
 // stringToSend := $16 + $03 + $a7 + $80 + $00 + $05 + $de + $ad;
  response := send('COM2', stringToSend);
 // response := send('COM2', D, 8);

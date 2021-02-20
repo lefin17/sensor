@@ -5,7 +5,7 @@ unit Unit2;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, inifiles;
 
 type
 
@@ -22,6 +22,7 @@ type
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
+    procedure FormCreate(Sender: TObject);
     procedure Label4Click(Sender: TObject);
   private
 
@@ -31,7 +32,7 @@ type
 
 var
   Form2: TForm2;
-
+  IniFile: TINIFile; //file of settings
 implementation
 
 {$R *.lfm}
@@ -40,6 +41,16 @@ implementation
 
 procedure TForm2.Label4Click(Sender: TObject);
 begin
+
+end;
+
+procedure TForm2.FormCreate(Sender: TObject);
+var speed: integer;
+begin
+
+IniFile := TIniFile.Create('settings.ini');
+speed := StrToInt(IniFile.ReadString('Modbus', 'Speed', '115200'));
+IniFile.WriteString('Verification', 'attemts', '5');
 
 end;
 

@@ -6,6 +6,7 @@ object Form2: TForm2
   Caption = 'Настройка'
   ClientHeight = 551
   ClientWidth = 861
+  OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
   object Label1: TLabel
     Left = 16

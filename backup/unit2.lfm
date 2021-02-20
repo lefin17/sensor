@@ -1,11 +1,12 @@
 object Form2: TForm2
-  Left = 631
-  Height = 240
-  Top = 414
-  Width = 320
-  Caption = 'Настройка шины'
-  ClientHeight = 240
-  ClientWidth = 320
+  Left = 458
+  Height = 551
+  Top = 157
+  Width = 861
+  Caption = 'Настройка'
+  ClientHeight = 551
+  ClientWidth = 861
+  OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
   object Label1: TLabel
     Left = 16
@@ -37,17 +38,17 @@ object Form2: TForm2
     Text = 'ComboBox1'
   end
   object Button1: TButton
-    Left = 29
+    Left = 48
     Height = 32
-    Top = 194
+    Top = 496
     Width = 124
     Caption = 'Применить'
     TabOrder = 1
   end
   object Button2: TButton
-    Left = 160
+    Left = 179
     Height = 32
-    Top = 194
+    Top = 496
     Width = 126
     Caption = 'Отменить'
     TabOrder = 2
@@ -76,5 +77,41 @@ object Form2: TForm2
     )
     TabOrder = 3
     Text = '9600'
+  end
+  object Label4: TLabel
+    Left = 51
+    Height = 21
+    Top = 144
+    Width = 66
+    Caption = 'Четность'
+    Font.Height = -16
+    ParentColor = False
+    ParentFont = False
+    OnClick = Label4Click
+  end
+  object ComboBox3: TComboBox
+    Left = 128
+    Height = 23
+    Top = 142
+    Width = 136
+    ItemHeight = 15
+    ItemIndex = 0
+    Items.Strings = (
+      'Нет'
+      'Да'
+    )
+    TabOrder = 4
+    Text = 'Нет'
+  end
+  object Label5: TLabel
+    Left = 48
+    Height = 21
+    Top = 336
+    Width = 66
+    Caption = 'Четность'
+    Font.Height = -16
+    ParentColor = False
+    ParentFont = False
+    OnClick = Label4Click
   end
 end
