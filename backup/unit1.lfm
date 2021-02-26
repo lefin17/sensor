@@ -30,15 +30,15 @@ object Form1: TForm1
     TabOrder = 1
   end
   object StringGrid1: TStringGrid
-    Left = 8
+    Left = 9
     Height = 560
     Top = 8
     Width = 984
     ColCount = 11
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goSmoothScroll]
     RowCount = 1
     ScrollBars = ssVertical
     TabOrder = 2
+    OnClick = StringGrid1Click
   end
   object Button2: TButton
     Left = 18
@@ -78,7 +78,6 @@ object Form1: TForm1
     Top = 666
     Width = 211
     Caption = 'Send Test line to 16 address'
-    OnClick = Button3Click
     TabOrder = 6
   end
   object StatusBar1: TStatusBar
@@ -97,13 +96,11 @@ object Form1: TForm1
     OnClick = Button4Click
     TabOrder = 8
   end
-  object Button5: TButton
-    Left = 172
-    Height = 25
-    Top = 584
-    Width = 75
-    Caption = 'Button5'
-    OnClick = Button5Click
+  object ProgressBar1: TProgressBar
+    Left = 480
+    Height = 20
+    Top = 576
+    Width = 513
     TabOrder = 9
   end
   object MainMenu1: TMainMenu
@@ -117,9 +114,7 @@ object Form1: TForm1
       object MenuItem6: TMenuItem
         Caption = 'Поиск модулей'
         ShortCut = 16454
-        object MenuItem2: TMenuItem
-          Caption = 'MenuItem2'
-        end
+        OnClick = MenuItem6Click
       end
       object MenuItem5: TMenuItem
         Caption = 'Экспорт таблицы'

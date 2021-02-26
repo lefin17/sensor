@@ -21,7 +21,6 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
-    Button5: TButton;
     ComboBox1: TComboBox;
  //   DataPortSerial1: TDataPortSerial;
 // Serial: TBlockSerial;
@@ -31,18 +30,18 @@ type
     MainMenu1: TMainMenu;
     Memo1: TMemo;
     MenuItem1: TMenuItem;
-    MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
+    ProgressBar1: TProgressBar;
     StatusBar1: TStatusBar;
     StringGrid1: TStringGrid;
     Timer1: TTimer;
 
-    procedure Button3Click(Sender: TObject);
+  //  procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure DataPortSerial1Close(Sender: TObject);
@@ -54,10 +53,13 @@ type
     procedure FormCreate(Sender: TObject);
 
     procedure MenuItem10Click(Sender: TObject);
+    procedure MenuItem2Click(Sender: TObject);
+    procedure MenuItem6Click(Sender: TObject);
     procedure MenuItem9Click(Sender: TObject);
 (*    procedure SerialRxData(Sender: TObject); *)
     procedure MenuItem3Click(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
+    procedure StringGrid1Click(Sender: TObject);
 (*    procedure SerialStatus(Sender: TObject; Reason: THookSerialReason;
       const Value: string);                                              *)
     procedure Timer1StopTimer(Sender: TObject);
@@ -108,7 +110,7 @@ end;
 
 
 
-procedure TForm1.Button3Click(Sender: TObject);
+(* procedure TForm1.Button3Click(Sender: TObject);
 var A: string;
     D: array of byte;
 begin
@@ -132,7 +134,7 @@ begin
   Timer1.Enabled := True;
 //  Serial.Close;
 
-end;
+end; *)
 
 procedure TForm1.Button4Click(Sender: TObject);
 var
@@ -141,95 +143,7 @@ var
   D: array of byte;
 
 
-(* function send(port: string; data: string): string;
-//function send(port: string; data: pointer; len: integer): string;
-const
-  recvTimeout = 2000; // время ожидания ответа от устройства
-var
-  ComPort: TBlockSerial;
-  resp: Array of byte;
-  i: byte;
-  waiting: integer;
-  dtStart: TDateTime;
-  has_timed_out: boolean;
-  output: string;
 
-begin
-  ComPort := TBlockSerial.Create;
-  try
-    ComPort.Connect(port);
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'Couldn''t connect to port';
-      Exit;
-    end;
-    ComPort.Config(115200, 8, 'N', SB1, false, false);
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'Couldn''t connect to port';
-      Exit;
-    end;
-   ComPort.SendString(data);
- //     ComPort.SendBuffer(data, len);
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'No data to send';
-      Exit;
-    end;
-
-    output := '';
-    while 1 = 1 do
-    begin
-      // начинаем ждать ответа
-      dtStart := Now;
-      has_timed_out := false;
-      while ComPort.WaitingData = 0 do
-      begin
-        if MilliSecondsBetween(dtStart, Now) > recvTimeout then
-        begin
-          has_timed_out := true;
-          break;
-        end;
-        sleep(200);
-      end;
-
-      if has_timed_out then
-      begin
-        StatusBar1.SimpleText := 'No responce';
-        break; // выход - в буфере ничего нет
-      end;
-
-      waiting := ComPort.WaitingData;
-     Memo1.Append('waiting: ' + IntToStr(waiting));
-    SetLength(resp, waiting);
-
-    for i := 0 to Length(resp) - 1 do
-    begin
-      resp[i] := ComPort.RecvByte(2000);
-    end;
-
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'Ошибка приёма данных';
-      Exit;
-    end;
-    end;
-
-  finally
-    ComPort.free;
-  end;
-  Memo1.Append('Length of resp - ' + IntToStr(Length(resp)));
- output := '';
- for i := 0 to Length (resp) - 1 do
-  begin
-    output += IntToHex(resp[i], 2) + ' ';  // Строка hex значений, разделённая пробелами
-   // break;
-  end; (* *)
-
- (* Delete(output, Length(output), 1);  // Удаление последнего пробела в строке *)
-
-  Result := output;
-end;         *)
 
 begin
 Setlength(D, 8);
@@ -244,9 +158,10 @@ stringToSend := Modbus.StrToHexStr('16 03 a7 80 00 05 de ad');
 Modbus.port := 'COM2'; //удалить на настройки
 
 response := Modbus.send(stringToSend);
-if (Modbus.portStatus <> 'OK') then Memo1.Append(Modbus.portStatus);
-// response := send('COM2', stringToSend);
-// response := send('COM2', D, 8);
+if (Modbus.portStatus <> 'OK')
+   then
+   Memo1.Append(Modbus.portStatus)
+   else
    Memo1.Append(response);
 end;
 
@@ -319,7 +234,9 @@ begin
  StringGrid1.Cells[8,0] := 'RunTime';
  StringGrid1.Cells[9,0] := 'Error Counter';
  StringGrid1.ColWidths[9] := 100;
- StringGrid1.Cells[10,0] := 'Version';
+ StringGrid1.Cells[10,0] := 'Temp';
+ StringGrid1.Cells[11,0] := 'Version';
+ StringGrid1.ColWidths[11] := 200;
 
 end;
 
@@ -328,6 +245,83 @@ end;
 procedure TForm1.MenuItem10Click(Sender: TObject);
 begin
  Form2.Show;
+end;
+
+procedure TForm1.MenuItem2Click(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.MenuItem6Click(Sender: TObject);
+var i, min, max, index: integer;
+  addr, cmd, stringToSend, response : string; //адрес платы HEX
+begin
+  //поиск Модулей
+  Modbus.port := 'COM2'; //увести в настройки при инициализации
+  min:= Modbus.minAddr;
+  max:= 32;
+  ProgressBar1.Min := min;
+  ProgressBar1.Max := max;
+  index:=0;
+  for i:= min to max do
+
+      begin
+          addr := IntToHex(i, 2);
+          ProgressBar1.Position := i;
+          cmd := addr + ' 03 a7 80 00 05 de ad';
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          if (Modbus.portStatus <> 'OK')
+             then
+                 begin
+              //   Memo1.Append(Modbus.portStatus);
+                 end
+             else
+                 begin
+                     Memo1.Append(response);
+                     index += 1;
+                     StringGrid1.RowCount:=index + 1;
+                     StringGrid1.Cells[0, index] := IntToStr(index);
+                     StringGrid1.Cells[2, index] := IntToStr(i); //Addr;
+                     StringGrid1.Objects[1, index]:=TCheckBox.Create(StringGrid1);
+                     TCheckBox(StringGrid1.Objects[1, index]).Parent:=StringGrid1;
+                     TCheckBox(StringGrid1.Objects[1, index]).Left := StringGrid1.CellRect(1, index).Left + 15;
+                     TCheckBox(StringGrid1.Objects[1, index]).Top := StringGrid1.CellRect(1, index).Top;
+                     TCheckBox(StringGrid1.Objects[1, index]).Checked:= True;
+
+                     //чтение времени наработки платы
+                     cmd := Modbus.cmd(addr, 'getRunningTime', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[8, index] := IntToStr(Modbus.RRRuningTime(response));
+                     //версия платы
+                     cmd := Modbus.cmd(addr, 'getVersion', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[11, index] := Modbus.RRVersion(response);
+
+                     //тип кабеля
+                     cmd := Modbus.cmd(addr, 'getConnectionType', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[4, index] := Modbus.RRConnectionType(response);
+                      //Температура
+                     cmd := Modbus.cmd(addr, 'getTemperature', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[10, index] := Modbus.RRTemperature(response);
+                 end
+
+
+      end;
 end;
 
 procedure TForm1.MenuItem9Click(Sender: TObject);
@@ -348,6 +342,19 @@ end; *)
 procedure TForm1.MenuItem4Click(Sender: TObject);
 begin
 
+end;
+
+procedure TForm1.StringGrid1Click(Sender: TObject);
+var row, col: integer;
+  res: string;
+begin
+  row := StringGrid1.Row;
+  col := StringGrid1.Col;
+  if ((row > 0) and (col = 1)) then
+          if TCheckBox(StringGrid1.Objects[col, row]).Checked
+          then res := 'checked'
+          else res := 'non';
+  Memo1.Append(res);
 end;
 
 (* procedure TForm1.SerialStatus(Sender: TObject; Reason: THookSerialReason;

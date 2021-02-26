@@ -18,8 +18,12 @@ type
     portStatus: string; //статус порта если не удалось подключиться для отображения
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
-    function cmd(addr, mode, command, param: string):string;
+    function cmd(addr, command, param: string):string;
     function Send(data: string): string;
+    function RRRuningTime(answer: string):integer; //определение времени наработки на отказ (RR -  Read Result)
+    function RRVersion(answer: string):string; //определение версии программы
+    function RRConnectionType(answer: string):string;
+    function RRTemperature(answer: string):string; //чтение температуры
   end;
 
 type TVerification = Object
@@ -32,16 +36,108 @@ var
 
 implementation
 
+function TModbus.RRVersion(answer: string):string;
+var res: string;
+   str, version : string;
+   H, Y, m, d, i, s: string;
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<14) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+   version := 'Ver: ' + Copy(str, 21, 2);
 
-function TModbus.cmd(addr, mode, command, param: string):string;
+   Y := copy(str, 3 * 2 + 1, 4); //год выпуска платы
+   m := copy(str, 5 * 2 + 1, 2); //месяц выпуска
+   d := copy(str, 6 * 2 + 1, 2); //день выпуска платы
+   s := copy(str, 9 * 2 + 1, 2); //время в секундах сборки платы
+   i := copy(str, 8 * 2 + 1, 2); //время в минутах
+   H := copy(str, 7 * 2 + 1, 2); //время в часах
+   res := version + ' inst: ' + Y + '-' + m + '-' + d + ' ' + H + ':' + i + ':' + s;
+     Result := res;
+end;
+
+function TModbus.RRRuningTime(answer: string):integer;
+var i, res: integer;
+   str, s : string;
+
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<14) then
+      begin
+           res := 0;
+           Exit; //ошибка чтения ответа
+      end;
+   s := '';
+   for i:= 6 downto 3 do
+     s += Copy(str, i * 2 + 1, 2);
+     val('$' + s, res, i);
+        if (i <> 0) then res := 0;
+     Result := res;
+end;
+
+function TModbus.RRConnectionType(answer: string):string;
+//определение типа кабеля подключения
+var i: integer;
+   res, str, s : string;
+
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<8) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+   s := Copy(str, 3 * 2 + 1, 4);
+   res := 'UNDEF';
+   case s of
+     '5001' : res := 'IDT1';
+     '5002' : res := 'IDT2';
+     '5003' : res := 'IDT3';
+     '5004' : res := 'IDT4';
+     'FFFF' : res := 'UNKNOWN';
+     end;
+     Result := res;
+end;
+
+function TModbus.RRTemperature(answer: string):string;
+//определение температуры АЦП
+var i: integer;
+    d: Extended;
+   res, str, s, s1 : string;
+
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<8) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+   s := Copy(str, 7 * 2 + 1, 8);
+   s1 := Copy(str, 11 * 2 + 1, 4);
+   d := StrToFloat(s + ',' + s1);
+   res := FloatToStr((d - 122400) / 420 + 25);
+   res := Copy(res, 0, 5);
+   Result := res;
+end;
+
+
+function TModbus.cmd(addr, command, param: string):string;
 var
    res : string;
 begin
  //библиотека комманд к контроллеру по заданному адресу - без выполнения и HEX подготовки
- res := addr + ' ' + mode;
+ res := addr;
      case command of
      'temp': res := 'AA BB';
+     'getRunningTime': res += ' 03 01 C0 00 02';   //время наработки на отказ
+     'getVersion': res += ' 03 02 00 00 04'; //запрос на чтение версии ПО и времени сборки
+     'getConnectionType': res += ' 03 11 00 00 01';
+     'getTemperature': res += ' 03 AB B0 00 05'; //температура АЦП
      end;
+     res += ' DE AD'; //конец слова команды
      Result := res;
 end;
 
