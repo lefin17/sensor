@@ -5,7 +5,7 @@ unit core;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, dateutils, strutils, LazSynaSer;
 
 type
   TModbus = class
@@ -15,9 +15,11 @@ type
     port: string; //номер порта
     speed: integer;
     minAddr: integer; //минимальный адрес для начала поиска на плате
+    portStatus: string; //статус порта если не удалось подключиться для отображения
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
     function cmd(addr, mode, command, param: string):string;
+    function Send(data: string): string;
   end;
 
 type TVerification = Object
@@ -85,6 +87,104 @@ begin
  end;
  Result := output;
 end;
+
+function TModbus.send(data: string): string;
+//function send(port: string; data: pointer; len: integer): string;
+const
+  recvTimeout = 200; // время ожидания ответа от устройства
+var
+  ComPort: TBlockSerial;
+  resp: Array of byte;
+  i: byte;
+  waiting: integer;
+  dtStart: TDateTime;
+  has_timed_out: boolean;
+  output: string;
+
+begin
+  PortStatus := 'Empty';
+  ComPort := TBlockSerial.Create;
+  try
+    ComPort.Connect(port);
+    if ComPort.LastError > 0 then
+    begin
+      PortStatus := 'Couldn''t connect to port';
+      Exit;
+    end;
+    ComPort.Config(115200, 8, 'N', SB1, false, false);
+    if ComPort.LastError > 0 then
+    begin
+      PortStatus := 'Couldn''t connect to port';
+      Exit;
+    end;
+   ComPort.SendString(data);
+ //     ComPort.SendBuffer(data, len);
+    if ComPort.LastError > 0 then
+    begin
+      PortStatus := 'No data to send';
+      Exit;
+    end;
+
+    output := '';
+    while 1 = 1 do
+    begin
+      // начинаем ждать ответа
+      dtStart := Now;
+      has_timed_out := false;
+      while ComPort.WaitingData = 0 do
+      begin
+        if MilliSecondsBetween(dtStart, Now) > recvTimeout then
+        begin
+          has_timed_out := true;
+          break;
+        end;
+        sleep(200);
+      end;
+
+      if has_timed_out then
+      begin
+        PortStatus := 'NO RESPONCE';
+        break; // выход - в буфере ничего нет
+      end;
+
+      waiting := ComPort.WaitingData;
+     // Memo1.Append('waiting: ' + IntToStr(waiting));
+      SetLength(resp, waiting);
+
+    for i := 0 to Length(resp) - 1 do
+    begin
+      resp[i] := ComPort.RecvByte(2000);
+    end;
+
+    if ComPort.LastError > 0 then
+    begin
+      PortStatus := 'ERROR Recieve data';
+      Exit;
+    end;
+    end;
+
+  finally
+    ComPort.free;
+  end;
+//    Memo1.Append('Length of resp - ' + IntToStr(Length(resp)));
+ output := '';
+ if Length(resp)>0 then
+ begin
+  PortStatus:='OK';
+ for i := 0 to Length (resp) - 1 do
+  begin
+    output += IntToHex(resp[i], 2) + ' ';  // Строка hex значений, разделённая пробелами
+   // break;
+  end; (* *)
+ end;
+ (* Delete(output, Length(output), 1);  // Удаление последнего пробела в строке *)
+
+  Result := output;
+end;
+
+//end;
+
+
 
 end.
 

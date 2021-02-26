@@ -21,6 +21,7 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
     ComboBox1: TComboBox;
  //   DataPortSerial1: TDataPortSerial;
 // Serial: TBlockSerial;
@@ -43,6 +44,7 @@ type
 
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
     procedure DataPortSerial1Close(Sender: TObject);
     procedure DataPortSerial1DataAppear(Sender: TObject);
     procedure DataPortSerial1Error(Sender: TObject; const AMsg: string);
@@ -139,95 +141,7 @@ var
   D: array of byte;
 
 
-function send(port: string; data: string): string;
-//function send(port: string; data: pointer; len: integer): string;
-const
-  recvTimeout = 2000; // время ожидания ответа от устройства
-var
-  ComPort: TBlockSerial;
-  resp: Array of byte;
-  i: byte;
-  waiting: integer;
-  dtStart: TDateTime;
-  has_timed_out: boolean;
-  output: string;
 
-begin
-  ComPort := TBlockSerial.Create;
-  try
-    ComPort.Connect(port);
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'Couldn''t connect to port';
-      Exit;
-    end;
-    ComPort.Config(115200, 8, 'N', SB1, false, false);
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'Couldn''t connect to port';
-      Exit;
-    end;
-   ComPort.SendString(data);
- //     ComPort.SendBuffer(data, len);
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'No data to send';
-      Exit;
-    end;
-
-    output := '';
-    while 1 = 1 do
-    begin
-      // начинаем ждать ответа
-      dtStart := Now;
-      has_timed_out := false;
-      while ComPort.WaitingData = 0 do
-      begin
-        if MilliSecondsBetween(dtStart, Now) > recvTimeout then
-        begin
-          has_timed_out := true;
-          break;
-        end;
-        sleep(200);
-      end;
-
-      if has_timed_out then
-      begin
-        StatusBar1.SimpleText := 'No responce';
-        break; // выход - в буфере ничего нет
-      end;
-
-      waiting := ComPort.WaitingData;
-     Memo1.Append('waiting: ' + IntToStr(waiting));
-    SetLength(resp, waiting);
-
-    for i := 0 to Length(resp) - 1 do
-    begin
-      resp[i] := ComPort.RecvByte(2000);
-    end;
-
-    if ComPort.LastError > 0 then
-    begin
-      StatusBar1.SimpleText := 'Ошибка приёма данных';
-      Exit;
-    end;
-    end;
-
-  finally
-    ComPort.free;
-  end;
-  Memo1.Append('Length of resp - ' + IntToStr(Length(resp)));
- output := '';
- for i := 0 to Length (resp) - 1 do
-  begin
-    output += IntToHex(resp[i], 2) + ' ';  // Строка hex значений, разделённая пробелами
-   // break;
-  end; (* *)
-
- (* Delete(output, Length(output), 1);  // Удаление последнего пробела в строке *)
-
-  Result := output;
-end;
 
 begin
 Setlength(D, 8);
@@ -239,9 +153,19 @@ Setlength(D, 8);
 // stringToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
 // stringToSend := $16 + $03 + $a7 + $80 + $00 + $05 + $de + $ad;
 stringToSend := Modbus.StrToHexStr('16 03 a7 80 00 05 de ad');
- response := send('COM2', stringToSend);
+Modbus.port := 'COM2'; //удалить на настройки
+
+response := Modbus.send(stringToSend);
+if (Modbus.portStatus <> 'OK') then Memo1.Append(Modbus.portStatus);
+// response := send('COM2', stringToSend);
 // response := send('COM2', D, 8);
    Memo1.Append(response);
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+//  StringGrid1.RowCount := 2;
+ //поиск на шине modbus плат отвечающих на запрос
 end;
 
 
@@ -295,6 +219,20 @@ begin
  ExtractFilePath(Application.EXEName) + 'SerTest.ini');
 {$ENDIF}
  // EditDevice.Text := DataPortSerial1.Port;
+ StringGrid1.Cells[0,0] := 'Index';
+ StringGrid1.Cells[1,0] := 'Affect';
+ StringGrid1.Cells[2,0] := 'Address';
+ StringGrid1.Cells[3,0] := 'Serial Number';
+ StringGrid1.ColWidths[3] := 100;
+ StringGrid1.Cells[4,0] := 'Type';
+ StringGrid1.Cells[5,0] := 'PGA';
+ StringGrid1.Cells[6,0] := 'SPS';
+ StringGrid1.Cells[7,0] := 'FIR';
+ StringGrid1.Cells[8,0] := 'RunTime';
+ StringGrid1.Cells[9,0] := 'Error Counter';
+ StringGrid1.ColWidths[9] := 100;
+ StringGrid1.Cells[10,0] := 'Version';
+
 end;
 
 

@@ -51,7 +51,7 @@ procedure TForm2.FormCreate(Sender: TObject);
 
 begin
 
-Modbus := TModbus.Create;   //создание объекта класса...
+Modbus := TModbus.Create;   //создание объекта класса modbus...
 
 IniFile := TIniFile.Create('settings.ini');
 

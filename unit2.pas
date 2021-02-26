@@ -24,6 +24,7 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    procedure ComboBox4Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Label4Click(Sender: TObject);
   private
@@ -62,6 +63,11 @@ Modbus.minAddr := StrToInt(IniFile.ReadString('Modbus', 'minAddr', '10'));
 Verification.N := StrToInt(IniFile.ReadString('Verification', 'Attemts', '5'));
 
 IniFile.Free;
+end;
+
+procedure TForm2.ComboBox4Change(Sender: TObject);
+begin
+  Modbus.minAddr := StrToInt(ComboBox4.Caption);
 end;
 
 end.
