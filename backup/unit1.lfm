@@ -34,7 +34,7 @@ object Form1: TForm1
     Height = 560
     Top = 8
     Width = 984
-    ColCount = 11
+    ColCount = 12
     RowCount = 1
     ScrollBars = ssVertical
     TabOrder = 2
@@ -102,6 +102,23 @@ object Form1: TForm1
     Top = 576
     Width = 513
     TabOrder = 9
+  end
+  object Button5: TButton
+    Left = 672
+    Height = 25
+    Top = 620
+    Width = 75
+    Caption = 'Agilent'
+    OnClick = Button5Click
+    TabOrder = 10
+  end
+  object Button6: TButton
+    Left = 674
+    Height = 25
+    Top = 656
+    Width = 75
+    Caption = 'Button6'
+    TabOrder = 11
   end
   object MainMenu1: TMainMenu
     Left = 912

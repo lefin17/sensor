@@ -103,6 +103,23 @@ object Form1: TForm1
     Width = 513
     TabOrder = 9
   end
+  object Button5: TButton
+    Left = 672
+    Height = 25
+    Top = 620
+    Width = 75
+    Caption = 'Agilent'
+    OnClick = Button5Click
+    TabOrder = 10
+  end
+  object Button6: TButton
+    Left = 674
+    Height = 25
+    Top = 656
+    Width = 75
+    Caption = 'Button6'
+    TabOrder = 11
+  end
   object MainMenu1: TMainMenu
     Left = 912
     Top = 605

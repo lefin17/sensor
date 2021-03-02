@@ -7,10 +7,13 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, Grids,
   CheckLst, ExtCtrls, PairSplitter, ComCtrls, LazSerial, Unit2, inifiles,
-  lazsynaser, core,
+  simpleipc, lazsynaser,
+  // DataPortIP,
+  core,
   //DataPortSerial,
   // DataPort,
-  strutils, dateutils;
+  strutils, dateutils,
+  blcksock;
 
 type
 
@@ -21,6 +24,8 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
     ComboBox1: TComboBox;
  //   DataPortSerial1: TDataPortSerial;
 // Serial: TBlockSerial;
@@ -48,6 +53,7 @@ type
     procedure DataPortSerial1DataAppear(Sender: TObject);
     procedure DataPortSerial1Error(Sender: TObject; const AMsg: string);
     procedure DataPortSerial1Open(Sender: TObject);
+    procedure DataPortTCP1Close(Sender: TObject);
     procedure DrawGrid1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -166,9 +172,61 @@ if (Modbus.portStatus <> 'OK')
 end;
 
 procedure TForm1.Button5Click(Sender: TObject);
+//прием данных с Agilent
+var ip: string;
+    Agilent: TBlockSocket;
+    value, cmd: string;
+    var clientBuffer: array of byte;
 begin
-//  StringGrid1.RowCount := 2;
- //поиск на шине modbus плат отвечающих на запрос
+
+(*
+ https://bravikov.wordpress.com/2015/05/18/%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0-%D1%81-%D0%BC%D1%83%D0%BB%D1%8C%D1%82%D0%B8%D0%BC%D0%B5%D1%82%D1%80%D0%BE%D0%BC-agilent-34410a-%D0%BD%D0%B0-%D0%BF%D0%B8%D1%82%D0%BE%D0%BD%D0%B5/
+#python
+ # Установить режим измерения: переменное напряжение
+ s.send(b'CONFigure:VOLTage:AC\n')
+
+
+ # Запустить измерение
+ s.send(b'*TRG\n')
+
+ # Включить ожидание запуска
+ s.send(b'INITiate\n')
+ # Передать измерение
+ s.send(b'FETCh?\n')
+
+ # Получить и отобразить измерение
+ value = s.recv(100).decode('utf-8')
+ print(value) *)
+Agilent := TBlockSocket.Create;
+Agilent.Connect('192.168.103.103', '5025');  //подключение к Agilent
+Memo1.Append(IntToStr(Agilent.LastError));
+
+Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
+cmd :=  'DISP: TEXT "WAITING"\n';
+
+//clientBuffer := Encoding.Utf8Encode(cmd);
+//Agilent.SendBuffer(clientBuffer, Length(clientBuffer));
+Agilent.Free;
+Exit;
+Agilent.SendString('CONFigure:VOLTage:DC' + #10);
+Memo1.Append(IntToStr(Agilent.LastError));
+
+//# Настроить запуска измерения по команде '*TRG'
+Agilent.SendString('TRIGger:SOURce BUS' + #10);
+Memo1.Append(IntToStr(Agilent.LastError));
+
+Agilent.SendString('INITiate' + #10);  //Включить ожидание запуска
+Memo1.Append(IntToStr(Agilent.LastError));
+
+Agilent.SendString('*TRG'  + #10);
+Memo1.Append(IntToStr(Agilent.LastError));
+
+//#
+Agilent.SendString('FETCh?'  + #10) ; //Передать измерение
+
+value := Agilent.RecvBufferStr(1000, 1000);
+Memo1.Append(value);
+Agilent.Free;
 end;
 
 
@@ -194,6 +252,11 @@ end;
 procedure TForm1.DataPortSerial1Open(Sender: TObject);
 begin
   StatusBar1.SimpleText := 'Port connected';
+end;
+
+procedure TForm1.DataPortTCP1Close(Sender: TObject);
+begin
+
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
