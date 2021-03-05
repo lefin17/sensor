@@ -26,6 +26,11 @@ type
     function RRTemperature(answer: string):string; //чтение температуры
   end;
 
+type TAgilent = class
+     ip: string;
+     function getCommand(cmd: string):string;
+     end;
+
 type TVerification = Object
      N: integer; //число точек поверки на все модули
      end;
@@ -33,8 +38,29 @@ type TVerification = Object
 var
    Modbus: TModbus;    //работа с Com и шиной Modbus
    Verification: TVerification;  //объект по работе с поверкой модулей
+   Agil: TAgilent;
 
 implementation
+
+function TAgilent.getCommand(cmd: string):string;
+var
+clientBuffer: array of Bytes;
+I: integer;
+output: string;
+begin
+  clientBuffer := TEncoding.UTF8.GetBytes(cmd);
+  Agil := TAgilent.Create;
+
+
+I := 0;
+output := '';
+  while (I <= High(clientBuffer)) do
+  begin
+    output := output + chr(clientBuffer[I]);
+    Inc(I);
+  end;
+  Result := output;
+end;
 
 function TModbus.RRVersion(answer: string):string;
 var res: string;
@@ -117,7 +143,7 @@ begin
       end;
    s := Copy(str, 7 * 2 + 1, 8);
    s1 := Copy(str, 11 * 2 + 1, 4);
-   d := StrToFloat(s + '.' + s1);
+   d := StrToFloat(s + ',' + s1);
    res := FloatToStr((d - 122400) / 420 + 25);
    res := Copy(res, 0, 5);
    Result := res;

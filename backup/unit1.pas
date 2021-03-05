@@ -49,6 +49,7 @@ type
   //  procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
     procedure DataPortSerial1Close(Sender: TObject);
     procedure DataPortSerial1DataAppear(Sender: TObject);
     procedure DataPortSerial1Error(Sender: TObject; const AMsg: string);
@@ -158,7 +159,7 @@ Setlength(D, 8);
 // -> good
 // stringToSend := Chr($16) + Chr($03) + Chr($a7) + Chr($80) + Chr($00) + Chr($05) + Chr($de) + Chr($ad);  // Modbus-запрос
 // ID номер модуля
-// stringToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
+// str ingToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
 // stringToSend := $16 + $03 + $a7 + $80 + $00 + $05 + $de + $ad;
 stringToSend := Modbus.StrToHexStr('16 03 a7 80 00 05 de ad');
 Modbus.port := 'COM2'; //удалить на настройки
@@ -174,9 +175,14 @@ end;
 procedure TForm1.Button5Click(Sender: TObject);
 //прием данных с Agilent
 var ip: string;
-    Agilent: TBlockSocket;
+    Agilent: TTCPBlockSocket;
+    ms: TMemoryStream;
     value, cmd: string;
     var clientBuffer: array of byte;
+    I: integer;
+    output : string;
+    b: Byte;
+//    Buffer: TMemory;
 begin
 
 (*
@@ -197,35 +203,76 @@ begin
  # Получить и отобразить измерение
  value = s.recv(100).decode('utf-8')
  print(value) *)
-Agilent := TBlockSocket.Create;
+Agilent := TTCPBlockSocket.Create;
+ms:=TMemoryStream.Create;
 Agilent.Connect('192.168.103.103', '5025');  //подключение к Agilent
 Memo1.Append(IntToStr(Agilent.LastError));
 
 Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
-cmd :=  'DISP: TEXT "WAITING"\n';
+//cmd :=  'DISP: TEXT "WAITING"' + #10;
+//output := Agil.getCommand(cmd);
+//clientBuffer := TEncoding.UTF8.GetBytes(cmd);
+//Memo1.Append(IntToStr(Length(clientBuffer)));
 
-clientBuffer := Encoding.Utf8Encode(cmd);
-Agilent.SendBuffer(clientBuffer, Length(clientBuffer));
-Agilent.Free;
-Exit;
-Agilent.SendString('CONFigure:VOLTage:DC' + #10);
+//I := 0;
+//output := '';
+//  while (I <= High(clientBuffer)) do
+//  begin
+//    output := output + chr(clientBuffer[I]);
+//    Inc(I)
+//  end;
+//Agilent.SendString(output);
+//Agilent.Free;
+//Exit;
+Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
 
 //# Настроить запуска измерения по команде '*TRG'
-Agilent.SendString('TRIGger:SOURce BUS' + #10);
+Agilent.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
 
-Agilent.SendString('INITiate' + #10);  //Включить ожидание запуска
+Agilent.SendString(Agil.getCommand('INITiate' + #10));  //Включить ожидание запуска
 Memo1.Append(IntToStr(Agilent.LastError));
 
-Agilent.SendString('*TRG'  + #10);
+Agilent.SendString(Agil.getCommand('*TRG'  + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
+ sleep(500);
+ Agilent.SendString(Agil.getCommand('R?' + #10));
+Memo1.Append('Error after R command: ' + IntToStr(Agilent.LastError));
 
+value := Agilent.RecvPacket(1000);
 //#
-Agilent.SendString('FETCh?'  + #10) ; //Передать измерение
+//Agilent.SendString(Agil.getCommand('FETCh?'  + #10)) ; //Передать измерение
 
-value := Agilent.RecvBufferStr(1000, 1000);
-Memo1.Append(value);
+// b := Agilent.RecvByte(1000);
+// value := chr(b);
+Memo1.Append('Error after byte recive: ' + IntToStr(Agilent.LastError));
+// value := Agilent.RecvBufferStr(1000, 1000);
+
+Memo1.Append('value: ' + IntToStr(Length(value)) + ' :' +  value + ': v');
+Agilent.Free;
+end;
+
+procedure TForm1.Button6Click(Sender: TObject);
+    var ip: string;
+        Agilent: TTCPBlockSocket;
+        ms: TMemoryStream;
+        value, cmd: string;
+        var clientBuffer: array of byte;
+        I: integer;
+        output : string;
+        b: byte;
+ begin
+
+Agilent := TTCPBlockSocket.Create;
+// ms := TMemoryStream.Create;
+Agilent.Connect('192.168.103.103', '5025');  //подключение к Agilent
+Memo1.Append(IntToStr(Agilent.LastError));
+Agilent.SendString(Agil.getCommand('R?' + #10));
+value := Agilent.RecvPacket(1000);
+output := UTF8decode(value);
+//value := Agilent.RecvBufferStr(1000, 1000);
+Memo1.Append('value: ' + IntToStr(Length(value)) + value + ' : ' + output);
 Agilent.Free;
 end;
 
