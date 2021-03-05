@@ -49,9 +49,6 @@ I: integer;
 output: string;
 begin
   clientBuffer := TEncoding.UTF8.GetBytes(cmd);
-  Agil := TAgilent.Create;
-
-
 I := 0;
 output := '';
   while (I <= High(clientBuffer)) do

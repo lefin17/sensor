@@ -137,6 +137,7 @@ object Form2: TForm2
       '20'
       '30'
     )
+    OnChange = ComboBox4Change
     TabOrder = 5
     Text = '10'
   end

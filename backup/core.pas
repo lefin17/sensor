@@ -44,7 +44,7 @@ implementation
 
 function TAgilent.getCommand(cmd: string):string;
 var
-clientBuffer: array of Bytes;
+clientBuffer: array of Byte;
 I: integer;
 output: string;
 begin

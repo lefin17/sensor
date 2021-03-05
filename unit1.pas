@@ -204,7 +204,7 @@ begin
  value = s.recv(100).decode('utf-8')
  print(value) *)
 Agilent := TTCPBlockSocket.Create;
-ms:=TMemoryStream.Create;
+//ms:=TMemoryStream.Create;
 Agilent.Connect('192.168.103.103', '5025');  //подключение к Agilent
 Memo1.Append(IntToStr(Agilent.LastError));
 

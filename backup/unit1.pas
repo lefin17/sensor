@@ -249,7 +249,7 @@ value := Agilent.RecvPacket(1000);
 Memo1.Append('Error after byte recive: ' + IntToStr(Agilent.LastError));
 // value := Agilent.RecvBufferStr(1000, 1000);
 
-Memo1.Append('value: ' + IntToStr(Length(value)) + ' :' +  value + ': v');
+Memo1.Append(IntToStr(Length(value)) + ' value:' +  value + ': v');
 Agilent.Free;
 end;
 

@@ -53,7 +53,7 @@ procedure TForm2.FormCreate(Sender: TObject);
 begin
 
 Modbus := TModbus.Create;   //создание объекта класса modbus...
-
+Agil := TAgilent.Create;
 IniFile := TIniFile.Create('settings.ini');
 
 Modbus.speed := StrToInt(IniFile.ReadString('Modbus', 'Speed', '115200'));
