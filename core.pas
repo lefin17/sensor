@@ -24,6 +24,9 @@ type
     function RRVersion(answer: string):string; //определение версии программы
     function RRConnectionType(answer: string):string;
     function RRTemperature(answer: string):string; //чтение температуры
+    function RRErrors(answer: string):string; //чтение ошибок на плате
+    function dec_to_bin(dec: LongInt): LongInt; //перевод из DEC в BINARY(INT)
+    function bin_to_dec(bin: LongInt): LongInt; //перевод из BINARY (INT) в DEC
   end;
 
 type TAgilent = class
@@ -125,6 +128,23 @@ begin
      Result := res;
 end;
 
+function TModbus.RRErrors(answer: string):string;
+//чтение ошибок на выбранной плате
+var i: integer;
+    d: Extended;
+   res, str, s, s1 : string;
+
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<8) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+   res := 'чтение ошибок на плате';
+   Result := res;
+end;
+
 function TModbus.RRTemperature(answer: string):string;
 //определение температуры АЦП
 var i: integer;
@@ -159,9 +179,45 @@ begin
      'getVersion': res += ' 03 02 00 00 04'; //запрос на чтение версии ПО и времени сборки
      'getConnectionType': res += ' 03 11 00 00 01';
      'getTemperature': res += ' 03 AB B0 00 05'; //температура АЦП
+     'getErrors': res += ' 03 01 00 00 01'; //чтение ошибок
+     'resetErrors': res += ' 06 01 00 00 00'; // сброс ошибок
+     'setNORM': res += ' 06 10 00 00 00'; //перевод в режим NORM
+     'setEXEC': res += ' 06 10 00 00 01'; //перевод в режим EXEC
      end;
      res += ' DE AD'; //конец слова команды
      Result := res;
+end;
+
+
+function TModbus.dec_to_bin(dec: longInt): longInt;
+var
+  bin, rank, modulo: longInt;
+begin
+  bin := 0;
+  rank := 1;
+  while dec > 0 do
+  begin
+    modulo := dec mod 2;
+    dec := dec div 2;
+    bin := bin + modulo * rank;
+    rank := rank * 10;
+  end;
+  result := bin;
+end;
+
+function TModbus.bin_to_dec(bin: LongInt): LongInt;
+var dec, two, rank: LongInt;
+begin
+  two := 1;
+  dec := 0;
+  while bin > 0 do
+  begin
+    rank := bin mod 10;
+    bin := bin div 10;
+    dec := dec + rank * two;
+    two := two * 2;
+  end;
+  result := dec;
 end;
 
 function TModbus.replace(text, s_old, s_new: string):string;

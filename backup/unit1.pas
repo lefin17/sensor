@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, Grids,
-  CheckLst, ExtCtrls, PairSplitter, ComCtrls, LazSerial, Unit2, inifiles,
+  CheckLst, ExtCtrls, PairSplitter, ComCtrls, LazSerial, Unit2, unit3, inifiles,
   simpleipc, lazsynaser,
   // DataPortIP,
   core,
@@ -26,6 +26,7 @@ type
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
+    Button7: TButton;
     ComboBox1: TComboBox;
  //   DataPortSerial1: TDataPortSerial;
 // Serial: TBlockSerial;
@@ -50,6 +51,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
     procedure DataPortSerial1Close(Sender: TObject);
     procedure DataPortSerial1DataAppear(Sender: TObject);
     procedure DataPortSerial1Error(Sender: TObject; const AMsg: string);
@@ -276,6 +278,16 @@ Memo1.Append('value: ' + IntToStr(Length(value)) + value + ' : ' + output);
 Agilent.Free;
 end;
 
+procedure TForm1.Button7Click(Sender: TObject);
+var a: integer;
+    res: longint;
+
+begin
+    a := 24;
+    res := Modbus.dec_to_bin(StrToInt('$' + IntToStr(a));
+    Memo1.Append(IntToStr(res));
+end;
+
 
 procedure TForm1.DataPortSerial1Close(Sender: TObject);
 begin
@@ -458,12 +470,20 @@ procedure TForm1.StringGrid1Click(Sender: TObject);
 var row, col: integer;
   res: string;
 begin
+  res := '';
   row := StringGrid1.Row;
   col := StringGrid1.Col;
   if ((row > 0) and (col = 1)) then
           if TCheckBox(StringGrid1.Objects[col, row]).Checked
           then res := 'checked'
           else res := 'non';
+  if ((row > 0) and (col = 9)) then
+     begin
+       //read errors and reset error function
+       Form3.getAddr(StrToInt(StringGrid1.cells[2, row]));
+
+       Form3.show;
+     end;
   Memo1.Append(res);
 end;
 
