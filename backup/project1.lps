@@ -32,7 +32,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit2"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <TopLine Value="35"/>
         <CursorPos X="25" Y="56"/>
@@ -43,8 +42,9 @@
       <Unit3>
         <Filename Value="core.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="5"/>
-        <TopLine Value="16"/>
+        <TopLine Value="28"/>
         <CursorPos Y="52"/>
         <UsageCount Value="47"/>
         <Loaded Value="True"/>

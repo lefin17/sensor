@@ -205,7 +205,7 @@ begin
  print(value) *)
 Agilent := TTCPBlockSocket.Create;
 //ms:=TMemoryStream.Create;
-Agilent.Connect('192.168.103.103', '5025');  //подключение к Agilent
+Agilent.Connect('192.168.103.102', '5025');  //подключение к Agilent
 Memo1.Append(IntToStr(Agilent.LastError));
 
 Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
@@ -266,7 +266,7 @@ procedure TForm1.Button6Click(Sender: TObject);
 
 Agilent := TTCPBlockSocket.Create;
 // ms := TMemoryStream.Create;
-Agilent.Connect('192.168.103.103', '5025');  //подключение к Agilent
+Agilent.Connect('192.168.103.102', '5025');  //подключение к Agilent
 Memo1.Append(IntToStr(Agilent.LastError));
 Agilent.SendString(Agil.getCommand('R?' + #10));
 value := Agilent.RecvPacket(1000);
@@ -458,6 +458,7 @@ procedure TForm1.StringGrid1Click(Sender: TObject);
 var row, col: integer;
   res: string;
 begin
+  res := '';
   row := StringGrid1.Row;
   col := StringGrid1.Col;
   if ((row > 0) and (col = 1)) then
