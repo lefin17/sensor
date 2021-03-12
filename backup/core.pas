@@ -14,6 +14,15 @@ type
     items: array[0..256] of byte; //массив объектов найденых на шине
     port: string; //номер порта
     speed: integer;
+    tempWord: string; //пробная строка для отладки ответа
+    tempWordPGA: string; //пробная строка для отладки ответа (PGA)
+
+    SPS: integer; //частота чтения в битной сетке текущего адаптера, далее должно записываться в объект платы
+    PGA: integer; //усилитель в битной сетке
+    ByPass : integer; //включен ли обход усилителя на текущей плате (по которой идет опрос)
+    Filter: integer; //фильтр в битной сетке
+    ADSAnswer: string; //ответ по текущему ADS (системе АЦП на текущей плате)
+
     minAddr: integer; //минимальный адрес для начала поиска на плате
     portStatus: string; //статус порта если не удалось подключиться для отображения
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
@@ -23,10 +32,13 @@ type
     function RRRuningTime(answer: string):integer; //определение времени наработки на отказ (RR -  Read Result)
     function RRVersion(answer: string):string; //определение версии программы
     function RRConnectionType(answer: string):string;
+    procedure RRAds(answer: string); //чтение ответа от ADS
     function RRTemperature(answer: string):string; //чтение температуры
     function RRErrors(answer: string):string; //чтение ошибок на плате
-    function dec_to_bin(dec: LongInt): longInt; //перевод из DEC в BINARY(INT)
+    function dec_to_bin(dec: LongInt): LongInt; //перевод из DEC в BINARY(INT)
     function bin_to_dec(bin: LongInt): LongInt; //перевод из BINARY (INT) в DEC
+    function trPGA(code: LongInt):integer;
+    function trSPS(code: LongInt):Double;
   end;
 
 type TAgilent = class
@@ -60,6 +72,88 @@ output := '';
     Inc(I);
   end;
   Result := output;
+end;
+
+function TModbus.trSPS(code: LongInt):Double;
+var ans : Double;
+begin
+  case code of
+       0: ans:=2.5;
+       1: ans:= 5;
+       10: ans:=10;
+       11: ans:= 16.6;
+       100: ans:=20;
+       101: ans:= 50;
+       110: ans:= 60;
+       111: ans:=100;
+       1000: ans:= 400;
+       1001: ans:= 1200;
+       1010: ans:= 2400;
+       1011: ans:= 4800;
+       1100: ans:= 7200;
+       1101: ans:=14400;
+       1110: ans:=19200;
+       1111: ans:= 25600;
+  end;
+  if (code >= 10000) then ans := 40000;
+  Result:=ans;
+end;
+
+function TModbus.trPGA(code: integer):integer;
+//коэффициенты усиления PGA (Program Gain Amplifier)
+var ans: integer;
+begin
+   case code of
+      0: ans:= 1;
+      1: ans:= 2;
+      10: ans:= 4;
+      11: ans:= 8;
+      100: ans:= 16;
+      101: ans:= 32;
+      110: ans:= 64;
+      111: ans:= 128;
+   end;
+ Result:= ans;
+end;
+
+procedure TModbus.RRAds(answer: string);
+//чтение параметров системы АЦП на текущей плате
+var res: string;
+   i: integer;
+   tmp : string;
+   DR : LongInt; //DataRate
+   FR : LongInt;
+   str: string;
+   word : string;
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<14) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+
+   for i := 0 to 12 do
+    begin
+      word := copy(str, i * 4 + 9, 2);
+ //     tempWord := answer + '-' + word;
+    //  Exit;
+      case i of
+         2: begin
+            DR:=round(dec_to_bin(StrToInt('$' + word))/EXP(3*LN(10)));
+            FR:=round(dec_to_bin(StrToInt('$' + word))) - DR * 1000;
+            SPS := DR;
+            Filter := FR;
+            tempWord := word;
+         end;
+         16: begin
+           ByPass := round(dec_to_bin(StrToInt('$' + word))/EXP(7 * LN(10)));
+           PGA:=round(dec_to_bin(StrToInt('$' + word))) - 1000000*ByPass;
+           tempWordPGA := word;
+         end;
+      end;
+    end;
+
 end;
 
 function TModbus.RRVersion(answer: string):string;
@@ -183,6 +277,7 @@ begin
      'resetErrors': res += ' 06 01 00 00 00'; // сброс ошибок
      'setNORM': res += ' 06 10 00 00 00'; //перевод в режим NORM
      'setEXEC': res += ' 06 10 00 00 01'; //перевод в режим EXEC
+     'getADS' : res += ' 03 0A 00 00 13'; //чтение всех настроек ADS
      end;
      res += ' DE AD'; //конец слова команды
      Result := res;

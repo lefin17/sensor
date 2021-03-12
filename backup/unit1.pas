@@ -80,6 +80,10 @@ type
 
   end;
 
+const
+  _PGA_ = 5;  //столбец усилителя в таблице
+  _SPS_ = 6;  //столбец частоты чтения в таблице
+
 var
   Form1: TForm1;
   IniFile: TiniFile;
@@ -119,31 +123,7 @@ end;
 
 
 
-(* procedure TForm1.Button3Click(Sender: TObject);
-var A: string;
-    D: array of byte;
-begin
-  A := '$16$03$a7$80$00$05$de$ad';
 
-  A := '$16$03$a7$80$00$05$de$ad';
-  A := '16 03 a7 80 00 05 de ad';
-  Memo1.Append(A);
-  Memo1.Append(Modbus.StrToHexStr(A));
-  Setlength(D, 8);
-  D[0] := $16;
-  D[1] := $03;
-  D[2] := $A7;
-  D[3] := $80;
-  D[4] := $00;
-  D[5] := $05;
-  D[6] := $DE;
-  D[7] := $AD;
-
-
-  Timer1.Enabled := True;
-//  Serial.Close;
-
-end; *)
 
 procedure TForm1.Button4Click(Sender: TObject);
 var
@@ -284,7 +264,7 @@ var a: integer;
 
 begin
     a := 24;
-    res := Modbus.dec_to_bin(StrToInt('$' + IntToStr(a));
+    res := Modbus.dec_to_bin(StrToInt('$' + IntToStr(a)));
     Memo1.Append(IntToStr(res));
 end;
 
@@ -350,8 +330,8 @@ begin
  StringGrid1.Cells[3,0] := 'Serial Number';
  StringGrid1.ColWidths[3] := 100;
  StringGrid1.Cells[4,0] := 'Type';
- StringGrid1.Cells[5,0] := 'PGA';
- StringGrid1.Cells[6,0] := 'SPS';
+ StringGrid1.Cells[_PGA_,0] := 'PGA';
+ StringGrid1.Cells[_SPS_,0] := 'SPS';
  StringGrid1.Cells[7,0] := 'FIR';
  StringGrid1.Cells[8,0] := 'RunTime';
  StringGrid1.Cells[9,0] := 'Error Counter';
@@ -440,6 +420,21 @@ begin
                      response := Modbus.send(stringToSend);
                      Memo1.Append(response);
                      StringGrid1.Cells[10, index] := Modbus.RRTemperature(response);
+                     //Запрос по ADS
+                     cmd := Modbus.cmd(addr, 'getADS', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     //печать ответов
+                     Modbus.RRAds(response);
+                     //PGA
+                     Memo1.Append(Modbus.tempWord);
+                     Memo1.Append('ans PGA: ' + Modbus.tempWordPGA);
+
+                     StringGrid1.Cells[_PGA_, index] := IntToStr(Modbus.trPGA(Modbus.PGA));
+                     StringGrid1.Cells[_SPS_, index] := IntToStr(Modbus.SPS);
+
                  end
 
 
