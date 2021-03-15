@@ -5,12 +5,15 @@ unit core;
 interface
 
 uses
-  Classes, SysUtils, dateutils, strutils, LazSynaSer;
+  Classes, SysUtils, dateutils, strutils, LazSynaSer,   blcksock;
 
 type
   TModbus = class
     fromAddress: integer; //адрес с которого проходит поиск по шине
     units: integer;  //число найденых объектов
+    selectedUnits: integer; //число выбранных для поверки плат
+    controlDots: integer; //число контрольных точек по напряжению
+    controlDotsPerDot: integer; //число контрольных снятий каждой точки
     items: array[0..256] of byte; //массив объектов найденых на шине
     port: string; //номер порта
     speed: integer;
@@ -22,7 +25,8 @@ type
     ByPass : integer; //включен ли обход усилителя на текущей плате (по которой идет опрос)
     Filter: integer; //фильтр в битной сетке
     ADSAnswer: string; //ответ по текущему ADS (системе АЦП на текущей плате)
-
+    Voltage: double;  //напряжение (нужно учесть PGA)
+    VoltageDeviation: double; //СКО среднеквадратичное отклонение //RRFir(0)
     minAddr: integer; //минимальный адрес для начала поиска на плате
     portStatus: string; //статус порта если не удалось подключиться для отображения
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
@@ -33,6 +37,7 @@ type
     function RRVersion(answer: string):string; //определение версии программы
     function RRConnectionType(answer: string):string;
     procedure RRAds(answer: string); //чтение ответа от ADS
+    function RRFir(answer: string):string; //чтение данных на филтрах АЦП
     function RRTemperature(answer: string):string; //чтение температуры
     function RRErrors(answer: string):string; //чтение ошибок на плате
     function dec_to_bin(dec: LongInt): LongInt; //перевод из DEC в BINARY(INT)
@@ -43,19 +48,111 @@ type
 
 type TAgilent = class
      ip: string;
+     Voltage: double;
+     LastResult : string;
+     LastError: integer; //последняя ошибка - если была ошибка - не принимать
      function getCommand(cmd: string):string;
+     procedure getVoltage();
+     procedure getLastError(error: integer); //забираем последнюю ошибку с Agilent если пошло всё хорошо
+     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
      end;
 
 type TVerification = Object
      N: integer; //число точек поверки на все модули
+     CurrentV: Double; // текущее напряжение для задания на вольтметре
+     currentIndex : integer; //текущий индекс чтения
      end;
+
+type
+  TADC = Class   //хранилище информации по платам
+    Runtime: integer; { Время жизни платы в секундах }
+    SPS: integer; //есть и коды для задачи
+    Address: integer;//адрес устройства на шине
+    selected: boolean; //выбрано ли устройство для работы с ним
+    PGA: integer; //значение усилителя
+    SerialNumber: string; //серийный номер объекта
+    ErrorCounter: integer; //счетчик ошибок
+    Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
+    virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
+
+  end;
 
 var
    Modbus: TModbus;    //работа с Com и шиной Modbus
    Verification: TVerification;  //объект по работе с поверкой модулей
    Agil: TAgilent;
+   ADC: array of TADC;
 
 implementation
+
+procedure TAgilent.getLastError(error: integer);
+begin
+ if (error > LastError) then LastError := error; // не сбрасывается нулевой ошибкой
+end;
+
+function TAgilent.replace(text, s_old, s_new: string):string;
+var
+    s: string;
+    i, l_old: byte;
+begin
+    s := text;
+    l_old := length(s_old);
+    i := 1;
+    while i <> 0 do begin
+        i := pos(s_old, s);
+        if i <> 0 then begin
+            delete(s, i, l_old);
+            insert(s_new, s, i);
+        end;
+    end;
+    Result := s;
+end;
+
+procedure TAgilent.getVoltage();
+var Agilent: TTCPBlockSocket;
+// ms: TMemoryStream;
+value, cmd: string;
+code: integer;
+check : string;
+var clientBuffer: array of byte;
+I: integer;
+output : string;
+b: Byte;
+begin
+LastError := 0;
+Agilent := TTCPBlockSocket.Create;
+Agilent.Connect(ip, '5025');  //подключение к Agilent
+getLastError(Agilent.LastError);
+
+Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
+Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC' + #10));
+getLastError(Agilent.LastError);
+
+Agilent.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));
+getLastError(Agilent.LastError);
+
+Agilent.SendString(Agil.getCommand('INITiate' + #10));  //Включить ожидание запуска
+getLastError(Agilent.LastError);
+
+Agilent.SendString(Agil.getCommand('*TRG'  + #10));
+sleep(500); //пауза нужна для попадания результата измерения в буфер обмена
+Agilent.SendString(Agil.getCommand('R?' + #10));
+getLastError(Agilent.LastError);
+
+value := Agilent.RecvPacket(1000);
+// LastResult := value;
+check := Copy(value, 0, 4);
+Voltage := -1;
+value := replace(Copy(value, 5, 20), '.', ','); //функция зависит от региональных настроек
+LastResult := value;
+
+
+if (check = '#215') then
+   begin
+   Voltage := StrToFloat(value); //вырезаем кусок кода из ответа содержащего напряжение
+   end;
+Agilent.Free;
+end;
 
 function TAgilent.getCommand(cmd: string):string;
 var
@@ -99,7 +196,7 @@ begin
   Result:=ans;
 end;
 
-function TModbus.trPGA(code: integer):integer;
+function TModbus.trPGA(code: LongInt):integer;
 //коэффициенты усиления PGA (Program Gain Amplifier)
 var ans: integer;
 begin
@@ -222,6 +319,35 @@ begin
      Result := res;
 end;
 
+function TModbus.RRFir(answer: string):string;
+//чтение ошибок на выбранной плате
+var i: integer;
+    d: Extended;
+   res, str, s, s1 : string;
+   b:LongInt;
+   Vref : integer; //опорное напряжение
+   Gain : integer;
+begin
+   Gain := 1;
+   Vref := 5;
+   str:=replace(answer, ' ', '');
+   if (Length(str)<8) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+   //определение напряжение по ответу на FIR (IDT3 - 0 фильтр)
+   s := Copy(str, 7, 6);
+   b := StrToInt('$' + s);
+
+   Voltage := Vref / (Gain * 8388608) * b;   // 2^23 = 8388608
+   s1 := Copy(str, 15, 8);
+   b := StrToInt('$' + s1);
+   VoltageDeviation := Vref / (Gain * 8388608) * b;
+   res := s;
+   Result := res;
+end;
+
 function TModbus.RRErrors(answer: string):string;
 //чтение ошибок на выбранной плате
 var i: integer;
@@ -235,7 +361,7 @@ begin
            res := '0';
            Exit; //ошибка чтения ответа
       end;
-   res := 'чтение ошибок на плате';
+   res := 'чтение ошибок на плате';   //пока в модуле Unit3
    Result := res;
 end;
 
@@ -278,6 +404,7 @@ begin
      'setNORM': res += ' 06 10 00 00 00'; //перевод в режим NORM
      'setEXEC': res += ' 06 10 00 00 01'; //перевод в режим EXEC
      'getADS' : res += ' 03 0A 00 00 13'; //чтение всех настроек ADS
+     'getADSFilters': res += ' 03 1D 00 00 20'; //Регистры данных КИХ Фильтров
      end;
      res += ' DE AD'; //конец слова команды
      Result := res;

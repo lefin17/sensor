@@ -1,0 +1,85 @@
+object Form4: TForm4
+  Left = 535
+  Height = 740
+  Top = 158
+  Width = 1173
+  Caption = 'Поверка'
+  ClientHeight = 740
+  ClientWidth = 1173
+  OnCreate = FormCreate
+  LCLVersion = '2.0.10.0'
+  object StringGrid1: TStringGrid
+    Left = 8
+    Height = 331
+    Top = 152
+    Width = 415
+    ColCount = 6
+    TabOrder = 0
+  end
+  object Label1: TLabel
+    Left = 8
+    Height = 15
+    Top = 80
+    Width = 130
+    Caption = 'Выставьте напряжение:'
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 112
+    Width = 263
+    Caption = 'Снять показания'
+    Enabled = False
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 15
+    Top = 56
+    Width = 164
+    Caption = 'Количество плат для поверки'
+    ParentColor = False
+  end
+  object Memo1: TMemo
+    Left = 10
+    Height = 134
+    Top = 591
+    Width = 413
+    Lines.Strings = (
+      'Memo1'
+    )
+    ScrollBars = ssAutoVertical
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Left = 8
+    Height = 25
+    Top = 19
+    Width = 263
+    Caption = 'Инициализация'
+    OnClick = Button2Click
+    TabOrder = 3
+  end
+  object Label3: TLabel
+    Left = 152
+    Height = 15
+    Top = 80
+    Width = 34
+    Caption = 'Label3'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 184
+    Height = 15
+    Top = 56
+    Width = 34
+    Caption = 'Label4'
+    ParentColor = False
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 432
+    Top = 456
+  end
+end

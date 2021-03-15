@@ -8,7 +8,7 @@ uses
   Classes, SysUtils;
 
 type
-  ADC = Object
+  ADC = Class
     Runtime: integer; { Время жизни платы в секундах }
     SPS: integer; //есть и коды для задачи
     Address: integer;//адрес устройства на шине

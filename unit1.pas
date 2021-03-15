@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, Grids,
-  CheckLst, ExtCtrls, PairSplitter, ComCtrls, LazSerial, Unit2, unit3, inifiles,
+  CheckLst, ExtCtrls, PairSplitter, ComCtrls, LazSerial, Unit2, unit3, unit4, inifiles,
   simpleipc, lazsynaser,
   // DataPortIP,
   core,
@@ -32,6 +32,7 @@ type
 // Serial: TBlockSerial;
     EditDevice: TEdit;
     MenuItem10: TMenuItem;
+    MenuItem2: TMenuItem;
     MenuItem9: TMenuItem;
     MainMenu1: TMainMenu;
     Memo1: TMemo;
@@ -351,7 +352,7 @@ end;
 
 procedure TForm1.MenuItem2Click(Sender: TObject);
 begin
-
+  Form4.Show;
 end;
 
 procedure TForm1.MenuItem6Click(Sender: TObject);
@@ -361,7 +362,7 @@ begin
   //поиск Модулей
   Modbus.port := 'COM2'; //увести в настройки при инициализации
   min:= Modbus.minAddr;
-  max:= 32;
+  max:= 25;
   ProgressBar1.Min := min;
   ProgressBar1.Max := max;
   index:=0;
@@ -370,7 +371,7 @@ begin
       begin
           addr := IntToHex(i, 2);
           ProgressBar1.Position := i;
-          cmd := addr + ' 03 a7 80 00 05 de ad';
+          cmd := addr + ' 03 a7 80 00 05 de ad';   //что это за команда на плату? - чтение -
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
           if (Modbus.portStatus <> 'OK')
@@ -382,7 +383,13 @@ begin
                  begin
                      Memo1.Append(response);
                      index += 1;
-                     StringGrid1.RowCount:=index + 1;
+                     Modbus.units := index; //количество объектов равно
+                     //работа по созданию объектов ADC
+                     SetLength(ADC, index);
+                     ADC[index - 1] := TADC.Create;
+                     ADC[index - 1].Address:=i; //десятичный адрес (для использования требуется преобразование в HEX)
+                     ADC[index - 1].selected := True;
+                     StringGrid1.RowCount := index + 1;
                      StringGrid1.Cells[0, index] := IntToStr(index);
                      StringGrid1.Cells[2, index] := IntToStr(i); //Addr;
                      StringGrid1.Objects[1, index]:=TCheckBox.Create(StringGrid1);
@@ -397,7 +404,9 @@ begin
                      stringToSend := Modbus.StrToHexStr(cmd);
                      response := Modbus.send(stringToSend);
                      Memo1.Append(response);
+                     ADC[index - 1].Runtime := Modbus.RRRuningTime(response);
                      StringGrid1.Cells[8, index] := IntToStr(Modbus.RRRuningTime(response));
+
                      //версия платы
                      cmd := Modbus.cmd(addr, 'getVersion', '');
                      Memo1.Append(cmd);

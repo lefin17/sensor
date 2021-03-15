@@ -43,6 +43,7 @@ object Form2: TForm2
     Top = 496
     Width = 124
     Caption = 'Применить'
+    OnClick = Button1Click
     TabOrder = 1
   end
   object Button2: TButton
@@ -103,17 +104,6 @@ object Form2: TForm2
     TabOrder = 4
     Text = 'Нет'
   end
-  object Label5: TLabel
-    Left = 48
-    Height = 21
-    Top = 336
-    Width = 66
-    Caption = 'Четность'
-    Font.Height = -16
-    ParentColor = False
-    ParentFont = False
-    OnClick = Label4Click
-  end
   object Label6: TLabel
     Left = 61
     Height = 21
@@ -140,5 +130,47 @@ object Form2: TForm2
     OnChange = ComboBox4Change
     TabOrder = 5
     Text = '10'
+  end
+  object Edit1: TEdit
+    Left = 488
+    Height = 23
+    Top = 40
+    Width = 160
+    TabOrder = 6
+    Text = 'Edit1'
+  end
+  object Label7: TLabel
+    Left = 392
+    Height = 15
+    Top = 46
+    Width = 80
+    Caption = 'IP Addr Agilent'
+    ParentColor = False
+  end
+  object Button3: TButton
+    Left = 392
+    Height = 25
+    Top = 80
+    Width = 128
+    Caption = 'Применить IP'
+    OnClick = Button3Click
+    TabOrder = 7
+  end
+  object Label5: TLabel
+    Left = 392
+    Height = 15
+    Top = 184
+    Width = 184
+    Caption = 'Число контрольных напряжений'
+    ParentColor = False
+  end
+  object Edit2: TEdit
+    Left = 595
+    Height = 23
+    Top = 181
+    Width = 55
+    OnChange = Edit2Change
+    TabOrder = 8
+    Text = 'Edit2'
   end
 end
