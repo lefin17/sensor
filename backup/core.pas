@@ -74,7 +74,7 @@ type
     ErrorCounter: integer; //счетчик ошибок
     Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
     virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
-
+    VerificationDots: array of double; //экспериментальные точки
   end;
 
 var
@@ -121,7 +121,7 @@ b: Byte;
 begin
 LastError := 0;
 Agilent := TTCPBlockSocket.Create;
-
+//что делать если нет на IP?
 Agilent.Connect(ip, '5025');  //подключение к Agilent
 
 getLastError(Agilent.LastError);

@@ -60,24 +60,33 @@ begin
 end;
 
 procedure TForm4.Button1Click(Sender: TObject);
-var i, min, max: integer;
+var i, j, min, max: integer;
     cmd, stringToSend, response :string; //общение с modbus;
     index: integer; //число строк таблицы
     AgilDV : double;
     res : string;
+    maxD : double;
 begin
   //снять показания приборов
   if (Modbus.units > 0) then
  // index := 0;
+  StringGrid2.RowCount:=Modbus.units + 1;
+
   For i := 0 to (Modbus.units - 1)  do
       begin
       //цикл по активированным платам
+      StringGrid2.Cells[0, i + 1]:=IntToStr(i);
+
       if (not ADC[i].selected) then continue; //если плата не выбрана в главной части - не трогаем
+      StringGrid2.Cells[1, i + 1] := IntToStr(ADC[i].Address); //адрес измерительной платы (вторая таблица)
+
       cmd := Modbus.cmd(IntToHEX(ADC[i].Address, 2), 'getADSFilters', '');
       stringToSend := Modbus.StrToHexStr(cmd);
       response := Modbus.send(stringToSend);
       Verification.currentIndex += 1;
       index := Verification.currentIndex;
+      SetLength(ADC[i].VerificationDots, index);
+
       StringGrid1.RowCount := index + 1; //увеличение строк таблицы результатов
 
       StringGrid1.Cells[0, index] := IntToStr(index); // порядковый номер
@@ -95,6 +104,12 @@ begin
       res := Modbus.RRFir(response);
       Memo1.Append(res);
       StringGrid1.Cells[4, index] := FloatToStr(Modbus.Voltage);
+
+      ADC[i].VerificationDots[index - 1] :=  abs(Modbus.Voltage - Agil.Voltage); // текущее отклонение без процентов
+      maxD := 0;
+      for j := 0 to index - 1 do
+          if (maxD < ADC[i].VerificationDots[j]) then maxD := ADC[i].VerificationDots[j];
+      StringGrid2.Cells[2, i + 1] := FloatToStr(maxD); //максимальное отклонение по плате
       StringGrid1.Cells[5, index] := FloatToStr(Modbus.VoltageDeviation);
       end;
 
@@ -120,14 +135,17 @@ end;
 procedure TForm4.Button3Click(Sender: TObject);
 var
 f: text;
-s: string;
+s, tmp: string;
 i, j : integer;
 begin
   //Сохранение поверочной таблицы
+   SaveDialog1.Filter:='*.txt |*.txt';
+   tmp := Modbus.replace(DateTimeToStr(NOW), ' ', '_');
+   tmp := Modbus.replace(DateTimeToStr(NOW), ':', '');
+   SaveDialog1.FileName:='TAB2_' + tmp;
    if SaveDialog1.Execute then
    begin
-   SaveDialog1.Filter:='*.txt';
-   SaveDialog1.FileName:='TAB2_' + Modbus.replace(DateTimeToStr(NOW), ' ', '_');
+
     s:=SaveDialog1.FileName;//берем имя файла
     assignfile(f,s);//связываем имя переменной с файлом
     rewrite(f);//открываем фвйл для записи//записываем массив в файл
@@ -138,18 +156,21 @@ begin
         writeln(f, '');
         end;
     closefile(f);
+    f.free;
    end;
 end;
 
 procedure TForm4.Button4Click(Sender: TObject);
 var
 f: text;
-s: string;
+s, tmp: string;
 i, j : integer;
 begin
   //Сохранение второй таблицы
-   SaveDialog2.Filter:='*.txt';
-   SaveDialog2.FileName:='TAB3_' + Modbus.replace(DateTimeToStr(NOW), ' ', '_');
+   SaveDialog1.Filter:='*.txt|*.txt';
+   tmp := Modbus.replace(DateTimeToStr(NOW), ' ', '_');
+   tmp := Modbus.replace(DateTimeToStr(NOW), ':', '');
+   SaveDialog1.FileName:='TAB3_' + tmp;
    if SaveDialog1.Execute then
    begin
     s:=SaveDialog1.FileName;//берем имя файла

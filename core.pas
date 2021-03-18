@@ -28,6 +28,7 @@ type
     Voltage: double;  //напряжение (нужно учесть PGA)
     VoltageDeviation: double; //СКО среднеквадратичное отклонение //RRFir(0)
     minAddr: integer; //минимальный адрес для начала поиска на плате
+    maxAddr: integer;
     portStatus: string; //статус порта если не удалось подключиться для отображения
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
@@ -74,7 +75,7 @@ type
     ErrorCounter: integer; //счетчик ошибок
     Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
     virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
-
+    VerificationDots: array of double; //экспериментальные точки
   end;
 
 var

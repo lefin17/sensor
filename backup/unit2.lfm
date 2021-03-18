@@ -7,6 +7,7 @@ object Form2: TForm2
   ClientHeight = 551
   ClientWidth = 861
   OnCreate = FormCreate
+  OnShow = FormShow
   LCLVersion = '2.0.10.0'
   object Label1: TLabel
     Left = 16
@@ -52,6 +53,7 @@ object Form2: TForm2
     Top = 496
     Width = 126
     Caption = 'Отменить'
+    OnClick = Button2Click
     TabOrder = 2
   end
   object Label3: TLabel
@@ -157,20 +159,37 @@ object Form2: TForm2
     TabOrder = 7
   end
   object Label5: TLabel
-    Left = 392
+    Left = 368
     Height = 15
-    Top = 184
+    Top = 224
     Width = 184
     Caption = 'Число контрольных напряжений'
     ParentColor = False
   end
   object Edit2: TEdit
-    Left = 595
+    Left = 568
     Height = 23
-    Top = 181
+    Top = 224
     Width = 55
     OnChange = Edit2Change
     TabOrder = 8
     Text = 'Edit2'
+  end
+  object Label8: TLabel
+    Left = 64
+    Height = 15
+    Top = 289
+    Width = 49
+    Caption = 'MaxAddr'
+    ParentColor = False
+  end
+  object Edit3: TEdit
+    Left = 128
+    Height = 23
+    Top = 281
+    Width = 55
+    OnChange = Edit2Change
+    TabOrder = 9
+    Text = 'Edit3'
   end
 end

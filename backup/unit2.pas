@@ -5,7 +5,7 @@ unit Unit2;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, inifiles, core;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, inifiles, core,strutils;
 
 type
 
@@ -21,6 +21,7 @@ type
     ComboBox4: TComboBox;
     Edit1: TEdit;
     Edit2: TEdit;
+    Edit3: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -28,11 +29,15 @@ type
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    Label8: TLabel;
+    procedure readIni;
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure ComboBox4Change(Sender: TObject);
     procedure Edit2Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure Label4Click(Sender: TObject);
   private
 
@@ -50,6 +55,24 @@ implementation
 
 { TForm2 }
 
+procedure TForm2.readIni;
+begin
+   Modbus := TModbus.Create;   //создание объекта класса modbus...
+Agil := TAgilent.Create;
+IniFile := TIniFile.Create('settings.ini');
+
+Modbus.speed := IniFile.ReadInteger('Modbus', 'Speed', 115200);
+Modbus.port := IniFile.ReadString('Modbus', 'Port', 'COM2');
+
+Modbus.minAddr := IniFile.ReadInteger('Modbus', 'minAddr', 10);
+Modbus.maxAddr := IniFile.ReadInteger('Modbus', 'maxAddr', 64);
+
+Verification.N := IniFile.ReadInteger('Verification', 'Attemts', 5);
+
+Agil.ip := IniFile.ReadString('Agilent', 'IP', '192.168.103.103');
+   IniFile.Free;
+end;
+
 procedure TForm2.Label4Click(Sender: TObject);
 begin
 
@@ -59,20 +82,21 @@ procedure TForm2.FormCreate(Sender: TObject);
 
 begin
 
-Modbus := TModbus.Create;   //создание объекта класса modbus...
-Agil := TAgilent.Create;
-IniFile := TIniFile.Create('settings.ini');
-
-Modbus.speed := StrToInt(IniFile.ReadString('Modbus', 'Speed', '115200'));
-Modbus.port := IniFile.ReadString('Modbus', 'Port', 'COM2');
-Modbus.minAddr := IniFile.ReadInteger('Modbus', 'minAddr', 10);
-
-Verification.N := IniFile.ReadInteger('Verification', 'Attemts', 5);
-Agil.ip := IniFile.ReadString('Agilent', 'IP', '192.168.103.103');
-Edit1.Text := Agil.ip;
+     readIni;
 
 
-IniFile.Free;
+//Edit2.Text := IntToStr(Verification.N);
+
+
+
+end;
+
+procedure TForm2.FormShow(Sender: TObject);
+begin
+   readIni; //чтение настроек каждый раз (для того чтоб настройка работала
+   Edit2.Text := IntToStr(Verification.N);
+   Edit1.Text := Agil.ip;
+   Edit3.Text := IntToStr(Modbus.maxAddr);
 end;
 
 procedure TForm2.ComboBox4Change(Sender: TObject);
@@ -101,7 +125,17 @@ end;
 
 procedure TForm2.Button1Click(Sender: TObject);
 begin
+ IniFile := TIniFile.Create('settings.ini');
 
+IniFile.WriteInteger('Verification', 'Atemt', StrToInt(Edit2.Text));  //применение попыток
+IniFile.WriteInteger('Modbus', 'minAddr', Modbus.minAddr);
+IniFile.WriteInteger('Modbus', 'maxAddr', StrToInt(Edit3.Text));
+IniFile.free;
+end;
+
+procedure TForm2.Button2Click(Sender: TObject);
+begin
+  Close;
 end;
 
 end.

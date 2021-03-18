@@ -360,14 +360,16 @@ end;
 procedure TForm1.MenuItem5Click(Sender: TObject);
 var
 f: text;
-s: string;
+s, tmp: string;
 i, j : integer;
 begin
-  //Сохранение поверочной таблицы
+  //Сохранение поверочной таблицы поиска ПЛАТ
+   SaveDialog1.Filter:='*.txt|*.txt';
+   tmp := Modbus.replace(DateTimeToStr(NOW), ' ', '_');
+   tmp := Modbus.replace(DateTimeToStr(NOW), ':', '');
+   SaveDialog1.FileName:='TAB1_' + tmp;
    if SaveDialog1.Execute then
    begin
-   SaveDialog1.Filter:='*.txt';
-   SaveDialog1.FileName:='TAB1_' + Modbus.replace(DateTimeToStr(NOW), ' ', '_');
     s:=SaveDialog1.FileName;//берем имя файла
     assignfile(f,s);//связываем имя переменной с файлом
     rewrite(f);//открываем фвйл для записи//записываем массив в файл

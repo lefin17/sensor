@@ -84,8 +84,8 @@ object Form4: TForm4
     Height = 684
     Top = 36
     Width = 311
-    ColCount = 2
-    DefaultColWidth = 140
+    ColCount = 3
+    DefaultColWidth = 100
     ScrollBars = ssAutoVertical
     TabOrder = 4
   end
