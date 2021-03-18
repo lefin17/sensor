@@ -89,8 +89,26 @@ object Form4: TForm4
     ScrollBars = ssAutoVertical
     TabOrder = 4
   end
+  object Button3: TButton
+    Left = 8
+    Height = 35
+    Top = 496
+    Width = 222
+    Caption = 'Сохранить таблицу результатов'
+    OnClick = Button3Click
+    TabOrder = 5
+  end
+  object Button4: TButton
+    Left = 178
+    Height = 32
+    Top = 544
+    Width = 243
+    Caption = 'Сохранить таблицу отклонений'
+    OnClick = Button4Click
+    TabOrder = 6
+  end
   object SaveDialog1: TSaveDialog
-    Left = 432
-    Top = 456
+    Left = 248
+    Top = 496
   end
 end

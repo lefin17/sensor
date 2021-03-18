@@ -121,7 +121,9 @@ b: Byte;
 begin
 LastError := 0;
 Agilent := TTCPBlockSocket.Create;
+//что делать если нет на IP?
 Agilent.Connect(ip, '5025');  //подключение к Agilent
+
 getLastError(Agilent.LastError);
 
 Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
@@ -279,7 +281,7 @@ end;
 function TModbus.RRRuningTime(answer: string):integer;
 var i, res: integer;
    str, s : string;
-
+//определение времени наработки в часах
 begin
    str:=replace(answer, ' ', '');
    if (Length(str)<14) then
@@ -291,7 +293,8 @@ begin
    for i:= 6 downto 3 do
      s += Copy(str, i * 2 + 1, 2);
      val('$' + s, res, i);
-        if (i <> 0) then res := 0;
+     if (i <> 0) then res := 0;
+     res := round(res / 60 /60); //время наработки платы в часах (целое число пока)
      Result := res;
 end;
 
@@ -302,7 +305,7 @@ var i: integer;
 
 begin
    str:=replace(answer, ' ', '');
-   if (Length(str)<8) then
+   if (Length(str)<8) then  //что-то типа защиты на не нулевой результат ответа от ПИ (Платы измерительной)
       begin
            res := '0';
            Exit; //ошибка чтения ответа

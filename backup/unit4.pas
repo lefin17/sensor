@@ -14,6 +14,8 @@ type
   TForm4 = class(TForm)
     Button1: TButton;
     Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -21,8 +23,10 @@ type
     Memo1: TMemo;
     SaveDialog1: TSaveDialog;
     StringGrid1: TStringGrid;
+    StringGrid2: TStringGrid;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
 
@@ -48,7 +52,7 @@ begin
   StringGrid1.Cells[2,0] := 'Agilent'; //Напряжение на Agilente
   StringGrid1.Cells[__ADDR__,0] := 'Addr'; //Адрес устройства платы с которой брать напряжение
   StringGrid1.Cells[4,0] := 'AVG'; //Среднее напряжение на фильтре без усилителя и опорного напряжения
-  StringGrid1.Cells[5,0] := 'СКО'; //среднее квадратичное отклонение с платы
+  StringGrid1.Cells[5,0] := 'Deviation'; //среднее квадратичное отклонение с платы
 
   Label3.Caption := 'Set Voltage when init';
   Label4.Caption := IntToStr(Modbus.selectedUnits); //число выбранных модулей
@@ -111,6 +115,29 @@ begin
   Label4.Caption:= IntToStr(Modbus.selectedUnits);
   Button1.Enabled := True;
 end;
+
+procedure TForm4.Button3Click(Sender: TObject);
+var
+f: text;
+s: string;
+i, j : integer;
+begin
+  //Сохранение поверочной таблицы
+   if SaveDialog1.Execute then
+   begin
+    s:=SaveDialog1.FileName;//берем имя файла
+    assignfile(f,s);//связываем имя переменной с файлом
+    rewrite(f);//открываем фвйл для записи//записываем массив в файл
+    for i:=0 to StringGrid1.RowCount - 1 do
+        begin
+        for j:=0 to StringGrid1.ColCount - 1 do
+           write(f, StringGrid1.Cells[j, i] + #9); // #9 - символ табуляции
+        writeln(f, '');
+        end;
+    closefile(f);
+   end;
+end;
+
 
 end.
 
