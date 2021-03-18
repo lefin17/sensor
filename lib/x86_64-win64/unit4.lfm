@@ -104,6 +104,7 @@ object Form4: TForm4
     Top = 544
     Width = 243
     Caption = 'Сохранить таблицу отклонений'
+    OnClick = Button4Click
     TabOrder = 6
   end
   object SaveDialog1: TSaveDialog

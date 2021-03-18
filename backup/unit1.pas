@@ -44,6 +44,7 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     ProgressBar1: TProgressBar;
+    SaveDialog1: TSaveDialog;
     StatusBar1: TStatusBar;
     StringGrid1: TStringGrid;
     Timer1: TTimer;
@@ -64,6 +65,7 @@ type
 
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
+    procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
     procedure MenuItem9Click(Sender: TObject);
 (*    procedure SerialRxData(Sender: TObject); *)
@@ -355,6 +357,30 @@ begin
   Form4.Show;
 end;
 
+procedure TForm1.MenuItem5Click(Sender: TObject);
+var
+f: text;
+s: string;
+i, j : integer;
+begin
+  //Сохранение поверочной таблицы
+   if SaveDialog1.Execute then
+   begin
+   SaveDialog1.Filter:='*.txt';
+   SaveDialog1.FileName:='TAB1_' + Modbus.replace(DateTimeToStr(NOW), ' ', '_');
+    s:=SaveDialog1.FileName;//берем имя файла
+    assignfile(f,s);//связываем имя переменной с файлом
+    rewrite(f);//открываем фвйл для записи//записываем массив в файл
+    for i:=0 to StringGrid1.RowCount - 1 do
+        begin
+        for j:=0 to StringGrid1.ColCount - 1 do
+           write(f, StringGrid1.Cells[j, i] + #9); // #9 - символ табуляции
+        writeln(f, '');
+        end;
+    closefile(f);
+   end;
+end;
+
 procedure TForm1.MenuItem6Click(Sender: TObject);
 var i, min, max, index: integer;
   addr, cmd, stringToSend, response : string; //адрес платы HEX
@@ -362,7 +388,7 @@ begin
   //поиск Модулей
   Modbus.port := 'COM2'; //увести в настройки при инициализации
   min:= Modbus.minAddr;
-  max:= 64;
+  max:= 25;
   ProgressBar1.Min := min;
   ProgressBar1.Max := max;
   index:=0;

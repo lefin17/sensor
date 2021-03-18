@@ -126,6 +126,8 @@ begin
   //Сохранение поверочной таблицы
    if SaveDialog1.Execute then
    begin
+   SaveDialog1.Filter:='*.txt';
+   SaveDialog1.FileName:='TAB2_' + Modbus.replace(DateTimeToStr(NOW), ' ', '_');
     s:=SaveDialog1.FileName;//берем имя файла
     assignfile(f,s);//связываем имя переменной с файлом
     rewrite(f);//открываем фвйл для записи//записываем массив в файл
@@ -145,16 +147,18 @@ f: text;
 s: string;
 i, j : integer;
 begin
-  //Сохранение поверочной таблицы
+  //Сохранение второй таблицы
+   SaveDialog1.Filter:='*.txt';
+   SaveDialog1.FileName:='TAB3_' + Modbus.replace(DateTimeToStr(NOW), ' ', '_');
    if SaveDialog1.Execute then
    begin
     s:=SaveDialog1.FileName;//берем имя файла
     assignfile(f,s);//связываем имя переменной с файлом
     rewrite(f);//открываем фвйл для записи//записываем массив в файл
-    for i:=0 to StringGrid1.RowCount - 1 do
+    for i:=0 to StringGrid2.RowCount - 1 do
         begin
-        for j:=0 to StringGrid1.ColCount - 1 do
-           write(f, StringGrid1.Cells[j, i] + #9); // #9 - символ табуляции
+        for j:=0 to StringGrid2.ColCount - 1 do
+           write(f, StringGrid2.Cells[j, i] + #9); // #9 - символ табуляции
         writeln(f, '');
         end;
     closefile(f);

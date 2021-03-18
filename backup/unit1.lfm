@@ -65,9 +65,9 @@ object Form1: TForm1
     Text = '2.5'
   end
   object EditDevice: TEdit
-    Left = 533
+    Left = 560
     Height = 23
-    Top = 637
+    Top = 622
     Width = 80
     TabOrder = 5
     Text = 'EditDevice'
@@ -151,6 +151,7 @@ object Form1: TForm1
       object MenuItem5: TMenuItem
         Caption = 'Экспорт таблицы'
         ShortCut = 16467
+        OnClick = MenuItem5Click
       end
       object MenuItem7: TMenuItem
         Caption = '-'
@@ -180,5 +181,9 @@ object Form1: TForm1
     OnStopTimer = Timer1StopTimer
     Left = 870
     Top = 605
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 912
+    Top = 664
   end
 end
