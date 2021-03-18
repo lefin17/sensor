@@ -343,7 +343,7 @@ begin
    Voltage := Vref / (Gain * 8388608) * b;   // 2^23 = 8388608
    s1 := Copy(str, 15, 8);
    b := StrToInt('$' + s1);
-   VoltageDeviation := Vref / (Gain * 8388608) * b;
+   VoltageDeviation := Vref / (Gain * 8388608) * b;   //Отклонение которое выдаёт плата
    res := s;
    Result := res;
 end;

@@ -63,7 +63,7 @@ Modbus := TModbus.Create;   //создание объекта класса modbu
 Agil := TAgilent.Create;
 IniFile := TIniFile.Create('settings.ini');
 
-Modbus.speed := StrToInt(IniFile.ReadString('Modbus', 'Speed', '115200'));
+Modbus.speed := IniFile.ReadInteger('Modbus', 'Speed', 115200);
 Modbus.port := IniFile.ReadString('Modbus', 'Port', 'COM2');
 Modbus.minAddr := IniFile.ReadInteger('Modbus', 'minAddr', 10);
 

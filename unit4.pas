@@ -21,6 +21,7 @@ type
     Memo1: TMemo;
     SaveDialog1: TSaveDialog;
     StringGrid1: TStringGrid;
+    StringGrid2: TStringGrid;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);

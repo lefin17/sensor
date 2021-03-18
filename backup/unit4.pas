@@ -88,6 +88,7 @@ begin
 
       Memo1.Append(response);
       res := Modbus.RRFir(response);
+      Memo1.Append(res);
       StringGrid1.Cells[4, index] := FloatToStr(Modbus.Voltage);
       StringGrid1.Cells[5, index] := FloatToStr(Modbus.VoltageDeviation);
       end;

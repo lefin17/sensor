@@ -2,10 +2,10 @@ object Form4: TForm4
   Left = 535
   Height = 740
   Top = 158
-  Width = 1173
+  Width = 772
   Caption = 'Поверка'
   ClientHeight = 740
-  ClientWidth = 1173
+  ClientWidth = 772
   OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
   object StringGrid1: TStringGrid
@@ -14,6 +14,7 @@ object Form4: TForm4
     Top = 152
     Width = 415
     ColCount = 6
+    ScrollBars = ssAutoVertical
     TabOrder = 0
   end
   object Label1: TLabel
@@ -77,6 +78,16 @@ object Form4: TForm4
     Width = 34
     Caption = 'Label4'
     ParentColor = False
+  end
+  object StringGrid2: TStringGrid
+    Left = 448
+    Height = 684
+    Top = 36
+    Width = 311
+    ColCount = 2
+    DefaultColWidth = 140
+    ScrollBars = ssAutoVertical
+    TabOrder = 4
   end
   object SaveDialog1: TSaveDialog
     Left = 432

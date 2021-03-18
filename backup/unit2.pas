@@ -71,6 +71,7 @@ Verification.N := IniFile.ReadInteger('Verification', 'Attemts', 5);
 Agil.ip := IniFile.ReadString('Agilent', 'IP', '192.168.103.103');
 Edit1.Text := Agil.ip;
 
+
 IniFile.Free;
 end;
 
