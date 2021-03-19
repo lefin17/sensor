@@ -49,7 +49,9 @@ type
     StatusBar1: TStatusBar;
     StringGrid1: TStringGrid;
     Timer1: TTimer;
-
+    Checkbox1 : TCheckbox;
+    //нажатие на checkbox
+    procedure CheckBox1OnChange(Sender: TObject);
   //  procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
@@ -384,6 +386,11 @@ begin
    end;
 end;
 
+procedure TForm1.CheckBox1OnChange(Sender: TObject);
+begin
+  Memo1.Append('check box clicked');
+end;
+
 procedure TForm1.MenuItem6Click(Sender: TObject);
 var i, min, max, index: integer;
   addr, cmd, stringToSend, response : string; //адрес платы HEX
@@ -432,6 +439,8 @@ begin
                      TCheckBox(StringGrid1.Objects[1, index]).Top := StringGrid1.CellRect(1, index).Top;
                      TCheckBox(StringGrid1.Objects[1, index]).Checked:= True;
 
+                   //  TCheckBox(StringGrid1.Objects[1, index]).onChange := TForm1.CheckBox1onChange(StringGrid1);
+
                      //чтение времени наработки платы
                      cmd := Modbus.cmd(addr, 'getRunningTime', '');
                      Memo1.Append(cmd);
@@ -465,12 +474,20 @@ begin
                      StringGrid1.Cells[10, index] := Modbus.RRTemperature(response);
 
                      //запрос по ошибке
-                     cmd :=  Modbus.cmd(IntToHex(cardAddr, 2), 'getErrors', '');
-                     Memo1.Append(cmd);
+                     cmd :=  Modbus.cmd(addr, 'getErrors', '');
+                     Memo1.Append('getErrors command: ' + cmd);
                      stringToSend := Modbus.StrToHexStr(cmd);
                      response := Modbus.send(stringToSend);
-                     Memo1.Append(response);
+                     Memo1.Append('getErrors response:' + response);
                      StringGrid1.Cells[9, index] := '$' + Modbus.RRErrors(response);
+
+                     //запрос по Серийному номеру
+                     cmd :=  Modbus.cmd(addr, 'getSerial', '');
+                     Memo1.Append('getSerial command: ' + cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append('getSerial response: ' + response);
+                     StringGrid1.Cells[3, index] := Modbus.RRSerial(response);
 
                      //Запрос по ADS
                      cmd := Modbus.cmd(addr, 'getADS', '');

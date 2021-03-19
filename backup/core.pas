@@ -41,6 +41,7 @@ type
     function RRFir(answer: string):string; //чтение данных на филтрах АЦП
     function RRTemperature(answer: string):string; //чтение температуры
     function RRErrors(answer: string):string; //чтение ошибок на плате
+    function RRSerial(answer: string):string; //чтение серийного номера
     function dec_to_bin(dec: LongInt): LongInt; //перевод из DEC в BINARY(INT)
     function bin_to_dec(bin: LongInt): LongInt; //перевод из BINARY (INT) в DEC
     function trPGA(code: LongInt):integer;
@@ -366,7 +367,31 @@ begin
            Exit; //ошибка чтения ответа
       end;
    res := Copy(str, 3*2 + 1, 4);
-   res := 'чтение ошибок на плате';   //пока в модуле Unit3
+   // res := 'чтение ошибок на плате';   //пока в модуле Unit3
+   Result := res;
+end;
+
+function TModbus.RRSerial(answer: string):string;
+//Чтение серийного номера - три блока с низким байом записи LSB
+var i, j: integer;
+    d: Extended;
+   res, str, s, s1 : string;
+
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<8) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+   res := '';
+   for j := 0 to 2 do
+       begin
+       for i:= 3 downto 0 do
+           res += Copy(str, (j * 4) + i*2 + 1, 2);
+       res += ' ';
+       end;
+
    Result := res;
 end;
 
@@ -403,6 +428,7 @@ begin
      'getRunningTime': res += ' 03 01 C0 00 02';   //время наработки на отказ
      'getVersion': res += ' 03 02 00 00 04'; //запрос на чтение версии ПО и времени сборки
      'getConnectionType': res += ' 03 11 00 00 01';
+     'getSerial': res += '03 01 D0 00 06'; //серийный номер платы
      'getTemperature': res += ' 03 AB B0 00 05'; //температура АЦП
      'getErrors': res += ' 03 01 00 00 01'; //чтение ошибок
      'resetErrors': res += ' 06 01 00 00 00'; // сброс ошибок
