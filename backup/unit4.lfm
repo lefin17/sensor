@@ -18,7 +18,7 @@ object Form4: TForm4
     TabOrder = 0
   end
   object Label1: TLabel
-    Left = 8
+    Left = 141
     Height = 15
     Top = 80
     Width = 130
@@ -64,12 +64,14 @@ object Form4: TForm4
     TabOrder = 3
   end
   object Label3: TLabel
-    Left = 152
-    Height = 15
+    Left = 304
+    Height = 37
     Top = 80
-    Width = 34
-    Caption = 'Label3'
+    Width = 39
+    Caption = '0 V'
+    Font.Height = -27
     ParentColor = False
+    ParentFont = False
   end
   object Label4: TLabel
     Left = 184

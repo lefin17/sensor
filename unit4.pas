@@ -141,7 +141,7 @@ begin
   //Сохранение поверочной таблицы
    SaveDialog1.Filter:='*.txt |*.txt';
    tmp := Modbus.replace(DateTimeToStr(NOW), ' ', '_');
-   tmp := Modbus.replace(DateTimeToStr(NOW), ':', '');
+   tmp := Modbus.replace(tmp, ':', '');
    SaveDialog1.FileName:='TAB2_' + tmp;
    if SaveDialog1.Execute then
    begin
@@ -169,7 +169,7 @@ begin
   //Сохранение второй таблицы
    SaveDialog1.Filter:='*.txt|*.txt';
    tmp := Modbus.replace(DateTimeToStr(NOW), ' ', '_');
-   tmp := Modbus.replace(DateTimeToStr(NOW), ':', '');
+   tmp := Modbus.replace(tmp, ':', '');
    SaveDialog1.FileName:='TAB3_' + tmp;
    if SaveDialog1.Execute then
    begin

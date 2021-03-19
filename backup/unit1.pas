@@ -31,6 +31,7 @@ type
  //   DataPortSerial1: TDataPortSerial;
 // Serial: TBlockSerial;
     EditDevice: TEdit;
+    Label1: TLabel;
     MenuItem10: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem9: TMenuItem;
@@ -190,7 +191,7 @@ begin
  print(value) *)
 Agilent := TTCPBlockSocket.Create;
 //ms:=TMemoryStream.Create;
-Agilent.Connect('192.168.103.102', '5025');  //подключение к Agilent
+Agilent.Connect(Agil.ip, '5025');  //подключение к Agilent
 Memo1.Append(IntToStr(Agilent.LastError));
 
 Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
@@ -251,7 +252,7 @@ procedure TForm1.Button6Click(Sender: TObject);
 
 Agilent := TTCPBlockSocket.Create;
 // ms := TMemoryStream.Create;
-Agilent.Connect('192.168.103.102', '5025');  //подключение к Agilent
+Agilent.Connect(Agil.ip, '5025');  //подключение к Agilent
 Memo1.Append(IntToStr(Agilent.LastError));
 Agilent.SendString(Agil.getCommand('R?' + #10));
 value := Agilent.RecvPacket(1000);
@@ -390,7 +391,9 @@ begin
   //поиск Модулей
   Modbus.port := 'COM2'; //увести в настройки при инициализации
   min:= Modbus.minAddr;
-  max:= 25;
+  max:= Modbus.maxAddr;
+  Label1.Caption:=IntToStr(min);
+
   ProgressBar1.Min := min;
   ProgressBar1.Max := max;
   index:=0;
@@ -399,6 +402,9 @@ begin
       begin
           addr := IntToHex(i, 2);
           ProgressBar1.Position := i;
+          Label1.Caption := IntToStr(i); //выводит поиск платы
+          Form1.Refresh;
+
           cmd := addr + ' 03 a7 80 00 05 de ad';   //что это за команда на плату? - чтение -
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
@@ -457,6 +463,15 @@ begin
                      response := Modbus.send(stringToSend);
                      Memo1.Append(response);
                      StringGrid1.Cells[10, index] := Modbus.RRTemperature(response);
+
+                     //запрос по ошибке
+                     cmd :=  Modbus.cmd(IntToHex(cardAddr, 2), 'getErrors', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[9, index] := '$' + Modbus.RRErrors(response);
+
                      //Запрос по ADS
                      cmd := Modbus.cmd(addr, 'getADS', '');
                      Memo1.Append(cmd);

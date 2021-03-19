@@ -28,6 +28,7 @@ type
     Voltage: double;  //напряжение (нужно учесть PGA)
     VoltageDeviation: double; //СКО среднеквадратичное отклонение //RRFir(0)
     minAddr: integer; //минимальный адрес для начала поиска на плате
+    maxAddr: integer;
     portStatus: string; //статус порта если не удалось подключиться для отображения
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
@@ -364,6 +365,7 @@ begin
            res := '0';
            Exit; //ошибка чтения ответа
       end;
+   res := Copy(str, 3*2 + 1, 4);
    res := 'чтение ошибок на плате';   //пока в модуле Unit3
    Result := res;
 end;

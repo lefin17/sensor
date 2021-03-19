@@ -122,13 +122,23 @@ object Form1: TForm1
     TabOrder = 11
   end
   object Button7: TButton
-    Left = 304
+    Left = 248
     Height = 25
-    Top = 584
+    Top = 616
     Width = 75
     Caption = 'HEX2BIT'
     OnClick = Button7Click
     TabOrder = 12
+  end
+  object Label1: TLabel
+    Left = 432
+    Height = 37
+    Top = 576
+    Width = 26
+    Caption = '-1'
+    Font.Height = -27
+    ParentColor = False
+    ParentFont = False
   end
   object MainMenu1: TMainMenu
     Left = 912
