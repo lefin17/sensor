@@ -22,6 +22,7 @@ type
     Edit1: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
+    Edit4: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -30,6 +31,8 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    Label9: TLabel;
+    procedure Edit4Change(Sender: TObject);
     procedure readIni;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -68,9 +71,20 @@ Modbus.minAddr := IniFile.ReadInteger('Modbus', 'minAddr', 10);
 Modbus.maxAddr := IniFile.ReadInteger('Modbus', 'maxAddr', 64);
 
 Verification.N := IniFile.ReadInteger('Verification', 'Attemts', 5);
+Verification.Power := IniFile.ReadInteger('Verification', 'Power', 2);
 
 Agil.ip := IniFile.ReadString('Agilent', 'IP', '192.168.103.103');
    IniFile.Free;
+end;
+
+procedure TForm2.Edit4Change(Sender: TObject);
+polyPower : integer;
+begin
+IniFile := TIniFile.Create('settings.ini');
+polyPower := StrToInt(Edit4.Text);
+Verification.Power := polyPower;
+IniFile.WriteInteger('Verification', 'Power', polyPower);
+IniFile.free;
 end;
 
 procedure TForm2.Label4Click(Sender: TObject);
@@ -97,6 +111,7 @@ begin
    Edit2.Text := IntToStr(Verification.N);
    Edit1.Text := Agil.ip;
    Edit3.Text := IntToStr(Modbus.maxAddr);
+   Edit4.Text := IntToStr(Verification.Power); //степень полинома
 end;
 
 procedure TForm2.ComboBox4Change(Sender: TObject);

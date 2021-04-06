@@ -61,6 +61,7 @@ type TAgilent = class
 
 type TVerification = Object
      N: integer; //число точек поверки на все модули
+     Power: integer; //степень полинома для функции восстановления
      CurrentV: Double; // текущее напряжение для задания на вольтметре
      currentIndex : integer; //текущий индекс чтения
      end;
@@ -388,7 +389,7 @@ begin
    for j := 0 to 2 do
        begin
        for i:= 3 downto 0 do
-           res += Copy(str, (j * 4) + i*2 + 1, 2);
+           res += Copy(str, 3*2 + (j * 4) + i*2 + 1, 2);
        res += ' ';
        end;
 

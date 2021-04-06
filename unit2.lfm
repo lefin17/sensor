@@ -192,4 +192,21 @@ object Form2: TForm2
     TabOrder = 9
     Text = 'Edit3'
   end
+  object Label9: TLabel
+    Left = 374
+    Height = 15
+    Top = 306
+    Width = 105
+    Caption = 'Степень полинома'
+    ParentColor = False
+  end
+  object Edit4: TEdit
+    Left = 499
+    Height = 23
+    Top = 304
+    Width = 80
+    OnChange = Edit4Change
+    TabOrder = 10
+    Text = 'Edit4'
+  end
 end

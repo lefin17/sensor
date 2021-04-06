@@ -12,7 +12,7 @@ uses
   core,
   //DataPortSerial,
   // DataPort,
-  strutils, dateutils,
+  strutils, dateutils, mathcore,
   blcksock;
 
 type
@@ -51,6 +51,7 @@ type
     Timer1: TTimer;
     Checkbox1 : TCheckbox;
     //нажатие на checkbox
+    procedure Button8Click(Sender: TObject);
     procedure CheckBox1OnChange(Sender: TObject);
   //  procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -389,6 +390,23 @@ end;
 procedure TForm1.CheckBox1OnChange(Sender: TObject);
 begin
   Memo1.Append('check box clicked');
+end;
+
+procedure TForm1.Button8Click(Sender: TObject);
+var mnk: TMNK;
+power: integer; //степень полинома
+i : integer;
+begin
+  power := 5;
+  mnk := TMNK.Create;
+  mnk.test(power); //выделяем память под вектора
+  mnk.Gram;  // (n,m,x,f,a); {считаем матрицу Грама}
+  mnk.Gauss; // (m,a,c);;
+
+  Memo1.Append('Коэффициенты полинома МНК ' +  IntToStr(power) + ' степени:');
+ for i:=0 to power do Memo1.Append('c[' + IntToStr(i) + '] := ' + FloatToStr(mnk.c[i]));
+  mnk.Free;
+//  writeln;
 end;
 
 procedure TForm1.MenuItem6Click(Sender: TObject);

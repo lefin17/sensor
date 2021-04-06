@@ -12,7 +12,7 @@ uses
   core,
   //DataPortSerial,
   // DataPort,
-  strutils, dateutils,
+  strutils, dateutils, mathcore,
   blcksock;
 
 type
@@ -51,6 +51,7 @@ type
     Timer1: TTimer;
     Checkbox1 : TCheckbox;
     //нажатие на checkbox
+    procedure Button8Click(Sender: TObject);
     procedure CheckBox1OnChange(Sender: TObject);
   //  procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -391,6 +392,23 @@ begin
   Memo1.Append('check box clicked');
 end;
 
+procedure TForm1.Button8Click(Sender: TObject);
+var mnk: TMNK;
+power: integer; //степень полинома
+i : integer;
+begin
+  power := 4;
+  mnk := TMNK.Create;
+  mnk.test(power); //выделяем память под вектора
+  mnk.Gram;  // (n,m,x,f,a); {считаем матрицу Грама}
+  mnk.Gauss; // (m,a,c);;
+
+  Memo1.Append('Коэффициенты полинома МНК ' +  IntToStr(power) + ' степени:');
+ for i:=0 to power do Memo1.Append('c[' + IntToStr(i) + '] := ' + FloatToStr(mnk.c[i]));
+  mnk.Free;
+//  writeln;
+end;
+
 procedure TForm1.MenuItem6Click(Sender: TObject);
 var i, min, max, index: integer;
   addr, cmd, stringToSend, response : string; //адрес платы HEX
@@ -439,7 +457,7 @@ begin
                      TCheckBox(StringGrid1.Objects[1, index]).Top := StringGrid1.CellRect(1, index).Top;
                      TCheckBox(StringGrid1.Objects[1, index]).Checked:= True;
 
-                    TCheckBox(StringGrid1.Objects[1, index]).onChange := TForm1.CheckBox1onChange(StringGrid1);
+                   //  TCheckBox(StringGrid1.Objects[1, index]).onChange := TForm1.CheckBox1onChange(StringGrid1);
 
                      //чтение времени наработки платы
                      cmd := Modbus.cmd(addr, 'getRunningTime', '');

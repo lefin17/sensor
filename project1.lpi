@@ -40,7 +40,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="8">
       <Unit0>
         <Filename Value="project1.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -85,6 +85,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit4"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="mathcore.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MathCore"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

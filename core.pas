@@ -61,6 +61,7 @@ type TAgilent = class
 
 type TVerification = Object
      N: integer; //число точек поверки на все модули
+     Power: integer; //степень полинома для функции восстановления
      CurrentV: Double; // текущее напряжение для задания на вольтметре
      currentIndex : integer; //текущий индекс чтения
      end;
@@ -77,6 +78,8 @@ type
     Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
     virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
     VerificationDots: array of double; //экспериментальные точки
+    Coefs: array of double; //коэффициенты полинома функции восстановления
+
   end;
 
 var
