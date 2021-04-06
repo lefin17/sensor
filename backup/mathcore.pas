@@ -69,20 +69,20 @@ var i,j,k,l,k1,n1:integer;
     r,s:Double;
 begin
  {Прямой ход:}
- n1:=n+1;
- for k:=0 to n do begin
+ n1:=m+1;
+ for k:=0 to m do begin
   k1:=k+1;
   s:=a[k,k];
   for j:=k1 to n1 do if (s <> 0) then a[k,j]:=a[k,j]/s;
-  for i:=k1 to n do begin
+  for i:=k1 to m do begin
    r:=a[i,k];
    for j:=k1 to n1 do a[i,j]:=a[i,j]-a[k,j]*r;
   end;
  end;
  {Обратный ход:}
- for i:=n downto 0 do begin
+ for i:=m downto 0 do begin
   s:=a[i,n1];
-  for j:=i+1 to n do s:=s-a[i,j]*c[j];
+  for j:=i+1 to m do s:=s-a[i,j]*c[j];
   c[i]:=s;
  end;
 end;
@@ -132,9 +132,9 @@ var i: integer;
 begin
  n := Dots + 1;
  m := Power;
- SetLength(a, n + 2);
- for i := 0 to (n + 2) do
-      SetLength(a[i], n + 2);
+ SetLength(a, m + 2);
+ for i := 0 to (m + 2) do
+      SetLength(a[i], m + 2);
  SetLength(x, n + 2);
  SetLength(f, n + 2);
  SetLength(c, n + 2);

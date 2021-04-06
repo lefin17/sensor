@@ -145,7 +145,7 @@ object Form1: TForm1
     Height = 25
     Top = 661
     Width = 75
-    Caption = 'Gauss'
+    Caption = 'Gauss Test'
     OnClick = Button8Click
     TabOrder = 13
   end

@@ -78,6 +78,8 @@ type
     Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
     virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
     VerificationDots: array of double; //экспериментальные точки
+    Coefs: array of double; //коэффициенты полинома функции восстановления
+    function fi(power: integer; x1: Double):Double; //функция по восстановлению значения
   end;
 
 var
@@ -87,6 +89,19 @@ var
    ADC: array of TADC;
 
 implementation
+
+function TADC.fi(power: integer; x1: Double):Double;
+{Аппроксимирующая функция по найденным коэффициентам МНК}
+{power - степень полинома, c - вектор коэффициентов,
+ x1 - точка, в которой ищем значение}
+var i:integer; p:Double;
+begin
+ fi:= 0;
+ if (Length(Coefs) < power) then Exit; //не должно работать...  защита от переполнения
+ p := Coefs[power];
+ for i := power - 1 downto 0 do p := Coefs[i] + x1*p;
+ fi:=p;
+end;
 
 procedure TAgilent.getLastError(error: integer);
 begin

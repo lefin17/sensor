@@ -397,7 +397,7 @@ var mnk: TMNK;
 power: integer; //степень полинома
 i : integer;
 begin
-  power := 5;
+  power := 2;
   mnk := TMNK.Create;
   mnk.test(power); //выделяем память под вектора
   mnk.Gram;  // (n,m,x,f,a); {считаем матрицу Грама}

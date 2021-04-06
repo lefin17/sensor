@@ -5,7 +5,7 @@ unit Unit4;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Grids, StdCtrls, core;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Grids, StdCtrls, core, MathCore;
 
 type
 
@@ -16,6 +16,7 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -28,6 +29,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
 
@@ -169,7 +171,7 @@ begin
   //Сохранение второй таблицы
    SaveDialog1.Filter:='*.txt|*.txt';
    tmp := Modbus.replace(DateTimeToStr(NOW), ' ', '_');
-   tmp := Modbus.replace(DateTimeToStr(NOW), ':', '');
+   tmp := Modbus.replace(tmp, ':', '');
    SaveDialog1.FileName:='TAB3_' + tmp;
    if SaveDialog1.Execute then
    begin
@@ -185,6 +187,39 @@ begin
     closefile(f);
    end;
 end;
+
+procedure TForm4.Button5Click(Sender: TObject);
+var mnk : TMNK;  //объект работы с методом наименьших квадратов
+power : integer; //степень полинома
+i, j, k: integer; // i - объект (плата измерительная), j - точка измерения, k - номер коэффициента полинома
+Dots: integer; //число точек измерения
+begin
+  power := Verification.Power;
+  for i := 0 to (Modbus.units - 1) do //цикл по платам
+     begin
+     Dots := Length(ADC[i].VerificationDots); //длина массива точек измерения
+     if (Dots < power + 1) then
+        begin
+        Memo1.Append('Не достаточно точек измерения');
+        continue;
+        end;
+     mnk := TMNK.Create;
+     mnk.setNM(Dots, power); //устанавливаем размерность массива
+     mnk.Gram;  // (n,m,x,f,a); {считаем матрицу Грама}
+     mnk.Gauss; // (m,a,c);;
+
+     Memo1.Append('Коэффициенты полинома МНК ' +  IntToStr(power) + ' степени для ИП(' + IntToStr(ADC[i].Addr) + ')');
+     SetLength(ADC[i].Coefs, power + 1);
+     for k:=0 to power do
+         begin
+         Memo1.Append('c[' + IntToStr(k) + '] := ' + FloatToStr(mnk.c[k]));
+         ADC[i].Coefs[k] := mnk.c[k]; //присвоение найденного полинома нужному значению.
+         end;
+     mnk.Free;
+     end;
+end;
+
+
 
 
 end.

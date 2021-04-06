@@ -111,6 +111,7 @@ begin
    Edit2.Text := IntToStr(Verification.N);
    Edit1.Text := Agil.ip;
    Edit3.Text := IntToStr(Modbus.maxAddr);
+   Edit4.Text := IntToStr(Verification.Power); //степень полинома
 end;
 
 procedure TForm2.ComboBox4Change(Sender: TObject);
