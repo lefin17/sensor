@@ -510,7 +510,7 @@ begin
 
  Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
 
-Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC MAX' + #10));
+Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC AUTO' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
 Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC 100' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));

@@ -150,6 +150,9 @@ Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
 Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC' + #10));
 getLastError(Agilent.LastError);
 
+Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC 100 ' + #10));  //Включаем фильтр NPLC 100
+getLastError(Agilent.LastError);
+
 Agilent.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));
 getLastError(Agilent.LastError);
 
@@ -166,11 +169,10 @@ Description
 This command sets the integration time in number of power line cycles (PLCs) for dc current measurements. Integration time affects the measurement resolution (for better resolution, use a longer integration time) and measurement speed (for faster measurements, use a shorter integration time).
 *)
 
-Agilent.SendString(Agil.getCommand(' CURR:DC:NPLC 100 ' + #10));  //Включаем фильтр NPLC 100
-getLastError(Agilent.LastError);
+
 
 Agilent.SendString(Agil.getCommand('*TRG'  + #10));
-sleep(5000); //пауза нужна для попадания результата измерения в буфер обмена
+sleep(6000); //пауза нужна для попадания результата измерения в буфер обмена
 Agilent.SendString(Agil.getCommand('R?' + #10));
 getLastError(Agilent.LastError);
 

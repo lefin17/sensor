@@ -531,7 +531,7 @@ Memo1.Append(IntToStr(Agilent.LastError));
 
 Agilent.SendString(Agil.getCommand('*TRG'  + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
- sleep(1000);
+ sleep(6000);
  Agilent.SendString(Agil.getCommand('R?' + #10));
 Memo1.Append('Error after R command: ' + IntToStr(Agilent.LastError));
 
