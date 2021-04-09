@@ -78,6 +78,8 @@ type
     Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
     virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
     VerificationDots: array of double; //экспериментальные точки
+    AgilDots: array of double; //точки по данному АЦП с Agilent'а
+    VoltageDots: array of double; //точки по данному измерению с AЦП платы
     Coefs: array of double; //коэффициенты полинома функции восстановления
     function fi(power: integer; x1: Double):Double; //функция по восстановлению значения
   end;
@@ -92,7 +94,7 @@ implementation
 
 function TADC.fi(power: integer; x1: Double):Double;
 {Аппроксимирующая функция по найденным коэффициентам МНК}
-{power - степень полинома, c - вектор коэффициентов,
+{power - степень полинома, Coefs - вектор коэффициентов,
  x1 - точка, в которой ищем значение}
 var i:integer; p:Double;
 begin
@@ -154,8 +156,21 @@ getLastError(Agilent.LastError);
 Agilent.SendString(Agil.getCommand('INITiate' + #10));  //Включить ожидание запуска
 getLastError(Agilent.LastError);
 
+(*
+Syntax
+[SENSe:]CURRent[:DC]:NPLC {<PLCs>|MIN|MAX|DEF}
+
+[SENSe:]CURRent[:DC]:NPLC? [{MIN|MAX}]
+
+Description
+This command sets the integration time in number of power line cycles (PLCs) for dc current measurements. Integration time affects the measurement resolution (for better resolution, use a longer integration time) and measurement speed (for faster measurements, use a shorter integration time).
+*)
+
+Agilent.SendString(Agil.getCommand(' CURR:DC:NPLC 100 ' + #10));  //Включаем фильтр NPLC 100
+getLastError(Agilent.LastError);
+
 Agilent.SendString(Agil.getCommand('*TRG'  + #10));
-sleep(500); //пауза нужна для попадания результата измерения в буфер обмена
+sleep(5000); //пауза нужна для попадания результата измерения в буфер обмена
 Agilent.SendString(Agil.getCommand('R?' + #10));
 getLastError(Agilent.LastError);
 

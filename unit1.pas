@@ -21,12 +21,16 @@ type
 
   TForm1 = class(TForm)
     Button1: TButton;
+    Button10: TButton;
+    Button11: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
     Button7: TButton;
+    Button8: TButton;
+    Button9: TButton;
     ComboBox1: TComboBox;
  //   DataPortSerial1: TDataPortSerial;
 // Serial: TBlockSerial;
@@ -51,7 +55,10 @@ type
     Timer1: TTimer;
     Checkbox1 : TCheckbox;
     //нажатие на checkbox
+    procedure Button10Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
     procedure CheckBox1OnChange(Sender: TObject);
   //  procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -216,16 +223,24 @@ Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
 Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
 
+
 //# Настроить запуска измерения по команде '*TRG'
 Agilent.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
 
+// Agilent.SendString(Agil.getCommand('CURR:DC:NPLC 10' + #10));  //NPLC
+// Memo1.Append('NPLC: ' + IntToStr(Agilent.LastError));
+
 Agilent.SendString(Agil.getCommand('INITiate' + #10));  //Включить ожидание запуска
 Memo1.Append(IntToStr(Agilent.LastError));
 
+
+
+//'CURR:DC:NPLC 100 ' + #10)
+
 Agilent.SendString(Agil.getCommand('*TRG'  + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
- sleep(500);
+ sleep(1000);
  Agilent.SendString(Agil.getCommand('R?' + #10));
 Memo1.Append('Error after R command: ' + IntToStr(Agilent.LastError));
 
@@ -407,6 +422,175 @@ begin
  for i:=0 to power do Memo1.Append('c[' + IntToStr(i) + '] := ' + FloatToStr(mnk.c[i]));
   mnk.Free;
 //  writeln;
+end;
+
+procedure TForm1.Button10Click(Sender: TObject);
+var ip: string;
+    Agilent: TTCPBlockSocket;
+    ms: TMemoryStream;
+    value, cmd: string;
+    var clientBuffer: array of byte;
+    I: integer;
+    output : string;
+    b: Byte;
+//    Buffer: TMemory;
+begin
+
+Agilent := TTCPBlockSocket.Create;
+//ms:=TMemoryStream.Create;
+Agilent.Connect(Agil.ip, '5025');  //подключение к Agilent
+Memo1.Append(IntToStr(Agilent.LastError));
+
+Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
+
+//Agilent.SendString(Agil.getCommand('CURR:DC:NPLC 10' + #10));
+//Memo1.Append(IntToStr(Agilent.LastError));
+
+
+//# Настроить запуска измерения по команде '*TRG'
+Agilent.SendString(Agil.getCommand('CURR:DC:NPLC?' + #10));
+Memo1.Append('GET NPLC: ' + IntToStr(Agilent.LastError));
+
+
+ sleep(2000);
+// Agilent.SendString(Agil.getCommand('R?' + #10));
+//Memo1.Append('Error after R command: ' + IntToStr(Agilent.LastError));
+
+value := Agilent.RecvPacket(500);
+//#
+//Agilent.SendString(Agil.getCommand('FETCh?'  + #10)) ; //Передать измерение
+
+// b := Agilent.RecvByte(1000);
+// value := chr(b);
+Memo1.Append('Error after byte recive: ' + IntToStr(Agilent.LastError));
+// value := Agilent.RecvBufferStr(1000, 1000);
+
+Memo1.Append(IntToStr(Length(value)) + ' value:' +  value + ': v');
+  sleep(1000);
+
+  Agilent.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));
+  Memo1.Append(IntToStr(Agilent.LastError));
+
+Agilent.SendString(Agil.getCommand('*TRG'  + #10));
+Memo1.Append(IntToStr(Agilent.LastError));
+ sleep(1000);
+ Agilent.SendString(Agil.getCommand('R?' + #10));
+Memo1.Append('Error after R command: ' + IntToStr(Agilent.LastError));
+
+value := Agilent.RecvPacket(1000);
+//#
+//Agilent.SendString(Agil.getCommand('FETCh?'  + #10)) ; //Передать измерение
+
+// b := Agilent.RecvByte(1000);
+// value := chr(b);
+Memo1.Append('Error after byte recive: ' + IntToStr(Agilent.LastError));
+// value := Agilent.RecvBufferStr(1000, 1000);
+
+Memo1.Append(IntToStr(Length(value)) + ' value:' +  value + ': v');
+Agilent.Free;
+
+end;
+
+procedure TForm1.Button11Click(Sender: TObject);
+
+    var ip: string;
+        Agilent: TTCPBlockSocket;
+        ms: TMemoryStream;
+        value, cmd: string;
+        var clientBuffer: array of byte;
+        I: integer;
+        output : string;
+        b: Byte;
+    //    Buffer: TMemory;
+begin
+ Agilent := TTCPBlockSocket.Create;
+ //ms:=TMemoryStream.Create;
+ Agilent.Connect(Agil.ip, '5025');  //подключение к Agilent
+ Memo1.Append(IntToStr(Agilent.LastError));
+
+ Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
+
+Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC MAX' + #10));
+Memo1.Append(IntToStr(Agilent.LastError));
+Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC 100' + #10));
+Memo1.Append(IntToStr(Agilent.LastError));
+
+//# Настроить запуска измерения по команде '*TRG'
+Agilent.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));
+Memo1.Append(IntToStr(Agilent.LastError));
+
+// Agilent.SendString(Agil.getCommand('CURR:DC:NPLC 10' + #10));  //NPLC
+// Memo1.Append('NPLC: ' + IntToStr(Agilent.LastError));
+
+Agilent.SendString(Agil.getCommand('INITiate' + #10));  //Включить ожидание запуска
+Memo1.Append(IntToStr(Agilent.LastError));
+
+
+
+//'CURR:DC:NPLC 100 ' + #10)
+
+Agilent.SendString(Agil.getCommand('*TRG'  + #10));
+Memo1.Append(IntToStr(Agilent.LastError));
+ sleep(6000);
+ Agilent.SendString(Agil.getCommand('R?' + #10));
+Memo1.Append('Error after R command: ' + IntToStr(Agilent.LastError));
+
+value := Agilent.RecvPacket(1000);
+//#
+//Agilent.SendString(Agil.getCommand('FETCh?'  + #10)) ; //Передать измерение
+
+// b := Agilent.RecvByte(1000);
+// value := chr(b);
+Memo1.Append('Error after byte recive: ' + IntToStr(Agilent.LastError));
+// value := Agilent.RecvBufferStr(1000, 1000);
+
+Memo1.Append(IntToStr(Length(value)) + ' value:' +  value + ': v');
+Agilent.Free;
+end;
+
+procedure TForm1.Button9Click(Sender: TObject);
+var ip: string;
+    Agilent: TTCPBlockSocket;
+    ms: TMemoryStream;
+    value, cmd: string;
+    var clientBuffer: array of byte;
+    I: integer;
+    output : string;
+    b: Byte;
+//    Buffer: TMemory;
+begin
+
+Agilent := TTCPBlockSocket.Create;
+//ms:=TMemoryStream.Create;
+Agilent.Connect(Agil.ip, '5025');  //подключение к Agilent
+Memo1.Append(IntToStr(Agilent.LastError));
+
+Agilent.ConnectionTimeout:=10000; //TimeOut 1s (1000 ms)
+
+Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC 0.2' + #10));
+Memo1.Append(IntToStr(Agilent.LastError));
+
+
+//# Настроить запуска измерения по команде '*TRG'
+Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC?' + #10));
+Memo1.Append(IntToStr(Agilent.LastError));
+
+
+ sleep(2000);
+// Agilent.SendString(Agil.getCommand('R?' + #10));
+//Memo1.Append('Error after R command: ' + IntToStr(Agilent.LastError));
+
+value := Agilent.RecvPacket(1000);
+//#
+//Agilent.SendString(Agil.getCommand('FETCh?'  + #10)) ; //Передать измерение
+
+// b := Agilent.RecvByte(1000);
+// value := chr(b);
+Memo1.Append('Error after byte recive: ' + IntToStr(Agilent.LastError));
+// value := Agilent.RecvBufferStr(1000, 1000);
+
+Memo1.Append(IntToStr(Length(value)) + ' value:' +  value + ': v');
+Agilent.Free;
 end;
 
 procedure TForm1.MenuItem6Click(Sender: TObject);

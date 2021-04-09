@@ -1,11 +1,11 @@
 object Form4: TForm4
-  Left = 535
+  Left = 181
   Height = 740
-  Top = 158
-  Width = 772
+  Top = 154
+  Width = 1136
   Caption = 'Поверка'
   ClientHeight = 740
-  ClientWidth = 772
+  ClientWidth = 1136
   OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
   object StringGrid1: TStringGrid
@@ -45,8 +45,8 @@ object Form4: TForm4
   end
   object Memo1: TMemo
     Left = 10
-    Height = 134
-    Top = 591
+    Height = 110
+    Top = 615
     Width = 413
     Lines.Strings = (
       'Memo1'
@@ -85,7 +85,7 @@ object Form4: TForm4
     Left = 448
     Height = 684
     Top = 36
-    Width = 311
+    Width = 320
     ColCount = 3
     DefaultColWidth = 100
     ScrollBars = ssAutoVertical
@@ -117,6 +117,32 @@ object Form4: TForm4
     Caption = 'Gauss'
     OnClick = Button5Click
     TabOrder = 7
+  end
+  object StringGrid3: TStringGrid
+    Left = 784
+    Height = 676
+    Top = 37
+    Width = 329
+    ColCount = 4
+    TabOrder = 8
+  end
+  object Button6: TButton
+    Left = 181
+    Height = 27
+    Top = 580
+    Width = 239
+    Caption = 'Сохранить таблицу полиномов'
+    OnClick = Button6Click
+    TabOrder = 9
+  end
+  object Button7: TButton
+    Left = 10
+    Height = 33
+    Top = 574
+    Width = 96
+    Caption = 'Gauss7'
+    OnClick = Button5Click
+    TabOrder = 10
   end
   object SaveDialog1: TSaveDialog
     Left = 248
