@@ -101,7 +101,7 @@ object Form4: TForm4
     TabOrder = 5
   end
   object Button4: TButton
-    Left = 178
+    Left = 200
     Height = 32
     Top = 544
     Width = 243
@@ -120,14 +120,14 @@ object Form4: TForm4
   end
   object StringGrid3: TStringGrid
     Left = 784
-    Height = 676
+    Height = 555
     Top = 37
     Width = 329
     ColCount = 4
     TabOrder = 8
   end
   object Button6: TButton
-    Left = 181
+    Left = 200
     Height = 27
     Top = 580
     Width = 239
@@ -135,17 +135,30 @@ object Form4: TForm4
     OnClick = Button6Click
     TabOrder = 9
   end
+  object Button8: TButton
+    Left = 783
+    Height = 25
+    Top = 622
+    Width = 75
+    Caption = 'Test'
+    OnClick = Button8Click
+    TabOrder = 10
+  end
   object Button7: TButton
     Left = 10
-    Height = 33
-    Top = 574
-    Width = 96
-    Caption = 'Gauss7'
-    OnClick = Button5Click
-    TabOrder = 10
+    Height = 27
+    Top = 580
+    Width = 184
+    Caption = 'Открыть файл результатов'
+    OnClick = Button7Click
+    TabOrder = 11
   end
   object SaveDialog1: TSaveDialog
     Left = 248
+    Top = 496
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 280
     Top = 496
   end
 end

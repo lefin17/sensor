@@ -19,11 +19,13 @@ type
     Button5: TButton;
     Button6: TButton;
     Button7: TButton;
+    Button8: TButton;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Memo1: TMemo;
+    OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     StringGrid1: TStringGrid;
     StringGrid2: TStringGrid;
@@ -34,6 +36,8 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure WriteCells3(Addr, power: integer; key: string; value: string);
   private
@@ -219,14 +223,17 @@ Dots: integer; //число точек измерения
 maxD, errI: double;
 begin
   StringGrid3.RowCount:=1;
+  Memo1.Append('Modbus.units: ' + intTostr(Modbus.units));
   for m := 2 to 7 do
      begin
      power := m;
+     Memo1.Append('power: ' + intToStr(m));
 
      for i := 0 to (Modbus.units - 1) do //цикл по платам
          begin
          maxD := 0; //максимальная ошибка
          errI := 0; //интегральная ошибка
+         memo1.Append('ADC ' + IntToStr(i) + ' ADC[i].Ver.length: '+ IntToStr(Length(ADC[i].VerificationDots)));
 
          Dots := Length(ADC[i].VerificationDots); //длина массива точек измерения
          if (Dots < power + 1) then
@@ -234,15 +241,21 @@ begin
             Memo1.Append('Не достаточно точек измерения');
             continue;
             end;
-
+            mnk := NILL;
             mnk := TMNK.Create;
+            Memo1.Append('mnk created');
+            sleep(100);
+            Memo1.Append('sleep complite');
             mnk.setNM(Dots, power); //устанавливаем размерность массива
+            Memo1.Append('set n, m');
             for j := 0 to Dots - 1 do
                 begin
                 mnk.x[j] := ADC[i].VoltageDots[j]; //показания с АЦП
                 mnk.f[j] := ADC[i].AgilDots[j]; //показания с agilentа;
                 end;
+            Memo1.Append('dots set complite');
             mnk.Gram;  // (n,m,x,f,a); {считаем матрицу Грама}
+            Memo1.Append('Gram done');
             mnk.Gauss; // (m,a,c);;
 
             Memo1.Append('Коэффициенты полинома МНК ' +  IntToStr(power) + ' степени для ИП(' + IntToStr(ADC[i].Address) + ')');
@@ -254,7 +267,7 @@ begin
                // ADC[i].Coefs[k] := mnk.c[k]; //присвоение найденного полинома нужному значению.
                 end;
             //максимальная ошибка по точкам от agilent'а
-            for j := 0 to Dots do
+            for j := 0 to Dots - 1 do
                if maxD < abs(ADC[i].AgilDots[j] - mnk.fi(ADC[i].VoltageDots[j])) then
                   maxD := abs(ADC[i].AgilDots[j] - mnk.fi(ADC[i].VoltageDots[j]));
                   WriteCells3(ADC[i].Address, power, 'errMax', FloatToStr(maxD));  //пишем в таблицу максимальную ошибку для заданной степени полинома
@@ -290,6 +303,102 @@ begin
         end;
     closefile(f);
    end;
+end;
+
+procedure TForm4.Button7Click(Sender: TObject);
+//open results for quick load experiment
+var
+f: text;
+s, tmp: string;
+i, j, k, m : integer;
+line:string;
+dots: array of string;
+addr, index: integer;
+def, agl, avg, dev: double;
+act: boolean;
+oldDef : double;
+begin
+  //Сохранение второй таблицы
+   OpenDialog1.Filter:='*.txt|*.txt';
+   if OpenDialog1.Execute then
+   begin
+    k := 0;
+    s:=OpenDialog1.FileName;//берем имя файла
+    assignfile(f,s);//связываем имя переменной с файлом
+    reset(f);//открываем фвйл для записи//записываем массив в файл
+    Verification.currentIndex := 0;
+    oldDef := -1;
+    while not eof(f) do // находим минимум среди положительных и запоминаем его и его позицию
+    begin
+         k += 1;
+         readln(f, line);
+         dots := line.Split(#9);
+         if (Length(dots)<5) then continue;
+
+       //if (k = 1) then
+       //   begin
+             //заполнение заголовков таблицы
+             StringGrid1.RowCount := k;
+
+             for j := 0 to Length(dots) - 2 do
+             StringGrid1.Cells[j, k - 1] := dots[j];
+      //    end;
+
+         if (k = 1) then continue;  //строка заголовков
+
+         m := StrToInt(dots[0]);  //индекс измерения
+
+         def := StrToFloat(dots[1]); //не используется при расчетах
+         addr := StrToInt(dots[3]);   //адрес платы (если сейчас не инициализирована - пропускаем вообще)
+         act := false;
+         if (Length(ADC) > 0) then    //проверяем ПИ (плату) на инициализацию.
+         for j := 0 to Length(ADC) - 1  do
+             if (ADC[j].Address = addr) then
+             begin
+             act := true;
+             i := j; //нахождение индекса объекта с которым работаем
+             end;
+
+         if (not act) then
+         begin
+          memo1.Append('Device with address ' + IntToStr(addr) + ' not activated by search');
+          continue;
+         end;
+         agl := StrToFloat(dots[2]); //показания agilent
+         avg := StrToFloat(dots[4]);
+         dev := StrToFloat(dots[5]); //СКО (средне квадратичное - не используется при расчетах)
+
+         if (def <> oldDef) then
+         begin
+          Verification.currentIndex += 1;
+          oldDef := def;
+         end;
+         index := Verification.currentIndex;
+         SetLength(ADC[i].VerificationDots, index);
+         SetLength(ADC[i].AgilDots, index);
+         SetLength(ADC[i].VoltageDots, index);
+         //присваивание исходных точек нужным объектам
+         ADC[i].VerificationDots[index - 1] :=  abs(avg - agl); // текущее отклонение без процентов
+         ADC[i].AgilDots[index - 1] := Agl;
+         ADC[i].VoltageDots[index - 1] := avg;
+    end;
+    closefile(f);
+   end;
+end;
+
+procedure TForm4.Button8Click(Sender: TObject);
+var i : integer;
+begin
+  StringGrid3.RowCount := 1;
+  for i:= 0 to 10 do
+   begin
+   StringGrid3.RowCount := StringGrid3.RowCount + 1;
+   StringGrid3.Cells[0, StringGrid3.RowCount - 1] := 'A';;
+   StringGrid3.Cells[1, StringGrid3.RowCount - 1] := 'B';
+   StringGrid3.Cells[2, StringGrid3.RowCount - 1] := 'C';
+   StringGrid3.Cells[3, StringGrid3.RowCount - 1] := 'D';
+   end;
+
 end;
 
 

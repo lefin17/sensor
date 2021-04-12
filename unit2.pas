@@ -134,6 +134,7 @@ var IP: string;
 begin
 IniFile := TIniFile.Create('settings.ini');
 IP := Edit1.Text;
+Agil.ip := IP;
 IniFile.WriteString('Agilent', 'IP', IP);
 IniFile.free;
 end;

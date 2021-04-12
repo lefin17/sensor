@@ -132,9 +132,12 @@ var i: integer;
 begin
  n := Dots + 1;
  m := Power;
- SetLength(a, m + 2);
- for i := 0 to (m + 2) do
-      SetLength(a[i], m + 2);
+ SetLength(a, n + 2);
+ for i := 0 to (n + 1) do
+      begin
+      SetLength(a[i], n + 2);
+      a[i] := 0;
+      end;
  SetLength(x, n + 2);
  SetLength(f, n + 2);
  SetLength(c, n + 2);

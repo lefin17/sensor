@@ -133,8 +133,11 @@ begin
  n := Dots + 1;
  m := Power;
  SetLength(a, n + 2);
- for i := 0 to (n + 2) do
+ for i := 0 to (n + 1) do
+      begin
       SetLength(a[i], n + 2);
+     // a[i][ := 0;
+      end;
  SetLength(x, n + 2);
  SetLength(f, n + 2);
  SetLength(c, n + 2);

@@ -78,7 +78,7 @@ Agil.ip := IniFile.ReadString('Agilent', 'IP', '192.168.103.103');
 end;
 
 procedure TForm2.Edit4Change(Sender: TObject);
-polyPower : integer;
+var polyPower : integer;
 begin
 IniFile := TIniFile.Create('settings.ini');
 polyPower := StrToInt(Edit4.Text);
