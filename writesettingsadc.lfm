@@ -1,0 +1,100 @@
+object Form5: TForm5
+  Left = 256
+  Height = 685
+  Top = 145
+  Width = 1152
+  Caption = 'Запись полинома на плату'
+  ClientHeight = 685
+  ClientWidth = 1152
+  LCLVersion = '2.0.10.0'
+  object Chart1: TChart
+    Left = 328
+    Height = 664
+    Top = 8
+    Width = 809
+    AxisList = <    
+      item
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelFont.Orientation = 900
+        Title.LabelBrush.Style = bsClear
+      end    
+      item
+        Alignment = calBottom
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelBrush.Style = bsClear
+      end>
+    Foot.Brush.Color = clBtnFace
+    Foot.Font.Color = clBlue
+    Title.Brush.Color = clBtnFace
+    Title.Font.Color = clBlue
+    Title.Text.Strings = (
+      'TAChart'
+    )
+  end
+  object Button1: TButton
+    Left = 17
+    Height = 48
+    Top = 416
+    Width = 288
+    Caption = 'Записать полином'
+    TabOrder = 1
+  end
+  object Memo1: TMemo
+    Left = 13
+    Height = 144
+    Top = 512
+    Width = 291
+    Lines.Strings = (
+      'Memo1'
+    )
+    TabOrder = 2
+  end
+  object StringGrid1: TStringGrid
+    Left = 17
+    Height = 184
+    Top = 176
+    Width = 287
+    ColCount = 2
+    DefaultColWidth = 140
+    RowCount = 8
+    TabOrder = 3
+  end
+  object Label1: TLabel
+    Left = 26
+    Height = 28
+    Top = 20
+    Width = 53
+    Caption = 'Плата'
+    Font.Height = -20
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label2: TLabel
+    Left = 26
+    Height = 28
+    Top = 56
+    Width = 174
+    Caption = 'Степень полинома'
+    Font.Height = -20
+    ParentColor = False
+    ParentFont = False
+  end
+  object Button2: TButton
+    Left = 16
+    Height = 40
+    Top = 368
+    Width = 288
+    Caption = 'Показать график коррекции'
+    TabOrder = 4
+  end
+  object Button3: TButton
+    Left = 17
+    Height = 25
+    Top = 480
+    Width = 287
+    Caption = 'Читать полином'
+    TabOrder = 5
+  end
+end

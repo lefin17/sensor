@@ -125,6 +125,7 @@ object Form4: TForm4
     Width = 329
     ColCount = 4
     TabOrder = 8
+    OnDblClick = StringGrid3DblClick
   end
   object Button6: TButton
     Left = 200

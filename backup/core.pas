@@ -150,7 +150,7 @@ Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
 Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC' + #10));
 getLastError(Agilent.LastError);
 
-Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC 100 ' + #10));  //Включаем фильтр NPLC 100
+Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC 100' + #10));  //Включаем фильтр NPLC 100
 getLastError(Agilent.LastError);
 
 Agilent.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));

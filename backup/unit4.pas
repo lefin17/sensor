@@ -39,6 +39,7 @@ type
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure StringGrid3DblClick(Sender: TObject);
     procedure WriteCells3(Addr, power: integer; key: string; value: string);
   private
 
@@ -74,6 +75,11 @@ begin
   StringGrid3.Cells[1,0] := 'Power'; //степень полинома
   StringGrid3.Cells[2,0] := 'key'; //что отображаем
   StringGrid3.Cells[3,0] := 'value'; //значение того что отображаем
+end;
+
+procedure TForm4.StringGrid3DblClick(Sender: TObject);
+begin
+  //запись платы
 end;
 
 procedure TForm4.Button1Click(Sender: TObject);
@@ -133,9 +139,10 @@ begin
       StringGrid1.Cells[5, index] := FloatToStr(Modbus.VoltageDeviation);
       end;
 
-   if (Verification.CurrentV < 5) then
+   if (Verification.CurrentV < Verification.Vmax - 0.01) then //здесь дельта погрешность из-за задаваемого значения максимального и минимального напряжений
     begin
-    Verification.CurrentV += 5/(Verification.N-1);
+//    Verification.CurrentV += 5/(Verification.N-1);
+         Verification.CurrentV += (Verification.Vmax - Verification.Vmin)/(Verification.N-1);
     Label3.Caption := FloatToStr(Verification.CurrentV)
     end
     else
@@ -145,8 +152,10 @@ end;
 procedure TForm4.Button2Click(Sender: TObject);
 begin
   //инициализация
-  Label3.Caption := '0 [V]';
-  Verification.CurrentV := 0.0;
+//  Label3.Caption := '0 [V]';
+//  Verification.CurrentV := 0.0;
+  Verification.CurrentV := Verification.Vmin;
+  Label3.Caption := FloatToStr(Verification.Vmin) + ' [V]';
   Verification.currentIndex := 0;
   Label4.Caption:= IntToStr(Modbus.selectedUnits);
   Button1.Enabled := True;
@@ -241,7 +250,7 @@ begin
             Memo1.Append('Не достаточно точек измерения');
             continue;
             end;
-            mnk := NILL;
+           // mnk := NILL;
             mnk := TMNK.Create;
             Memo1.Append('mnk created');
             sleep(100);

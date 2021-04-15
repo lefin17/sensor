@@ -5,7 +5,8 @@ unit Unit2;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, inifiles, core,strutils;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Grids,
+  inifiles, core, strutils;
 
 type
 
@@ -15,6 +16,7 @@ type
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
+    Button4: TButton;
     ComboBox1: TComboBox;
     ComboBox2: TComboBox;
     ComboBox3: TComboBox;
@@ -23,7 +25,12 @@ type
     Edit2: TEdit;
     Edit3: TEdit;
     Edit4: TEdit;
+    Edit5: TEdit;
+    Edit6: TEdit;
     Label1: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -32,7 +39,12 @@ type
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
+    StringGrid1: TStringGrid;
+    procedure Button4Click(Sender: TObject);
     procedure Edit4Change(Sender: TObject);
+    procedure Edit5Change(Sender: TObject);
+    procedure Edit6Change(Sender: TObject);
+    procedure Label12Click(Sender: TObject);
     procedure readIni;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -72,6 +84,8 @@ Modbus.maxAddr := IniFile.ReadInteger('Modbus', 'maxAddr', 64);
 
 Verification.N := IniFile.ReadInteger('Verification', 'Attemts', 5);
 Verification.Power := IniFile.ReadInteger('Verification', 'Power', 2);
+Verification.Vmin := IniFile.ReadFloat('Verification', 'Vmin', 0);
+Verification.Vmax := IniFile.ReadFloat('Verification', 'Vmax', 5);
 
 Agil.ip := IniFile.ReadString('Agilent', 'IP', '192.168.103.103');
    IniFile.Free;
@@ -85,6 +99,62 @@ polyPower := StrToInt(Edit4.Text);
 Verification.Power := polyPower;
 IniFile.WriteInteger('Verification', 'Power', polyPower);
 IniFile.free;
+end;
+
+procedure TForm2.Button4Click(Sender: TObject);
+var i: integer;
+  delta, ui: double;
+
+begin
+  //показать точки эксперимента
+  StringGrid1.RowCount := 1;
+  StringGrid1.Cells[0, 0] := '#N';
+  StringGrid1.Cells[1, 0] := 'V(def)';
+
+  delta := (Verification.Vmax - Verification.Vmin)/(Verification.N-1);
+  ui := Verification.Vmin;
+  for i:= 0 to Verification.N do
+      begin
+        StringGrid1.RowCount := StringGrid1.RowCount + 1;
+        StringGrid1.Cells[0, i + 1] := IntToStr(i);
+        StringGrid1.Cells[1, i + 1] := FloatToStr(ui);
+        ui += delta;
+      end;
+end;
+
+procedure TForm2.Edit5Change(Sender: TObject);
+var Vmin: double;
+begin
+   //Vmin change
+try
+  IniFile := TIniFile.Create('settings.ini');
+  Vmin := StrToFloat(Edit5.Text);
+  Verification.Vmin := Vmin;
+  IniFile.WriteFloat('Verification', 'Vmin', Vmin);
+  IniFile.free;
+
+finally
+end;
+
+end;
+
+procedure TForm2.Edit6Change(Sender: TObject);
+var Vmax: double;
+begin
+
+  IniFile := TIniFile.Create('settings.ini');
+  try
+  Vmax := StrToFloat(Edit6.Text);
+  Verification.Vmax := Vmax;
+  IniFile.WriteFloat('Verification', 'Vmax', Vmax);
+  finally
+  end;
+  IniFile.free;
+end;
+
+procedure TForm2.Label12Click(Sender: TObject);
+begin
+
 end;
 
 procedure TForm2.Label4Click(Sender: TObject);
@@ -112,6 +182,9 @@ begin
    Edit1.Text := Agil.ip;
    Edit3.Text := IntToStr(Modbus.maxAddr);
    Edit4.Text := IntToStr(Verification.Power); //степень полинома
+   Edit5.Text := FloatToStr(Verification.Vmin); //от какого напряжения снимаем показания
+   Edit6.Text := FloatToStr(Verification.Vmax);
+
 end;
 
 procedure TForm2.ComboBox4Change(Sender: TObject);
@@ -134,6 +207,7 @@ var IP: string;
 begin
 IniFile := TIniFile.Create('settings.ini');
 IP := Edit1.Text;
+Agil.ip := IP;
 IniFile.WriteString('Agilent', 'IP', IP);
 IniFile.free;
 end;

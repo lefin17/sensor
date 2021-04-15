@@ -64,6 +64,7 @@ type TVerification = Object
      Power: integer; //степень полинома для функции восстановления
      CurrentV: Double; // текущее напряжение для задания на вольтметре
      currentIndex : integer; //текущий индекс чтения
+     Vmin, Vmax: double; //от куда и до куда проводим эксперимент
      end;
 
 type
