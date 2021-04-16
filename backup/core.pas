@@ -8,6 +8,9 @@ uses
   Classes, SysUtils, dateutils, strutils, LazSynaSer,   blcksock;
 
 type
+  TBytes8 = array[0..7] of Byte; //для преобразования числел для платы
+
+type
   TModbus = class
     fromAddress: integer; //адрес с которого проходит поиск по шине
     units: integer;  //число найденых объектов
@@ -32,6 +35,8 @@ type
     portStatus: string; //статус порта если не удалось подключиться для отображения
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
+    function Bytes2Double(a: TBytes8): Double; //преобразование байт в массив
+    function Double2Bytes(d: Double): TBytes8;
     function cmd(addr, command, param: string):string;
     function Send(data: string): string;
     function RRRuningTime(answer: string):integer; //определение времени наработки на отказ (RR -  Read Result)
@@ -64,6 +69,7 @@ type TVerification = Object
      Power: integer; //степень полинома для функции восстановления
      CurrentV: Double; // текущее напряжение для задания на вольтметре
      currentIndex : integer; //текущий индекс чтения
+     Vmin, Vmax: double; //от куда и до куда проводим эксперимент
      end;
 
 type
@@ -74,6 +80,7 @@ type
     selected: boolean; //выбрано ли устройство для работы с ним
     PGA: integer; //значение усилителя
     SerialNumber: string; //серийный номер объекта
+    PolyPower: integer; //текущая степень полинома карты
     ErrorCounter: integer; //счетчик ошибок
     Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
     virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
@@ -91,6 +98,20 @@ var
    ADC: array of TADC;
 
 implementation
+
+function TModbus.Double2Bytes(d: Double): TBytes8;
+var
+  r: TBytes8 absolute d;
+begin
+  Result := r;
+end;
+
+function TModbus.Bytes2Double(a: TBytes8): Double;
+var
+  r: Double absolute a;
+begin
+  Result := r;
+end;
 
 function TADC.fi(power: integer; x1: Double):Double;
 {Аппроксимирующая функция по найденным коэффициентам МНК}
@@ -469,6 +490,8 @@ begin
      'setEXEC': res += ' 06 10 00 00 01'; //перевод в режим EXEC
      'getADS' : res += ' 03 0A 00 00 13'; //чтение всех настроек ADS
      'getADSFilters': res += ' 03 1D 00 00 20'; //Регистры данных КИХ Фильтров
+     'putCoefs': res += '10' + param;
+     'readCoefs': res += '03' + param; //
      end;
      res += ' DE AD'; //конец слова команды
      Result := res;

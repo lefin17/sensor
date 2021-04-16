@@ -1,0 +1,137 @@
+object Form5: TForm5
+  Left = 256
+  Height = 685
+  Top = 145
+  Width = 1152
+  Caption = 'Запись полинома на плату'
+  ClientHeight = 685
+  ClientWidth = 1152
+  OnCreate = FormCreate
+  OnShow = FormShow
+  LCLVersion = '2.0.10.0'
+  object Chart1: TChart
+    Left = 328
+    Height = 664
+    Top = 8
+    Width = 809
+    AxisList = <    
+      item
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelFont.Orientation = 900
+        Title.LabelBrush.Style = bsClear
+      end    
+      item
+        Alignment = calBottom
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelBrush.Style = bsClear
+      end>
+    Foot.Brush.Color = clBtnFace
+    Foot.Font.Color = clBlue
+    Title.Brush.Color = clBtnFace
+    Title.Font.Color = clBlue
+    Title.Text.Strings = (
+      'TAChart'
+    )
+    object Chart1LineSeries1: TLineSeries
+    end
+    object Chart1BubbleSeries1: TBubbleSeries
+    end
+  end
+  object Button1: TButton
+    Left = 17
+    Height = 48
+    Top = 416
+    Width = 288
+    Caption = 'Записать полином'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object Memo1: TMemo
+    Left = 13
+    Height = 144
+    Top = 512
+    Width = 291
+    Lines.Strings = (
+      'Memo1'
+    )
+    TabOrder = 2
+  end
+  object StringGrid1: TStringGrid
+    Left = 17
+    Height = 216
+    Top = 144
+    Width = 287
+    ColCount = 2
+    DefaultColWidth = 140
+    RowCount = 8
+    TabOrder = 3
+  end
+  object Label1: TLabel
+    Left = 26
+    Height = 28
+    Top = 20
+    Width = 53
+    Caption = 'Плата'
+    Font.Height = -20
+    ParentColor = False
+    ParentFont = False
+  end
+  object Button2: TButton
+    Left = 16
+    Height = 40
+    Top = 368
+    Width = 128
+    Caption = 'график ADC-AA'
+    OnClick = Button2Click
+    TabOrder = 4
+  end
+  object Button3: TButton
+    Left = 17
+    Height = 25
+    Top = 480
+    Width = 287
+    Caption = 'Читать полином'
+    OnClick = Button3Click
+    TabOrder = 5
+  end
+  object RadioGroup1: TRadioGroup
+    Left = 17
+    Height = 72
+    Top = 64
+    Width = 281
+    AutoFill = True
+    Caption = 'Степень полинома'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 3
+    ClientHeight = 52
+    ClientWidth = 277
+    Columns = 3
+    ItemIndex = 0
+    Items.Strings = (
+      '2'
+      '3'
+      '4'
+      '5'
+      '6'
+      '7'
+    )
+    OnClick = RadioGroup1Click
+    TabOrder = 6
+  end
+  object Button4: TButton
+    Left = 159
+    Height = 41
+    Top = 368
+    Width = 147
+    Caption = 'график E-A'
+    OnClick = Button4Click
+    TabOrder = 7
+  end
+end

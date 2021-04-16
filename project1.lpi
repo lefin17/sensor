@@ -97,6 +97,7 @@
         <Filename Value="writesettingsadc.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form5"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="writeSettingsADC"/>
       </Unit8>

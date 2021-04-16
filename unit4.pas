@@ -79,9 +79,28 @@ begin
 end;
 
 procedure TForm4.StringGrid3DblClick(Sender: TObject);
+var addr, polyPower, col, row, i : integer;
+
 begin
   //запись платы
-  Row
+  // Row
+
+  row := StringGrid3.Row;
+
+  if (row = 0) then exit;
+  col := StringGrid3.Col;
+  addr := StrToInt(StringGrid3.Cells[0, row]);
+  polyPower := StrToInt(StringGrid3.Cells[1, row]);
+  for i := 0 to Length(ADC) - 1 do
+      if (ADC[i].Address = addr) then
+         begin
+         Form5.indexAdc := i;
+         ADC[i].PolyPower  := polyPower;
+         break;
+         end;
+
+//  Form5.indexAdc:=addr;
+  Form5.show();
 end;
 
 procedure TForm4.Button1Click(Sender: TObject);
@@ -254,19 +273,19 @@ begin
             end;
            // mnk := NILL;
             mnk := TMNK.Create;
-            Memo1.Append('mnk created');
-            sleep(100);
-            Memo1.Append('sleep complite');
+          //  Memo1.Append('mnk created');
+           // sleep(100);
+           // Memo1.Append('sleep complite');
             mnk.setNM(Dots, power); //устанавливаем размерность массива
-            Memo1.Append('set n, m');
+           // Memo1.Append('set n, m');
             for j := 0 to Dots - 1 do
                 begin
                 mnk.x[j] := ADC[i].VoltageDots[j]; //показания с АЦП
                 mnk.f[j] := ADC[i].AgilDots[j]; //показания с agilentа;
                 end;
-            Memo1.Append('dots set complite');
+         //   Memo1.Append('dots set complite');
             mnk.Gram;  // (n,m,x,f,a); {считаем матрицу Грама}
-            Memo1.Append('Gram done');
+         //   Memo1.Append('Gram done');
             mnk.Gauss; // (m,a,c);;
 
             Memo1.Append('Коэффициенты полинома МНК ' +  IntToStr(power) + ' степени для ИП(' + IntToStr(ADC[i].Address) + ')');

@@ -5,7 +5,8 @@ unit Unit4;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Grids, StdCtrls, core, MathCore;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Grids, StdCtrls, core, MathCore,
+  writeSettingsADC; //запись данных на плату
 
 type
 
@@ -78,8 +79,28 @@ begin
 end;
 
 procedure TForm4.StringGrid3DblClick(Sender: TObject);
+var addr, polyPower, col, row, i : integer;
+
 begin
   //запись платы
+  // Row
+
+  row := StringGrid3.Row;
+
+  if (row = 0) then exit;
+  col := StringGrid3.Col;
+  addr := StrToInt(StringGrid3.Cells[0, row]);
+  polyPower := StrToInt(StringGrid3.Cells[1, row]);
+  for i := 0 to Length(ADC) - 1 do
+      if (ADC[i].Address = addr) then
+         begin
+         Form5.indexAdc := i;
+         ADC[i].PolyPower  := polyPower;
+         break;
+         end;
+
+//  Form5.indexAdc:=addr;
+  Form5.show();
 end;
 
 procedure TForm4.Button1Click(Sender: TObject);
