@@ -1,7 +1,7 @@
 object Form5: TForm5
-  Left = 256
+  Left = 439
   Height = 685
-  Top = 145
+  Top = 340
   Width = 1152
   Caption = 'Запись полинома на плату'
   ClientHeight = 685

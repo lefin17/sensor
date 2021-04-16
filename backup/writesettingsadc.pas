@@ -90,7 +90,8 @@ begin
           $1d$03$f0$00$00$03$de$ad
           Ответ: 1D 03 06 12 34 56 78 9A BC F1 83 *)
 
-         param := 'F7 0' + IntToStr(i) + '04';
+
+         param := 'F7 0' + IntToStr(i) + ' 00 04';
          cmd := Modbus.cmd(addr, 'readCoefs', param);
          Memo1.Append(cmd);
          stringToSend := Modbus.StrToHexStr(cmd);
@@ -111,6 +112,12 @@ var i: integer;
 begin
   //шаг 1. -> в цикле преобразовать Double в HEX
   addr := IntToHex(ADC[indexADC].Address, 2);
+           //перевод платы в режим Norm
+           cmd := Modbus.cmd(addr, 'setNorm', '');
+           stringToSend := Modbus.StrToHexStr(cmd);
+           response := Modbus.send(stringToSend);
+           Memo1.Append(response);
+
   for i := 0 to 7 do
       begin
         if (i <= ADC[indexAdc].PolyPower) then
