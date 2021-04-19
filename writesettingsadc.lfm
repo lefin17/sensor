@@ -1,7 +1,7 @@
 object Form5: TForm5
-  Left = 439
+  Left = 354
   Height = 685
-  Top = 340
+  Top = 239
   Width = 1152
   Caption = 'Запись полинома на плату'
   ClientHeight = 685
@@ -59,12 +59,12 @@ object Form5: TForm5
     TabOrder = 2
   end
   object StringGrid1: TStringGrid
-    Left = 17
+    Left = 19
     Height = 216
     Top = 144
     Width = 287
-    ColCount = 2
-    DefaultColWidth = 140
+    ColCount = 3
+    DefaultColWidth = 100
     RowCount = 8
     TabOrder = 3
   end

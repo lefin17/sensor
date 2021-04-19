@@ -51,10 +51,19 @@ implementation
 { TForm5 }
 
 procedure TForm5.WriteCells1(key: string; value: string);
+var b : array of byte;
+    c : byte;
+    s : string;
 begin
    StringGrid1.RowCount := StringGrid1.RowCount + 1;
    StringGrid1.Cells[0, StringGrid1.RowCount - 1] := key;
    StringGrid1.Cells[1, StringGrid1.RowCount - 1] := value;
+     SetLength(b, 8);
+        b := Modbus.Double2Bytes(StrToFloat(value));
+        s := '';
+        for c in b do s := s + ' ' + IntToHex(c,2);
+
+   StringGrid1.Cells[2, StringGrid1.RowCount - 1] := s; // (HEX)
 end;
 
 procedure TForm5.Button2Click(Sender: TObject);
@@ -128,7 +137,7 @@ begin
         b := Modbus.Double2Bytes(d);
         s := '';
         for c in b do s := s + ' ' + IntToHex(c,2);
-        Memo1.Append(FloatToStr(d) + ' HEX: ' +  s);
+        Memo1.Append('i: ' + IntToStr(i) + ' V: ' + FloatToStr(d) + ' HEX: ' +  s);
 
         //отправка данных на плату в пользовательскую область
 
@@ -138,7 +147,7 @@ begin
          Команда чтения данных:
           $1d$03$f0$00$00$03$de$ad
           Ответ: 1D 03 06 12 34 56 78 9A BC F1 83 *)
-         param := 'F7 0' + IntToStr(i) + '00 04 08' + s;
+         param := 'F7 ' + IntToStr(i) + '0 00 04 08' + s;
          // param := 'f0 00 00 03 06 12 34 56 78 9A BC' ; //тестовая запись
          cmd := Modbus.cmd(addr, 'putCoefs', param);
          Memo1.Append(cmd);
@@ -182,7 +191,9 @@ begin
    StringGrid1.cells[0,0] := 'key';
    StringGrid1.cells[1,0] := 'value'; //заголовок таблицы со степенями
     StringGrid1.ColWidths[0] := 50;
-    StringGrid1.ColWidths[1] := 150;
+    StringGrid1.ColWidths[1] := 100;
+    StringGrid1.ColWidths[2] := 100;
+
    SetLength(ADC[indexADC].Coefs, power + 1);
 
          maxD := 0; //максимальная ошибка
