@@ -1,20 +1,20 @@
 object Form1: TForm1
-  Left = 562
-  Height = 858
-  Top = 142
-  Width = 1000
+  Left = 559
+  Height = 812
+  Top = 94
+  Width = 1001
   Caption = 'Настройка и поверка плат АЦП'
-  ClientHeight = 838
-  ClientWidth = 1000
+  ClientHeight = 792
+  ClientWidth = 1001
   Menu = MainMenu1
   OnClose = FormClose
   OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
   object Memo1: TMemo
-    Left = 8
+    Left = 417
     Height = 130
-    Top = 704
-    Width = 984
+    Top = 560
+    Width = 576
     Lines.Strings = (
       'Старт программы. Здесь будет выводиться информация по обмену по шине Modbus или ошибки'
     )
@@ -31,7 +31,7 @@ object Form1: TForm1
   end
   object StringGrid1: TStringGrid
     Left = 9
-    Height = 560
+    Height = 544
     Top = 8
     Width = 984
     ColCount = 12
@@ -41,99 +41,107 @@ object Form1: TForm1
     OnClick = StringGrid1Click
   end
   object Button2: TButton
-    Left = 18
-    Height = 32
-    Top = 620
-    Width = 87
+    Left = 9
+    Height = 25
+    Top = 600
+    Width = 90
     Caption = 'SET SPS'
     TabOrder = 3
   end
   object ComboBox1: TComboBox
-    Left = 128
+    Left = 104
     Height = 23
-    Top = 624
-    Width = 100
+    Top = 600
+    Width = 104
     ItemHeight = 15
-    ItemIndex = 0
+    ItemIndex = 3
     Items.Strings = (
       '2.5'
       '4'
       '10'
       '400'
+      '1200'
+      '2400'
+      '4800'
+      '7200'
+      '14400'
+      '19200'
+      '25600'
+      '40000'
     )
     TabOrder = 4
-    Text = '2.5'
+    Text = '400'
   end
   object EditDevice: TEdit
-    Left = 560
+    Left = 592
     Height = 23
-    Top = 622
-    Width = 80
+    Top = 728
+    Width = 72
     TabOrder = 5
     Text = 'EditDevice'
   end
   object Button3: TButton
-    Left = 29
+    Left = 504
     Height = 25
-    Top = 666
-    Width = 211
-    Caption = 'Send Test line to 16 address'
+    Top = 728
+    Width = 80
+    Caption = 'test16'
     TabOrder = 6
   end
   object StatusBar1: TStatusBar
     Left = 0
     Height = 23
-    Top = 815
-    Width = 1000
+    Top = 769
+    Width = 1001
     Panels = <>
   end
   object Button4: TButton
-    Left = 340
+    Left = 589
     Height = 25
-    Top = 649
+    Top = 696
     Width = 75
     Caption = 'Button4'
     OnClick = Button4Click
     TabOrder = 8
   end
   object ProgressBar1: TProgressBar
-    Left = 480
-    Height = 20
-    Top = 576
-    Width = 513
+    Left = 103
+    Height = 25
+    Top = 665
+    Width = 305
     TabOrder = 9
   end
   object Button5: TButton
-    Left = 672
+    Left = 504
     Height = 25
-    Top = 620
-    Width = 75
+    Top = 696
+    Width = 80
     Caption = 'Agilent'
     OnClick = Button5Click
     TabOrder = 10
   end
   object Button6: TButton
-    Left = 674
+    Left = 760
     Height = 25
-    Top = 656
-    Width = 75
+    Top = 696
+    Width = 80
     Caption = 'Button6'
     OnClick = Button6Click
     TabOrder = 11
   end
   object Button7: TButton
-    Left = 248
+    Left = 424
     Height = 25
-    Top = 616
+    Top = 696
     Width = 75
     Caption = 'HEX2BIT'
     OnClick = Button7Click
     TabOrder = 12
   end
   object Label1: TLabel
-    Left = 432
+    Left = 376
     Height = 37
-    Top = 576
+    Top = 616
     Width = 26
     Caption = '-1'
     Font.Height = -27
@@ -141,44 +149,87 @@ object Form1: TForm1
     ParentFont = False
   end
   object Button8: TButton
-    Left = 457
+    Left = 672
     Height = 25
-    Top = 661
+    Top = 726
     Width = 75
     Caption = 'Gauss Test'
     OnClick = Button8Click
     TabOrder = 13
   end
   object Button9: TButton
-    Left = 760
+    Left = 672
     Height = 25
-    Top = 620
-    Width = 75
+    Top = 696
+    Width = 80
     Caption = 'Agil2'
     OnClick = Button9Click
     TabOrder = 14
   end
   object Button10: TButton
-    Left = 760
+    Left = 848
     Height = 25
-    Top = 656
-    Width = 75
+    Top = 696
+    Width = 80
     Caption = 'Agile3'
     OnClick = Button10Click
     TabOrder = 15
   end
   object Button11: TButton
-    Left = 840
-    Height = 29
-    Top = 656
-    Width = 34
+    Left = 424
+    Height = 25
+    Top = 728
+    Width = 75
     Caption = 'A4'
     OnClick = Button11Click
     TabOrder = 16
   end
+  object Button12: TButton
+    Left = 9
+    Height = 30
+    Top = 560
+    Width = 399
+    Caption = 'Записать текущие настройки в USER MEM'
+    Color = clInfoBk
+    OnClick = Button12Click
+    TabOrder = 17
+  end
+  object Button13: TButton
+    Left = 9
+    Height = 25
+    Top = 632
+    Width = 90
+    Caption = 'SET FILTER'
+    TabOrder = 18
+  end
+  object Button14: TButton
+    Left = 9
+    Height = 25
+    Top = 664
+    Width = 90
+    Caption = 'PGA DEFAULT'
+    TabOrder = 19
+  end
+  object ComboBox2: TComboBox
+    Left = 104
+    Height = 23
+    Top = 635
+    Width = 104
+    ItemHeight = 15
+    ItemIndex = 4
+    Items.Strings = (
+      'FIR'
+      'Sinc1'
+      'Sinc2'
+      'Sinc3'
+      'Sinc4'
+    )
+    TabOrder = 20
+    Text = 'Sinc4'
+  end
   object MainMenu1: TMainMenu
-    Left = 912
-    Top = 605
+    Left = 112
+    Top = 704
     object MenuItem1: TMenuItem
       Caption = 'Действия'
       object MenuItem8: TMenuItem
@@ -188,6 +239,9 @@ object Form1: TForm1
         Caption = 'Поиск модулей'
         ShortCut = 16454
         OnClick = MenuItem6Click
+      end
+      object MenuItem11: TMenuItem
+        Caption = 'Поиск с USER MEM'
       end
       object MenuItem2: TMenuItem
         Caption = 'Поверка'
@@ -225,11 +279,11 @@ object Form1: TForm1
     Enabled = False
     OnTimer = Timer1Timer
     OnStopTimer = Timer1StopTimer
-    Left = 870
-    Top = 605
+    Left = 72
+    Top = 704
   end
   object SaveDialog1: TSaveDialog
-    Left = 912
-    Top = 664
+    Left = 24
+    Top = 704
   end
 end

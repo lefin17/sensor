@@ -23,6 +23,9 @@ type
     Button1: TButton;
     Button10: TButton;
     Button11: TButton;
+    Button12: TButton;
+    Button13: TButton;
+    Button14: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -32,11 +35,13 @@ type
     Button8: TButton;
     Button9: TButton;
     ComboBox1: TComboBox;
+    ComboBox2: TComboBox;
  //   DataPortSerial1: TDataPortSerial;
 // Serial: TBlockSerial;
     EditDevice: TEdit;
     Label1: TLabel;
     MenuItem10: TMenuItem;
+    MenuItem11: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem9: TMenuItem;
     MainMenu1: TMainMenu;
@@ -57,6 +62,7 @@ type
     //нажатие на checkbox
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure CheckBox1OnChange(Sender: TObject);
@@ -510,7 +516,7 @@ begin
 
  Agilent.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
 
-Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC MAX' + #10));
+Agilent.SendString(Agil.getCommand('CONFigure:VOLTage:DC AUTO' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
 Agilent.SendString(Agil.getCommand('VOLT:DC:NPLC 100' + #10));
 Memo1.Append(IntToStr(Agilent.LastError));
@@ -546,6 +552,121 @@ Memo1.Append('Error after byte recive: ' + IntToStr(Agilent.LastError));
 
 Memo1.Append(IntToStr(Length(value)) + ' value:' +  value + ': v');
 Agilent.Free;
+end;
+
+procedure TForm1.Button12Click(Sender: TObject);
+
+begin
+  // записать текущие настройки плат в пользовательскую историю
+(* Modbus.port := 'COM2'; //увести в настройки при инициализации
+ ProgressBar1.Min := min;
+ ProgressBar1.Max := max;
+  index:=0;
+  for i:= min to max do
+
+      begin
+          addr := IntToHex(i, 2);
+          ProgressBar1.Position := i;
+          Label1.Caption := IntToStr(i); //выводит поиск платы
+          Form1.Refresh;
+
+          cmd := addr + ' 03 a7 80 00 05 de ad';   //что это за команда на плату? - чтение -
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          if (Modbus.portStatus <> 'OK')
+             then
+                 begin
+              //   Memo1.Append(Modbus.portStatus);
+                 end
+             else
+                 begin
+                     Memo1.Append(response);
+                     index += 1;
+                     Modbus.units := index; //количество объектов равно
+                     //работа по созданию объектов ADC
+                     SetLength(ADC, index);
+                     ADC[index - 1] := TADC.Create;
+                     ADC[index - 1].Address:=i; //десятичный адрес (для использования требуется преобразование в HEX)
+                     ADC[index - 1].selected := True;
+                     StringGrid1.RowCount := index + 1;
+                     StringGrid1.Cells[0, index] := IntToStr(index);
+                     StringGrid1.Cells[2, index] := IntToStr(i); //Addr;
+                     StringGrid1.Objects[1, index]:=TCheckBox.Create(StringGrid1);
+                     TCheckBox(StringGrid1.Objects[1, index]).Parent:=StringGrid1;
+                     TCheckBox(StringGrid1.Objects[1, index]).Left := StringGrid1.CellRect(1, index).Left + 15;
+                     TCheckBox(StringGrid1.Objects[1, index]).Top := StringGrid1.CellRect(1, index).Top;
+                     TCheckBox(StringGrid1.Objects[1, index]).Checked:= True;
+
+                   //  TCheckBox(StringGrid1.Objects[1, index]).onChange := TForm1.CheckBox1onChange(StringGrid1);
+
+                     //чтение времени наработки платы
+                     cmd := Modbus.cmd(addr, 'getRunningTime', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     ADC[index - 1].Runtime := Modbus.RRRuningTime(response);
+                     StringGrid1.Cells[8, index] := IntToStr(Modbus.RRRuningTime(response));
+
+                     //версия платы
+                     cmd := Modbus.cmd(addr, 'getVersion', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[11, index] := Modbus.RRVersion(response);
+
+                     //тип кабеля
+                     cmd := Modbus.cmd(addr, 'getConnectionType', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[4, index] := Modbus.RRConnectionType(response);
+                      //Температура
+                     cmd := Modbus.cmd(addr, 'getTemperature', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     StringGrid1.Cells[10, index] := Modbus.RRTemperature(response);
+
+                     //запрос по ошибке
+                     cmd :=  Modbus.cmd(addr, 'getErrors', '');
+                     Memo1.Append('getErrors command: ' + cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append('getErrors response:' + response);
+                     StringGrid1.Cells[9, index] := '$' + Modbus.RRErrors(response);
+
+                     //запрос по Серийному номеру
+                     cmd :=  Modbus.cmd(addr, 'getSerial', '');
+                     Memo1.Append('getSerial command: ' + cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append('getSerial response: ' + response);
+                     StringGrid1.Cells[3, index] := Modbus.RRSerial(response);
+
+                     //Запрос по ADS
+                     cmd := Modbus.cmd(addr, 'getADS', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     //печать ответов
+                     Modbus.RRAds(response);
+                     //PGA
+                     Memo1.Append(Modbus.tempWord);
+                     Memo1.Append('ans PGA: ' + Modbus.tempWordPGA);
+
+                     StringGrid1.Cells[_PGA_, index] := IntToStr(Modbus.trPGA(Modbus.PGA));
+                     StringGrid1.Cells[_SPS_, index] := FloatToStr(Modbus.trSPS(Modbus.SPS));
+
+                 end
+
+
+      end;   *)
+
 end;
 
 procedure TForm1.Button9Click(Sender: TObject);
