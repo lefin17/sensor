@@ -27,7 +27,6 @@ type
     Button13: TButton;
     Button14: TButton;
     Button15: TButton;
-    Button2: TButton;
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
@@ -61,10 +60,17 @@ type
     StringGrid1: TStringGrid;
     Timer1: TTimer;
     Checkbox1 : TCheckbox;
+    procedure Button15Click(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
+    procedure ComboBox2Change(Sender: TObject);
+    procedure ComboBox3Change(Sender: TObject);
+    procedure getSelectedADC(); //берем какие нажатые галочки на плате и присваиваем объекту если всё в порядке...
     //нажатие на checkbox
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
     procedure Button12Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure CheckBox1OnChange(Sender: TObject);
@@ -105,7 +111,7 @@ type
 const
   _PGA_ = 5;  //столбец усилителя в таблице
   _SPS_ = 6;  //столбец частоты чтения в таблице
-
+  _FILTER_ = 7; //столбец в таблице с применяемым фильтром
 var
   Form1: TForm1;
   IniFile: TiniFile;
@@ -362,7 +368,7 @@ begin
  StringGrid1.Cells[4,0] := 'Type';
  StringGrid1.Cells[_PGA_,0] := 'PGA';
  StringGrid1.Cells[_SPS_,0] := 'SPS';
- StringGrid1.Cells[7,0] := 'FIR';
+ StringGrid1.Cells[_FILTER_,0] := 'FILTER';
  StringGrid1.Cells[8,0] := 'RunTime';
  StringGrid1.Cells[9,0] := 'Error Counter';
  StringGrid1.ColWidths[9] := 100;
@@ -557,117 +563,159 @@ Agilent.Free;
 end;
 
 procedure TForm1.Button12Click(Sender: TObject);
-
+var Len : integer;
+    i: integer;
+    addr: string;
+    cmd: string;
+    stringToSend: string;
+    response: string;
 begin
-  // записать текущие настройки плат в пользовательскую историю
-(* Modbus.port := 'COM2'; //увести в настройки при инициализации
- ProgressBar1.Min := min;
- ProgressBar1.Max := max;
-  index:=0;
-  for i:= min to max do
-
+// записать текущие настройки плат в пользовательскую историю
+  Modbus.port := 'COM2'; //увести в настройки при инициализации
+  Len := LEngth(ADC);
+  ProgressBar1.Min := 0;
+  ProgressBar1.Max := Len;
+  if (Len = 0) then exit; //ничего не делаем
+  for i:= 0 to Len - 1 do
       begin
           addr := IntToHex(i, 2);
           ProgressBar1.Position := i;
           Label1.Caption := IntToStr(i); //выводит поиск платы
           Form1.Refresh;
+          //команда на запись в пользовательскую память
+          if (not ADC[i].selected) then continue;
 
-          cmd := addr + ' 03 a7 80 00 05 de ad';   //что это за команда на плату? - чтение -
+          cmd := Modbus.cmd(addr, 'setUSER_FIR_LENGTH', '01 ' + ADC[i].HEXFIRLen01); //для фильтра 01
+          Memo1.Append('CMD SET LENGTH: ' + cmd);
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
-          if (Modbus.portStatus <> 'OK')
-             then
-                 begin
-              //   Memo1.Append(Modbus.portStatus);
-                 end
-             else
-                 begin
-                     Memo1.Append(response);
-                     index += 1;
-                     Modbus.units := index; //количество объектов равно
-                     //работа по созданию объектов ADC
-                     SetLength(ADC, index);
-                     ADC[index - 1] := TADC.Create;
-                     ADC[index - 1].Address:=i; //десятичный адрес (для использования требуется преобразование в HEX)
-                     ADC[index - 1].selected := True;
-                     StringGrid1.RowCount := index + 1;
-                     StringGrid1.Cells[0, index] := IntToStr(index);
-                     StringGrid1.Cells[2, index] := IntToStr(i); //Addr;
-                     StringGrid1.Objects[1, index]:=TCheckBox.Create(StringGrid1);
-                     TCheckBox(StringGrid1.Objects[1, index]).Parent:=StringGrid1;
-                     TCheckBox(StringGrid1.Objects[1, index]).Left := StringGrid1.CellRect(1, index).Left + 15;
-                     TCheckBox(StringGrid1.Objects[1, index]).Top := StringGrid1.CellRect(1, index).Top;
-                     TCheckBox(StringGrid1.Objects[1, index]).Checked:= True;
+          Memo1.Append('SET LEN R*: ' + response);
 
-                   //  TCheckBox(StringGrid1.Objects[1, index]).onChange := TForm1.CheckBox1onChange(StringGrid1);
-
-                     //чтение времени наработки платы
-                     cmd := Modbus.cmd(addr, 'getRunningTime', '');
-                     Memo1.Append(cmd);
-                     stringToSend := Modbus.StrToHexStr(cmd);
-                     response := Modbus.send(stringToSend);
-                     Memo1.Append(response);
-                     ADC[index - 1].Runtime := Modbus.RRRuningTime(response);
-                     StringGrid1.Cells[8, index] := IntToStr(Modbus.RRRuningTime(response));
-
-                     //версия платы
-                     cmd := Modbus.cmd(addr, 'getVersion', '');
-                     Memo1.Append(cmd);
-                     stringToSend := Modbus.StrToHexStr(cmd);
-                     response := Modbus.send(stringToSend);
-                     Memo1.Append(response);
-                     StringGrid1.Cells[11, index] := Modbus.RRVersion(response);
-
-                     //тип кабеля
-                     cmd := Modbus.cmd(addr, 'getConnectionType', '');
-                     Memo1.Append(cmd);
-                     stringToSend := Modbus.StrToHexStr(cmd);
-                     response := Modbus.send(stringToSend);
-                     Memo1.Append(response);
-                     StringGrid1.Cells[4, index] := Modbus.RRConnectionType(response);
-                      //Температура
-                     cmd := Modbus.cmd(addr, 'getTemperature', '');
-                     Memo1.Append(cmd);
-                     stringToSend := Modbus.StrToHexStr(cmd);
-                     response := Modbus.send(stringToSend);
-                     Memo1.Append(response);
-                     StringGrid1.Cells[10, index] := Modbus.RRTemperature(response);
-
-                     //запрос по ошибке
-                     cmd :=  Modbus.cmd(addr, 'getErrors', '');
-                     Memo1.Append('getErrors command: ' + cmd);
-                     stringToSend := Modbus.StrToHexStr(cmd);
-                     response := Modbus.send(stringToSend);
-                     Memo1.Append('getErrors response:' + response);
-                     StringGrid1.Cells[9, index] := '$' + Modbus.RRErrors(response);
-
-                     //запрос по Серийному номеру
-                     cmd :=  Modbus.cmd(addr, 'getSerial', '');
-                     Memo1.Append('getSerial command: ' + cmd);
-                     stringToSend := Modbus.StrToHexStr(cmd);
-                     response := Modbus.send(stringToSend);
-                     Memo1.Append('getSerial response: ' + response);
-                     StringGrid1.Cells[3, index] := Modbus.RRSerial(response);
-
-                     //Запрос по ADS
-                     cmd := Modbus.cmd(addr, 'getADS', '');
-                     Memo1.Append(cmd);
-                     stringToSend := Modbus.StrToHexStr(cmd);
-                     response := Modbus.send(stringToSend);
-                     Memo1.Append(response);
-                     //печать ответов
-                     Modbus.RRAds(response);
-                     //PGA
-                     Memo1.Append(Modbus.tempWord);
-                     Memo1.Append('ans PGA: ' + Modbus.tempWordPGA);
-
-                     StringGrid1.Cells[_PGA_, index] := IntToStr(Modbus.trPGA(Modbus.PGA));
-                     StringGrid1.Cells[_SPS_, index] := FloatToStr(Modbus.trSPS(Modbus.SPS));
-
-                 end
+          cmd := Modbus.cmd(addr, 'setUSER_SPS_FILTER', ADC[i].HEXSPS);
+          Memo1.Append(cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append('SET FILTER + SPS R*: ' +  response);
+      end;
 
 
-      end;   *)
+
+end;
+
+procedure TForm1.getSelectedADC();
+var i:integer;
+    len: integer;
+begin
+
+     len := Length(ADC);
+     if (len = 0) then exit;
+
+     for i:=0 to len - 1 do
+          if (StringGrid1.RowCount > i) then
+                 ADC[i].selected := TCheckBox(StringGrid1.Objects[1, i+1]).Checked;
+
+//проверка галочек в таблице
+
+end;
+
+procedure TForm1.ComboBox1Change(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Button15Click(Sender: TObject);
+var setLength: integer;
+    qint, cmd: string; //ключ длины и команда
+    stringToSend: string; //комманда которая будет послана на плату
+    response: string; //ответ от платы
+    len: integer;
+    i: integer;
+    addr: string; //адрес платы HEX
+begin
+   //запись длины филтра
+   Modbus.port := 'COM2'; //заменить на настройки
+   len := Length(ADC);
+   setLength := StrToInt(ComboBox3.Items[ComboBox3.ItemIndex]) - 1; //текущая длина
+   getSelectedADC();
+   if (len = 0) then exit;
+   for i:= 0 to len - 1 do
+       begin
+          if (not ADC[i].selected) then continue;
+          addr := IntToHex(ADC[i].Address, 2);
+          Modbus.DecToQ(16, setLength, qint);
+          while (Length(qint) < 4) do qint := '0' + qint;
+
+          cmd := Modbus.cmd(addr, 'setFIR_LENGTH', '01 ' + qint); //для фильтра 01
+          ADC[i].HEXFIRLen01:='01 ' + qint;
+          Memo1.Append('CMD SET LENGTH: ' + cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append('SET LEN R*: ' + response);
+       end;
+end;
+
+procedure TForm1.ComboBox2Change(Sender: TObject);
+begin
+    //запись в рабочие настройки значений FIR + SPS
+
+end;
+
+procedure TForm1.ComboBox3Change(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.Button13Click(Sender: TObject);
+var filter: string;
+    sps: string;
+    cmd: string;  //команда на запись в устройство
+    response: string; //ответ от платы
+    len: integer;  //количество плат
+    addr: string; //адрес устройства
+    settings : string;
+    i: integer;
+    stringToSend: string;
+begin
+  //запись в рабочие настройки значений FIR + SPS
+   Modbus.port := 'COM2'; //заменить на настройки
+   len := Length(ADC);
+
+   getSelectedADC();
+   if (len = 0) then exit;
+   for i:= 0 to len - 1 do
+       begin
+          if (not ADC[i].selected) then continue;
+          addr := IntToHex(ADC[i].Address, 2);
+
+          sps := ComboBox1.Items[ComboBox1.ItemIndex];
+          filter := ComboBox2.Items[ComboBox2.ItemIndex];
+
+          StringGrid1.Cells[_SPS_, i + 1] := sps;
+          StringGrid1.Cells[_FILTER_, i + 1] := filter;
+
+          Memo1.Append('Addr' + IntToStr(ADC[i].Address) + ' SPS: ' + sps + ' FILTER: ' + filter);
+          settings := Modbus.trSPS_FILTER(sps, filter);
+          Memo1.Append(settings);
+          //собираем байт
+          if (Length(settings) = 1) then settings := '0' + settings; //добавление до полного слова
+
+          ADC[i].HEXSPS := settings; //то что нужно написать
+          cmd := Modbus.cmd(addr, 'setNORM', '');
+          Memo1.Append(cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append(response);
+
+          cmd := Modbus.cmd(addr, 'setSPS_FILTER', settings);
+          Memo1.Append(cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append('SET FILTER + SPS R*: ' +  response);
+       end;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
 
 end;
 
@@ -758,7 +806,7 @@ begin
                      StringGrid1.RowCount := index + 1;
                      StringGrid1.Cells[0, index] := IntToStr(index);
                      StringGrid1.Cells[2, index] := IntToStr(i); //Addr;
-                     StringGrid1.Objects[1, index]:=TCheckBox.Create(StringGrid1);
+                     StringGrid1.Objects[1, index]:= TCheckBox.Create(StringGrid1);
                      TCheckBox(StringGrid1.Objects[1, index]).Parent:=StringGrid1;
                      TCheckBox(StringGrid1.Objects[1, index]).Left := StringGrid1.CellRect(1, index).Left + 15;
                      TCheckBox(StringGrid1.Objects[1, index]).Top := StringGrid1.CellRect(1, index).Top;
@@ -825,7 +873,7 @@ begin
                      //PGA
                      Memo1.Append(Modbus.tempWord);
                      Memo1.Append('ans PGA: ' + Modbus.tempWordPGA);
-
+                     ADC[index - 1].HEXSPS := Modbus.HEXSPS; //то что получаем с SPS
                      StringGrid1.Cells[_PGA_, index] := IntToStr(Modbus.trPGA(Modbus.PGA));
                      StringGrid1.Cells[_SPS_, index] := FloatToStr(Modbus.trSPS(Modbus.SPS));
 

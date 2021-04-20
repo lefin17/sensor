@@ -1,5 +1,5 @@
 unit core;
-
+ //http://www.freepascal.ru/forum/viewtopic.php?f=13&t=43159 - о том, что делать с Double -> HEX
 {$mode objfpc}{$H+}
 
 interface
@@ -22,7 +22,8 @@ type
     speed: integer;
     tempWord: string; //пробная строка для отладки ответа
     tempWordPGA: string; //пробная строка для отладки ответа (PGA)
-
+    HEXSPS: string; //строка для хранения информации по филтру и SPS
+    HEXFIRLen01: string; //то что пишем в команду длины (с учетом фильтра) //иногда
     SPS: integer; //частота чтения в битной сетке текущего адаптера, далее должно записываться в объект платы
     PGA: integer; //усилитель в битной сетке
     ByPass : integer; //включен ли обход усилителя на текущей плате (по которой идет опрос)
@@ -33,6 +34,9 @@ type
     minAddr: integer; //минимальный адрес для начала поиска на плате
     maxAddr: integer;
     portStatus: string; //статус порта если не удалось подключиться для отображения
+    function trSPS_FILTER(setSPS, setFilter: string):string;
+    procedure IntToDec (q:byte; qint :string; var dint:longint); //из любой в десятичную
+    procedure DecToQ (q,dint:longint;var qint:string);
     function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
     function StrToHexStr(SHex: string):string;
     function Bytes2Double(a: TBytes8): Double; //преобразование байт в массив
@@ -75,7 +79,11 @@ type TVerification = Object
 type
   TADC = Class   //хранилище информации по платам
     Runtime: integer; { Время жизни платы в секундах }
-    SPS: integer; //есть и коды для задачи
+    HEXSPS: string; //то что нужно вкатить при пользовательской записи
+    HEXFIRLen01: string; //то что пишем в команду длины (с учетом фильтра)
+    SPS: double; //есть и коды для задачи  (А он не интеger..)
+    ByPass: boolean; //включен ли ByPass...
+    FIRLength: integer; //длина фильтра в измерениях при данных настройках
     Address: integer;//адрес устройства на шине
     selected: boolean; //выбрано ли устройство для работы с ним
     PGA: integer; //значение усилителя
@@ -90,6 +98,8 @@ type
     Coefs: array of double; //коэффициенты полинома функции восстановления
     function fi(power: integer; x1: Double):Double; //функция по восстановлению значения
   end;
+
+const figure: string [36]='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'; //преобразование чисел
 
 var
    Modbus: TModbus;    //работа с Com и шиной Modbus
@@ -107,6 +117,7 @@ begin
 end;
 
 function TModbus.Bytes2Double(a: TBytes8): Double;
+// source: http://www.freepascal.ru/forum/viewtopic.php?f=13&t=43159
 var
   r: Double absolute a;
 begin
@@ -229,6 +240,68 @@ output := '';
   Result := output;
 end;
 
+//https://www.cyberforum.ru/pascalabc/thread332751.html
+procedure TModbus.IntToDec (q:byte; qint :string; var dint:longint);   {Из любой в десятичную. Только целые.}
+var j:byte;
+ begin
+  dint:=0;
+  For j:=1 to length (qint) do
+     dint:=q*dint+pos(qint[j], figure)-1;
+ end;
+
+procedure TModbus.DecToQ (q,dint:longint;var qint:string);  {Из десятичной в любую. Только целые.}
+begin
+ qint:='';
+   Repeat
+    qint:=figure[dint mod q+1]+qint;
+    dint:=dint div q;
+   Until dint = 0;
+end;
+
+function TModbus.trSPS_FILTER(setSPS, setFilter: string):string;
+var
+  ans, ans2: integer;
+  both: integer;
+  code:integer;
+  s1: string;
+  dint : integer; //10 - представление команды из байт
+  qint : string; //выходное значение преобразования
+begin
+//функция возвращает последовательность байт для записи в АЦП
+ans:= 1000;
+case setSPS of
+     '2.5': ans:= 0;
+     '5'   : ans:= 1;
+     '10'  : ans:= 10;
+     '16.6': ans:= 11;
+     '20'  : ans:= 100;
+     '50'  : ans:= 101;
+     '60'  : ans:= 110;
+     '100' : ans:= 111;
+     '400' : ans:= 1000; //default;
+     '1200': ans:= 1001;
+     '2400': ans:= 1010;
+     '4800': ans:= 1011;
+     '7200': ans:= 1100;
+     '14400':ans:= 1101;
+     '19200':ans:= 1110;
+     '25600':ans:= 1111;
+     '40000': ans:= 10000;
+    end;
+case setFilter of
+     'sinc1' : ans2 := 0;
+     'sinc2' : ans2 := 1;
+     'sinc3' : ans2 := 10;
+     'sinc4' : ans2 := 11;
+     'FIR'   : ans2 := 100;
+     end;
+
+  both := ans * 1000 + ans2;
+  IntToDec (2, IntToStr(both), dint);
+  DecToQ(16, dint, qint); //перевод в HEX систему
+  Result := qint;
+end;
+
 function TModbus.trSPS(code: LongInt):Double;
 var ans : Double;
 begin
@@ -295,6 +368,7 @@ begin
     //  Exit;
       case i of
          2: begin
+            HEXSPS := word;
             DR:=round(dec_to_bin(StrToInt('$' + word))/EXP(3*LN(10)));
             FR:=round(dec_to_bin(StrToInt('$' + word))) - DR * 1000;
             SPS := DR;
@@ -479,19 +553,40 @@ begin
  res := addr;
      case command of
      'temp': res := 'AA BB';
+
      'getRunningTime': res += ' 03 01 C0 00 02';   //время наработки на отказ
+
      'getVersion': res += ' 03 02 00 00 04'; //запрос на чтение версии ПО и времени сборки
+
      'getConnectionType': res += ' 03 11 00 00 01';
+
      'getSerial': res += '03 01 D0 00 06'; //серийный номер платы
+
      'getTemperature': res += ' 03 AB B0 00 05'; //температура АЦП
+
      'getErrors': res += ' 03 01 00 00 01'; //чтение ошибок
+
      'resetErrors': res += ' 06 01 00 00 00'; // сброс ошибок
+
      'setNORM': res += ' 06 10 00 00 00'; //перевод в режим NORM
+
      'setEXEC': res += ' 06 10 00 00 01'; //перевод в режим EXEC
+
      'getADS' : res += ' 03 0A 00 00 13'; //чтение всех настроек ADS
+
      'getADSFilters': res += ' 03 1D 00 00 20'; //Регистры данных КИХ Фильтров
+
      'putCoefs': res += '10' + param;
+
      'readCoefs': res += '03' + param; //сюда адрес + число регистов
+
+     // $0c$06$0a$02$00$43$de$ad
+     'setSPS_FILTER' : res += '06 0A 02 00 ' + param; //сюда байт фильтра
+     'setUSER_SPS_FILTER' : res += '06 FA 02 00 ' + param; //сюда байт фильтра (Пользовательская память)
+
+     // $pp$06 $1c$qq $00$3f$de$ad
+     'setFIR_LENGTH' : res += '06 1C ' + param; // qq - фильтр, 00 + LEN
+     'setUSER_FIR_LENGTH': res += 'F6 1C ' + param; // qq - фильтр, 00 + LEN
      end;
      res += ' DE AD'; //конец слова команды
      Result := res;
