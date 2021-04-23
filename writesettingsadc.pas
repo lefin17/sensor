@@ -19,6 +19,7 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
     Chart1: TChart;
     Chart1BubbleSeries1: TBubbleSeries;
     Chart1LineSeries1: TLineSeries;
@@ -30,6 +31,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
     procedure WriteCells1(key: string; value: string);    //вывод коэффициентов на экран
     procedure WritePoly(power: integer); //вывод степени полинома и его расчет к плате
     procedure FormCreate(Sender: TObject);
@@ -177,6 +179,26 @@ begin
                 //VoltageDots - приведенное показание AЦП
                 //25  - это про приведение к 4 вольтам и 100%
                 f := 25*(ADC[indexAdc].AgilDots[j] - ADC[indexADC].fi(power, ADC[indexAdc].VoltageDots[j])); //показания с agilentа;
+                   Chart1LineSeries1.AddXY(x, f);
+                end;
+end;
+
+procedure TForm5.Button5Click(Sender: TObject);
+var j:  integer;
+    x, f: double;
+    Dots : integer;
+    power : integer;
+begin
+  //печать графика для
+    Chart1LineSeries1.Clear;
+    Dots := Length(ADC[indexADC].VerificationDots);
+    for j := 0 to Dots - 1 do
+                begin
+                x := ADC[indexAdc].VoltageDots[j]; //показания с АЦП
+                power := ADC[indexADC].PolyPower; //степень полинома
+                //VoltageDots - приведенное показание AЦП
+                //25  - это про приведение к 4 вольтам и 100%
+                f := 25*(ADC[indexAdc].AgilDots[j] -  ADC[indexAdc].VoltageDots[j]); //показания с agilentа;
                    Chart1LineSeries1.AddXY(x, f);
                 end;
 end;

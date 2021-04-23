@@ -30,7 +30,7 @@ object Form2: TForm2
     ParentFont = False
   end
   object Button1: TButton
-    Left = 48
+    Left = 32
     Height = 32
     Top = 496
     Width = 124
@@ -244,11 +244,11 @@ object Form2: TForm2
     TabOrder = 12
   end
   object Button4: TButton
-    Left = 419
+    Left = 368
     Height = 25
     Top = 368
     Width = 183
-    Caption = 'Показать точки'
+    Caption = 'Применить и показать точки'
     OnClick = Button4Click
     TabOrder = 13
   end

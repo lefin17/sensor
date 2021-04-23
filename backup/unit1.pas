@@ -117,6 +117,7 @@ const
   _TEMP_ = 11;   //температура
   _VERSION_ = 12; //версия
   _RUNTIME_ = 9; //время наработки платы
+  _ERR_ = 10; // ошибки с платы
 var
   Form1: TForm1;
   IniFile: TiniFile;
@@ -877,7 +878,7 @@ begin
                      stringToSend := Modbus.StrToHexStr(cmd);
                      response := Modbus.send(stringToSend);
                      Memo1.Append('getErrors response:' + response);
-                     StringGrid1.Cells[9, index] := '$' + Modbus.RRErrors(response);
+                     StringGrid1.Cells[_ERR_, index] := '$' + Modbus.RRErrors(response);
 
                      //запрос по Серийному номеру
                      cmd :=  Modbus.cmd(addr, 'getSerial', '');
@@ -913,7 +914,7 @@ begin
                      StringGrid1.Cells[_FIRLEN_, index] := Modbus.FirLenText;
                  end;
 
-        if (length(ADC) > 0) then break;
+    //    if (length(ADC) > 0) then break;
       end;
 end;
 

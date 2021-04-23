@@ -105,9 +105,20 @@ end;
 procedure TForm2.Button4Click(Sender: TObject);
 var i: integer;
   delta, ui: double;
-
+  Vmin: double;
+  Vmax: double;
 begin
-  //показать точки эксперимента
+  try
+    IniFile := TIniFile.Create('settings.ini');
+    Vmin := StrToFloat(Edit5.Text);
+    Verification.Vmin := Vmin;
+    IniFile.WriteFloat('Verification', 'Vmin', Vmin);
+    IniFile.free;
+
+  finally
+  end;
+
+//показать точки эксперимента
   StringGrid1.RowCount := 1;
   StringGrid1.Cells[0, 0] := '#N';
   StringGrid1.Cells[1, 0] := 'V(def)';
@@ -127,7 +138,7 @@ procedure TForm2.Edit5Change(Sender: TObject);
 var Vmin: double;
 begin
    //Vmin change
-try
+(* try
   IniFile := TIniFile.Create('settings.ini');
   Vmin := StrToFloat(Edit5.Text);
   Verification.Vmin := Vmin;
@@ -136,13 +147,13 @@ try
 
 finally
 end;
-
+    *)
 end;
 
 procedure TForm2.Edit6Change(Sender: TObject);
 var Vmax: double;
 begin
-
+  (*
   IniFile := TIniFile.Create('settings.ini');
   try
   Vmax := StrToFloat(Edit6.Text);
@@ -150,7 +161,7 @@ begin
   IniFile.WriteFloat('Verification', 'Vmax', Vmax);
   finally
   end;
-  IniFile.free;
+  IniFile.free;    *)
 end;
 
 procedure TForm2.Edit7Change(Sender: TObject);
@@ -224,8 +235,12 @@ begin
  IniFile := TIniFile.Create('settings.ini');
 
 IniFile.WriteInteger('Verification', 'Atemt', StrToInt(Edit2.Text));  //применение попыток
+Modbus.Port := Edit7.Text;
+IniFile.WriteString('Modbus', 'port', Modbus.port);
+
 IniFile.WriteInteger('Modbus', 'minAddr', Modbus.minAddr);
-IniFile.WriteInteger('Modbus', 'maxAddr', StrToInt(Edit3.Text));
+Modbus.maxAddr:=StrToInt(Edit3.Text);
+IniFile.WriteInteger('Modbus', 'maxAddr', StrToInt(Modbus.maxAddr));
 IniFile.free;
 Close;
 end;

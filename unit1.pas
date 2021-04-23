@@ -117,6 +117,7 @@ const
   _TEMP_ = 11;   //температура
   _VERSION_ = 12; //версия
   _RUNTIME_ = 9; //время наработки платы
+  _ERR_ = 10; // ошибки с платы
 var
   Form1: TForm1;
   IniFile: TiniFile;
@@ -877,7 +878,7 @@ begin
                      stringToSend := Modbus.StrToHexStr(cmd);
                      response := Modbus.send(stringToSend);
                      Memo1.Append('getErrors response:' + response);
-                     StringGrid1.Cells[9, index] := '$' + Modbus.RRErrors(response);
+                     StringGrid1.Cells[_ERR_, index] := '$' + Modbus.RRErrors(response);
 
                      //запрос по Серийному номеру
                      cmd :=  Modbus.cmd(addr, 'getSerial', '');
@@ -948,7 +949,7 @@ begin
           if TCheckBox(StringGrid1.Objects[col, row]).Checked
           then res := 'checked'
           else res := 'non';
-  if ((row > 0) and (col = 9)) then
+  if ((row > 0) and (col = _ERR_)) then
      begin
        //read errors and reset error function
        Form3.getAddr(StrToInt(StringGrid1.cells[2, row]));
