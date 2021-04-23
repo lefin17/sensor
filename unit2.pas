@@ -17,7 +17,6 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
-    ComboBox1: TComboBox;
     ComboBox2: TComboBox;
     ComboBox3: TComboBox;
     ComboBox4: TComboBox;
@@ -27,6 +26,7 @@ type
     Edit4: TEdit;
     Edit5: TEdit;
     Edit6: TEdit;
+    Edit7: TEdit;
     Label1: TLabel;
     Label10: TLabel;
     Label11: TLabel;
@@ -44,6 +44,7 @@ type
     procedure Edit4Change(Sender: TObject);
     procedure Edit5Change(Sender: TObject);
     procedure Edit6Change(Sender: TObject);
+    procedure Edit7Change(Sender: TObject);
     procedure Label12Click(Sender: TObject);
     procedure readIni;
     procedure Button1Click(Sender: TObject);
@@ -72,7 +73,7 @@ implementation
 
 procedure TForm2.readIni;
 begin
-   Modbus := TModbus.Create;   //создание объекта класса modbus...
+Modbus := TModbus.Create;   //создание объекта класса modbus...
 Agil := TAgilent.Create;
 IniFile := TIniFile.Create('settings.ini');
 
@@ -152,6 +153,11 @@ begin
   IniFile.free;
 end;
 
+procedure TForm2.Edit7Change(Sender: TObject);
+begin
+
+end;
+
 procedure TForm2.Label12Click(Sender: TObject);
 begin
 
@@ -184,6 +190,7 @@ begin
    Edit4.Text := IntToStr(Verification.Power); //степень полинома
    Edit5.Text := FloatToStr(Verification.Vmin); //от какого напряжения снимаем показания
    Edit6.Text := FloatToStr(Verification.Vmax);
+   Edit7.Text := Modbus.port;
 
 end;
 
@@ -217,6 +224,8 @@ begin
  IniFile := TIniFile.Create('settings.ini');
 
 IniFile.WriteInteger('Verification', 'Atemt', StrToInt(Edit2.Text));  //применение попыток
+Modbus.Port := Edit7.Text;
+IniFile.WriteString('Modbus', 'port', Modbus.port);
 IniFile.WriteInteger('Modbus', 'minAddr', Modbus.minAddr);
 IniFile.WriteInteger('Modbus', 'maxAddr', StrToInt(Edit3.Text));
 IniFile.free;

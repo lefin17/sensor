@@ -5,7 +5,8 @@ unit core;
 interface
 
 uses
-  Classes, SysUtils, dateutils, strutils, LazSynaSer,   blcksock;
+  Classes, SysUtils, dateutils, strutils, LazSynaSer,   blcksock,
+  ExtCtrls; //добавление таймера
 
 type
   TBytes8 = array[0..7] of Byte; //для преобразования числел для платы
@@ -24,6 +25,7 @@ type
     tempWordPGA: string; //пробная строка для отладки ответа (PGA)
     HEXSPS: string; //строка для хранения информации по филтру и SPS
     HEXFIRLen01: string; //то что пишем в команду длины (с учетом фильтра) //иногда
+    FirLenText: string; //то что выдаем в таблицу
     SPS: integer; //частота чтения в битной сетке текущего адаптера, далее должно записываться в объект платы
     PGA: integer; //усилитель в битной сетке
     ByPass : integer; //включен ли обход усилителя на текущей плате (по которой идет опрос)
@@ -33,6 +35,8 @@ type
     VoltageDeviation: double; //СКО среднеквадратичное отклонение //RRFir(0)
     minAddr: integer; //минимальный адрес для начала поиска на плате
     maxAddr: integer;
+    timer: TTimer; //добавление таймера на подключение
+    onTimer: boolean; //включен ли таймер
     portStatus: string; //статус порта если не удалось подключиться для отображения
     function trSPS_FILTER(setSPS, setFilter: string):string;
     procedure IntToDec (q:byte; qint :string; var dint:longint); //из любой в десятичную
@@ -48,6 +52,7 @@ type
     function RRConnectionType(answer: string):string;
     procedure RRAds(answer: string); //чтение ответа от ADS
     function RRFir(answer: string):string; //чтение данных на филтрах АЦП
+    function RRFirLen(answer: string):string; //чтение длины фильтра (пока 01)
     function RRTemperature(answer: string):string; //чтение температуры
     function RRErrors(answer: string):string; //чтение ошибок на плате
     function RRSerial(answer: string):string; //чтение серийного номера
@@ -55,6 +60,9 @@ type
     function bin_to_dec(bin: LongInt): LongInt; //перевод из BINARY (INT) в DEC
     function trPGA(code: LongInt):integer;
     function trSPS(code: LongInt):Double;
+    function trFilter(code: LongInt):string;
+    private
+  //  class constructor Create;
   end;
 
 type TAgilent = class
@@ -108,6 +116,11 @@ var
    ADC: array of TADC;
 
 implementation
+
+(*class constructor TModbus.Create;
+begin
+ timer := TTimer.Create();
+end;*)
 
 function TModbus.Double2Bytes(d: Double): TBytes8;
 var
@@ -301,7 +314,21 @@ case setFilter of
   DecToQ(16, dint, qint); //перевод в HEX систему
   Result := qint;
 end;
+function TModbus.trFilter(code: LongInt):string;
+var ans : string;
+begin
+ans:= 'UNDEF';
+  case code of
+       0: ans:='sinc1';
+       1: ans:= 'sinc2';
+       10: ans:='sinc3';
+       11: ans:= 'sinc4';
+       100: ans:='FIR';
 
+  end;
+
+  Result:=ans;
+end;
 function TModbus.trSPS(code: LongInt):Double;
 var ans : Double;
 begin
@@ -342,6 +369,27 @@ begin
       111: ans:= 128;
    end;
  Result:= ans;
+end;
+
+function TModbus.RRFirLen(answer: string):string;
+//чтение параметров системы АЦП на текущей плате
+var res: string;
+   i: integer;
+   str: string;
+   word : string;
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<4) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+
+      word := copy(str, 9, 2);
+      FirLenText := IntToStr(StrToInt('$' + word) + 1) ; //в текст длина
+      HEXFIRLen01 := '0100'+word;
+      Result := FirLenText;
+
 end;
 
 procedure TModbus.RRAds(answer: string);
@@ -582,11 +630,14 @@ begin
 
      // $0c$06$0a$02$00$43$de$ad
      'setSPS_FILTER' : res += '06 0A 02 00 ' + param; //сюда байт фильтра
-     'setUSER_SPS_FILTER' : res += '06 FA 02 00 ' + param; //сюда байт фильтра (Пользовательская память)
+     'setUSER_SPS_FILTER' : res += '10 FA 02 00 01 02 00 ' + param; //сюда байт фильтра (Пользовательская память)
 
      // $pp$06 $1c$qq $00$3f$de$ad
      'setFIR_LENGTH' : res += '06 1C ' + param; // qq - фильтр, 00 + LEN
-     'setUSER_FIR_LENGTH': res += 'F6 1C ' + param; // qq - фильтр, 00 + LEN
+     'setUSER_FIR_LENGTH': res += '10 FC ' + param; // qq - фильтр, 00 + LEN
+
+    // 1d$03$1c$00$00$08$de$ad
+     'getFIRLEN' : res += '03 1C 01 00 01'; //чтение слова первого фильтра
      end;
      res += ' DE AD'; //конец слова команды
      Result := res;
@@ -761,7 +812,6 @@ begin
   Result := output;
 end;
 
-//end;
 
 
 

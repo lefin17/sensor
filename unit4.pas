@@ -171,6 +171,13 @@ begin
 end;
 
 procedure TForm4.Button2Click(Sender: TObject);
+// *********** Процедура инициализации плат Москва перед считыванием значений
+var i: integer;
+    addr: string;
+    cmd: string;
+    stringToSend:string;
+    response:string;
+    len: integer;
 begin
   //инициализация
 //  Label3.Caption := '0 [V]';
@@ -180,6 +187,19 @@ begin
   Verification.currentIndex := 0;
   Label4.Caption:= IntToStr(Modbus.selectedUnits);
   Button1.Enabled := True;
+
+  //Перевод в режим EXEC всех плат
+  len := Length(ADC);
+  for i:= 0 to len - 1 do
+          begin
+          addr := IntToHex(ADC[i].Address, 2);
+          cmd := Modbus.cmd(addr, 'setEXEC', '');
+          Memo1.Append('SET EXEC: ' + IntToStr(i) + ' C*:'+ cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append('R*: ' + response);
+
+          end;
 end;
 
 procedure TForm4.Button3Click(Sender: TObject);

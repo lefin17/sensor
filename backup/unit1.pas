@@ -27,6 +27,7 @@ type
     Button13: TButton;
     Button14: TButton;
     Button15: TButton;
+    Button2: TButton;
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
@@ -112,6 +113,10 @@ const
   _PGA_ = 5;  //столбец усилителя в таблице
   _SPS_ = 6;  //столбец частоты чтения в таблице
   _FILTER_ = 7; //столбец в таблице с применяемым фильтром
+  _FIRLEN_ = 8; //длина фильтра
+  _TEMP_ = 11;   //температура
+  _VERSION_ = 12; //версия
+  _RUNTIME_ = 9; //время наработки платы
 var
   Form1: TForm1;
   IniFile: TiniFile;
@@ -172,7 +177,7 @@ Setlength(D, 8);
 // str ingToSend := Chr($16) + Chr($03) + Chr($01) + Chr($d0) + Chr($00) + Chr($06) + Chr($de) + Chr($ad);  // Modbus-запрос
 // stringToSend := $16 + $03 + $a7 + $80 + $00 + $05 + $de + $ad;
 stringToSend := Modbus.StrToHexStr('16 03 a7 80 00 05 de ad');
-Modbus.port := 'COM2'; //удалить на настройки
+// Modbus.port := 'COM2'; //удалить на настройки
 
 response := Modbus.send(stringToSend);
 if (Modbus.portStatus <> 'OK')
@@ -369,12 +374,13 @@ begin
  StringGrid1.Cells[_PGA_,0] := 'PGA';
  StringGrid1.Cells[_SPS_,0] := 'SPS';
  StringGrid1.Cells[_FILTER_,0] := 'FILTER';
- StringGrid1.Cells[8,0] := 'RunTime';
- StringGrid1.Cells[9,0] := 'Error Counter';
- StringGrid1.ColWidths[9] := 100;
- StringGrid1.Cells[10,0] := 'Temp';
- StringGrid1.Cells[11,0] := 'Version';
- StringGrid1.ColWidths[11] := 200;
+ StringGrid1.Cells[_FIRLEN_, 0] := 'FIRLEN';
+ StringGrid1.Cells[_RUNTIME_,0] := 'RunTime';
+ StringGrid1.Cells[10,0] := 'Error Counter';
+ StringGrid1.ColWidths[10] := 100;
+ StringGrid1.Cells[_TEMP_,0] := 'Temp'; //11
+ StringGrid1.Cells[_VERSION_,0] := 'Version'; //12
+ StringGrid1.ColWidths[_VERSION_] := 200;
 
 end;
 
@@ -571,31 +577,32 @@ var Len : integer;
     response: string;
 begin
 // записать текущие настройки плат в пользовательскую историю
-  Modbus.port := 'COM2'; //увести в настройки при инициализации
+//  Modbus.port := 'COM2'; //увести в настройки при инициализации
   Len := LEngth(ADC);
+  getSelectedADC();
   ProgressBar1.Min := 0;
-  ProgressBar1.Max := Len;
+  ProgressBar1.Max := Len - 1;
   if (Len = 0) then exit; //ничего не делаем
   for i:= 0 to Len - 1 do
       begin
-          addr := IntToHex(i, 2);
+          addr := IntToHex(ADC[i].Address, 2);
           ProgressBar1.Position := i;
           Label1.Caption := IntToStr(i); //выводит поиск платы
           Form1.Refresh;
           //команда на запись в пользовательскую память
           if (not ADC[i].selected) then continue;
 
-          cmd := Modbus.cmd(addr, 'setUSER_FIR_LENGTH', '01 ' + ADC[i].HEXFIRLen01); //для фильтра 01
-          Memo1.Append('CMD SET LENGTH: ' + cmd);
+          cmd := Modbus.cmd(addr, 'setUSER_FIR_LENGTH', ADC[i].HEXFIRLen01); //для фильтра 01
+          Memo1.Append('CMD SET USER LENGTH: ' + cmd);
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
-          Memo1.Append('SET LEN R*: ' + response); *)
+          Memo1.Append('SET USER LEN R*: ' + response);
 
           cmd := Modbus.cmd(addr, 'setUSER_SPS_FILTER', ADC[i].HEXSPS);
-          Memo1.Append(cmd);
+          Memo1.Append('S*:' + cmd);
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
-          Memo1.Append('SET FILTER + SPS R*: ' +  response);
+          Memo1.Append('A*: ' + IntToStr(ADC[i].Address) + ' SET USER FILTER + SPS R*: ' +  response);
       end;
 
 
@@ -633,7 +640,7 @@ var setLength: integer;
     addr: string; //адрес платы HEX
 begin
    //запись длины филтра
-   Modbus.port := 'COM2'; //заменить на настройки
+   //Modbus.port := 'COM2'; //заменить на настройки
    len := Length(ADC);
    setLength := StrToInt(ComboBox3.Items[ComboBox3.ItemIndex]) - 1; //текущая длина
    getSelectedADC();
@@ -642,11 +649,19 @@ begin
        begin
           if (not ADC[i].selected) then continue;
           addr := IntToHex(ADC[i].Address, 2);
+
+          cmd := Modbus.cmd(addr, 'setNORM', ''); //режим норм
+          Memo1.Append(cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append(response);
+
           Modbus.DecToQ(16, setLength, qint);
           while (Length(qint) < 4) do qint := '0' + qint;
-
+          StringGrid1.Cells[_FIRLEN_, i + 1]:= IntToStr(setLength + 1);
           cmd := Modbus.cmd(addr, 'setFIR_LENGTH', '01 ' + qint); //для фильтра 01
-          ADC[i].HEXFIRLen01:='01 ' + qint;
+          ADC[i].HEXFIRLen01:='01 00 01 02 ' + qint; // ## номер фильтра, число регистров, число байт, значение
+
           Memo1.Append('CMD SET LENGTH: ' + cmd);
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
@@ -677,7 +692,7 @@ var filter: string;
     stringToSend: string;
 begin
   //запись в рабочие настройки значений FIR + SPS
-   Modbus.port := 'COM2'; //заменить на настройки
+  // Modbus.port := 'COM2'; //заменить на настройки
    len := Length(ADC);
 
    getSelectedADC();
@@ -715,8 +730,13 @@ begin
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
+var len: integer;
+i: integer;
 begin
-
+  //тест
+   len := Length(ADC);
+   for i:= 0 to len - 1 do
+      MEMO1.Append('i: ' + IntToStr(ADC[i].Address));
 end;
 
 procedure TForm1.Button9Click(Sender: TObject);
@@ -769,7 +789,7 @@ var i, min, max, index: integer;
   addr, cmd, stringToSend, response : string; //адрес платы HEX
 begin
   //поиск Модулей
-  Modbus.port := 'COM2'; //увести в настройки при инициализации
+//  Modbus.port := 'COM2'; //увести в настройки при инициализации
   min:= Modbus.minAddr;
   max:= Modbus.maxAddr;
   Label1.Caption:=IntToStr(min);
@@ -813,7 +833,12 @@ begin
                      TCheckBox(StringGrid1.Objects[1, index]).Checked:= True;
 
                    //  TCheckBox(StringGrid1.Objects[1, index]).onChange := TForm1.CheckBox1onChange(StringGrid1);
-
+                   //перевод в режим norm
+                   cmd := Modbus.cmd(addr, 'setNORM', '');
+                   Memo1.Append(cmd);
+                   stringToSend := Modbus.StrToHexStr(cmd);
+                   response := Modbus.send(stringToSend);
+                   Memo1.Append(response);
                      //чтение времени наработки платы
                      cmd := Modbus.cmd(addr, 'getRunningTime', '');
                      Memo1.Append(cmd);
@@ -821,7 +846,7 @@ begin
                      response := Modbus.send(stringToSend);
                      Memo1.Append(response);
                      ADC[index - 1].Runtime := Modbus.RRRuningTime(response);
-                     StringGrid1.Cells[8, index] := IntToStr(Modbus.RRRuningTime(response));
+                     StringGrid1.Cells[_RUNTIME_, index] := IntToStr(Modbus.RRRuningTime(response));
 
                      //версия платы
                      cmd := Modbus.cmd(addr, 'getVersion', '');
@@ -829,7 +854,7 @@ begin
                      stringToSend := Modbus.StrToHexStr(cmd);
                      response := Modbus.send(stringToSend);
                      Memo1.Append(response);
-                     StringGrid1.Cells[11, index] := Modbus.RRVersion(response);
+                     StringGrid1.Cells[_VERSION_, index] := Modbus.RRVersion(response);
 
                      //тип кабеля
                      cmd := Modbus.cmd(addr, 'getConnectionType', '');
@@ -844,7 +869,7 @@ begin
                      stringToSend := Modbus.StrToHexStr(cmd);
                      response := Modbus.send(stringToSend);
                      Memo1.Append(response);
-                     StringGrid1.Cells[10, index] := Modbus.RRTemperature(response);
+                     StringGrid1.Cells[_TEMP_, index] := Modbus.RRTemperature(response);
 
                      //запрос по ошибке
                      cmd :=  Modbus.cmd(addr, 'getErrors', '');
@@ -876,10 +901,19 @@ begin
                      ADC[index - 1].HEXSPS := Modbus.HEXSPS; //то что получаем с SPS
                      StringGrid1.Cells[_PGA_, index] := IntToStr(Modbus.trPGA(Modbus.PGA));
                      StringGrid1.Cells[_SPS_, index] := FloatToStr(Modbus.trSPS(Modbus.SPS));
+                     StringGrid1.Cells[_FILTER_, index] := Modbus.trFilter(Modbus.Filter);
+              //текущая длина фильтра
+                     cmd := Modbus.cmd(addr, 'getFIRLEN', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append('FIRLEN R*:' + response);
+                     ADC[index - 1].FIRLength := StrToInt(Modbus.RRFirLen(response));
+                     ADC[index - 1].HEXFIRLen01 := Modbus.HEXFIRLen01; //записываем для пользовательской записи
+                     StringGrid1.Cells[_FIRLEN_, index] := Modbus.FirLenText;
+                 end;
 
-                 end
-
-
+        if (length(ADC) > 0) then break;
       end;
 end;
 

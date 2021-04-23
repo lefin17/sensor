@@ -1,7 +1,7 @@
 object Form2: TForm2
-  Left = 458
+  Left = 604
   Height = 551
-  Top = 157
+  Top = 231
   Width = 861
   Caption = 'Настройка'
   ClientHeight = 551
@@ -29,15 +29,6 @@ object Form2: TForm2
     ParentColor = False
     ParentFont = False
   end
-  object ComboBox1: TComboBox
-    Left = 128
-    Height = 23
-    Top = 40
-    Width = 136
-    ItemHeight = 15
-    TabOrder = 0
-    Text = 'ComboBox1'
-  end
   object Button1: TButton
     Left = 48
     Height = 32
@@ -45,7 +36,7 @@ object Form2: TForm2
     Width = 124
     Caption = 'Применить'
     OnClick = Button1Click
-    TabOrder = 1
+    TabOrder = 0
   end
   object Button2: TButton
     Left = 179
@@ -54,7 +45,7 @@ object Form2: TForm2
     Width = 126
     Caption = 'Отменить'
     OnClick = Button2Click
-    TabOrder = 2
+    TabOrder = 1
   end
   object Label3: TLabel
     Left = 51
@@ -78,7 +69,7 @@ object Form2: TForm2
       '14400'
       '115200'
     )
-    TabOrder = 3
+    TabOrder = 2
     Text = '9600'
   end
   object Label4: TLabel
@@ -103,7 +94,7 @@ object Form2: TForm2
       'Нет'
       'Да'
     )
-    TabOrder = 4
+    TabOrder = 3
     Text = 'Нет'
   end
   object Label6: TLabel
@@ -130,7 +121,7 @@ object Form2: TForm2
       '30'
     )
     OnChange = ComboBox4Change
-    TabOrder = 5
+    TabOrder = 4
     Text = '10'
   end
   object Edit1: TEdit
@@ -138,7 +129,7 @@ object Form2: TForm2
     Height = 23
     Top = 40
     Width = 160
-    TabOrder = 6
+    TabOrder = 5
     Text = 'Edit1'
   end
   object Label7: TLabel
@@ -156,7 +147,7 @@ object Form2: TForm2
     Width = 128
     Caption = 'Применить IP'
     OnClick = Button3Click
-    TabOrder = 7
+    TabOrder = 6
   end
   object Label5: TLabel
     Left = 310
@@ -172,7 +163,7 @@ object Form2: TForm2
     Top = 256
     Width = 55
     OnChange = Edit2Change
-    TabOrder = 8
+    TabOrder = 7
     Text = 'Edit2'
   end
   object Label8: TLabel
@@ -189,7 +180,7 @@ object Form2: TForm2
     Top = 281
     Width = 55
     OnChange = Edit2Change
-    TabOrder = 9
+    TabOrder = 8
     Text = 'Edit3'
   end
   object Label9: TLabel
@@ -206,7 +197,7 @@ object Form2: TForm2
     Top = 224
     Width = 80
     OnChange = Edit4Change
-    TabOrder = 10
+    TabOrder = 9
     Text = 'Edit4'
   end
   object Label10: TLabel
@@ -231,7 +222,7 @@ object Form2: TForm2
     Top = 303
     Width = 88
     OnChange = Edit5Change
-    TabOrder = 11
+    TabOrder = 10
     Text = '0'
   end
   object Edit6: TEdit
@@ -240,7 +231,7 @@ object Form2: TForm2
     Top = 335
     Width = 88
     OnChange = Edit6Change
-    TabOrder = 12
+    TabOrder = 11
     Text = '5'
   end
   object StringGrid1: TStringGrid
@@ -250,7 +241,7 @@ object Form2: TForm2
     Width = 192
     ColCount = 2
     DefaultColWidth = 80
-    TabOrder = 13
+    TabOrder = 12
   end
   object Button4: TButton
     Left = 419
@@ -259,7 +250,7 @@ object Form2: TForm2
     Width = 183
     Caption = 'Показать точки'
     OnClick = Button4Click
-    TabOrder = 14
+    TabOrder = 13
   end
   object Label12: TLabel
     Left = 653
@@ -269,5 +260,14 @@ object Form2: TForm2
     Caption = 'Точки эксперимента'
     ParentColor = False
     OnClick = Label12Click
+  end
+  object Edit7: TEdit
+    Left = 128
+    Height = 23
+    Top = 40
+    Width = 136
+    OnChange = Edit7Change
+    TabOrder = 14
+    Text = 'Edit7'
   end
 end
