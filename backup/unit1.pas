@@ -949,7 +949,7 @@ begin
           if TCheckBox(StringGrid1.Objects[col, row]).Checked
           then res := 'checked'
           else res := 'non';
-  if ((row > 0) and (col = 9)) then
+  if ((row > 0) and (col = _ERR_)) then
      begin
        //read errors and reset error function
        Form3.getAddr(StrToInt(StringGrid1.cells[2, row]));

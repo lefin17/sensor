@@ -68,10 +68,15 @@ type
 type TAgilent = class
      ip: string;
      Voltage: double;
+     startTime : TDateTime;
+     readStart : boolean;
      LastResult : string;
      LastError: integer; //последняя ошибка - если была ошибка - не принимать
+     Agilent2: TTCPBlockSocket;
      function getCommand(cmd: string):string;
      procedure getVoltage();
+     procedure getVoltage2(); //взять напряжение без остановки чтением и таймера задержки
+     procedure getVoltage2Read(); //если запущено чтение - закрыть чтение
      procedure getLastError(error: integer); //забираем последнюю ошибку с Agilent если пошло всё хорошо
      function replace(text, s_old, s_new: string):string; //подготовка строки к преобразованию
      end;
@@ -236,6 +241,83 @@ if (check = '#215') then
 Agilent.Free;
 end;
 
+procedure TAgilent.getVoltage2();
+var
+value, cmd: string;
+code: integer;
+check : string;
+var clientBuffer: array of byte;
+I: integer;
+output : string;
+b: Byte;
+begin
+LastError := 0;
+Agilent2 := TTCPBlockSocket.Create;
+//что делать если нет на IP?
+Agilent2.Connect(ip, '5025');  //подключение к Agilent
+
+getLastError(Agilent2.LastError);
+
+Agilent2.ConnectionTimeout:=1000; //TimeOut 1s (1000 ms)
+Agilent2.SendString(Agil.getCommand('CONFigure:VOLTage:DC' + #10));
+getLastError(Agilent2.LastError);
+
+Agilent2.SendString(Agil.getCommand('VOLT:DC:NPLC 100' + #10));  //Включаем фильтр NPLC 100
+getLastError(Agilent2.LastError);
+
+Agilent2.SendString(Agil.getCommand('TRIGger:SOURce BUS' + #10));
+getLastError(Agilent2.LastError);
+
+Agilent2.SendString(Agil.getCommand('INITiate' + #10));  //Включить ожидание запуска
+getLastError(Agilent2.LastError);
+
+
+
+
+Agilent2.SendString(Agil.getCommand('*TRG'  + #10));
+ReadStart := True;
+startTime := Now;
+// запущена процедура
+end;
+
+procedure TAgilent.getVoltage2Read();
+//считать показания Agilent'а после чтения всех карт москва
+var
+time : integer;
+timer : integer;
+value, cmd: string;
+code: integer;
+check : string;
+var clientBuffer: array of byte;
+I: integer;
+output : string;
+b: Byte;
+begin
+if (not ReadStart) then exit;
+ time := SecondsBetween(startTime, Now);
+ timer := 0;
+ if (time < 6) then timer := (7 - time) * 1000;
+
+ sleep(timer); //пауза нужна для попадания результата измерения в буфер обмена
+Agilent2.SendString(Agil.getCommand('R?' + #10));
+getLastError(Agilent2.LastError);
+
+value := Agilent2.RecvPacket(1000);
+// LastResult := value;
+check := Copy(value, 0, 4);
+Voltage := -1;
+value := replace(Copy(value, 5, 20), '.', ','); //функция зависит от региональных настроек
+LastResult := value;
+
+
+if (check = '#215') then
+   begin
+   Voltage := StrToFloat(value); //вырезаем кусок кода из ответа содержащего напряжение
+   end;
+Agilent2.Free;
+ReadStart := false;
+end;
+
 function TAgilent.getCommand(cmd: string):string;
 var
 clientBuffer: array of Byte;
@@ -386,7 +468,7 @@ begin
       end;
 
       word := copy(str, 9, 2);
-      FirLenText := word; // IntToStr(StrToInt('$' + word) + 1) ; //в текст длина
+      FirLenText := IntToStr(StrToInt('$' + word) + 1) ; //в текст длина
       HEXFIRLen01 := '0100'+word;
       Result := FirLenText;
 

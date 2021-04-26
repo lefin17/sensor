@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Grids,
   ExtCtrls, TAGraph, TASeries, TAMultiSeries,
   core, //класс объявляющий степень полинома
-  MathCore; //класс с методами Гаусса-Грамма
+  MathCore, TADrawUtils, TACustomSeries; //класс с методами Гаусса-Грамма
 
 type
 
@@ -20,9 +20,12 @@ type
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
+    Button6: TButton;
+    Button7: TButton;
     Chart1: TChart;
     Chart1BubbleSeries1: TBubbleSeries;
     Chart1LineSeries1: TLineSeries;
+    Chart1LineSeries2: TLineSeries;
     Label1: TLabel;
     Memo1: TMemo;
     RadioGroup1: TRadioGroup;
@@ -32,6 +35,11 @@ type
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Chart1LineSeries2CustomDrawPointer(ASender: TChartSeries;
+      ADrawer: IChartDrawer; AIndex: Integer; ACenter: TPoint);
+    procedure Label1Click(Sender: TObject);
     procedure WriteCells1(key: string; value: string);    //вывод коэффициентов на экран
     procedure WritePoly(power: integer); //вывод степени полинома и его расчет к плате
     procedure FormCreate(Sender: TObject);
@@ -203,6 +211,47 @@ begin
                 end;
 end;
 
+procedure TForm5.Button6Click(Sender: TObject);
+begin
+  //поиск предыдущей платы
+  indexADC := indexADC - 1;
+  if (indexADC < 0) then indexADC := LENGTH(ADC) - 1;
+  while(not ADC[indexADC].selected) do
+         begin
+            indexADC := indexADC - 1;
+            if (indexADC < 0) then indexADC := LENGTH(ADC) - 1;
+         end;
+         Label1.Caption:=IntToStr(ADC[indexADC].Address);
+         ADC[indexAdc].PolyPower := RadioGroup1.ItemIndex + 2;
+         writePoly(ADC[indexADC].polyPower);
+end;
+
+procedure TForm5.Button7Click(Sender: TObject);
+begin
+    //поиск следующей платы
+    indexADC := indexADC + 1;
+  if (indexADC > Length(ADC) - 1) then indexADC := 0;
+  while(not ADC[indexADC].selected) do
+         begin
+            indexADC := indexADC - 1;
+            if (indexADC < 0) then indexADC := LENGTH(ADC) - 1;
+         end;
+         Label1.Caption:=IntToStr(ADC[indexADC].Address);
+         ADC[indexAdc].PolyPower := RadioGroup1.ItemIndex + 2;
+         writePoly(ADC[indexADC].polyPower);
+end;
+
+procedure TForm5.Chart1LineSeries2CustomDrawPointer(ASender: TChartSeries;
+  ADrawer: IChartDrawer; AIndex: Integer; ACenter: TPoint);
+begin
+
+end;
+
+procedure TForm5.Label1Click(Sender: TObject);
+begin
+
+end;
+
 procedure TForm5.writePoly(power: integer);
 var maxD, errI : double;
   Dots : integer;
@@ -252,7 +301,7 @@ procedure TForm5.RadioGroup1Click(Sender: TObject);
 begin
   //изменение степени полинома текущей платы
   ADC[indexAdc].PolyPower := RadioGroup1.ItemIndex + 2;
-   writePoly(ADC[indexADC].polyPower);
+  writePoly(ADC[indexADC].polyPower);
   //заполнение таблицы нужной степенью полинома
 end;
 

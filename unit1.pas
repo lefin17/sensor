@@ -394,6 +394,7 @@ end;
 
 procedure TForm1.MenuItem2Click(Sender: TObject);
 begin
+  getSelectedADC(); //записать на ADC - кто из них будет в работе
   Form4.Show;
 end;
 

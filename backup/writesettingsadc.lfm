@@ -38,11 +38,14 @@ object Form5: TForm5
     end
     object Chart1BubbleSeries1: TBubbleSeries
     end
+    object Chart1LineSeries2: TLineSeries
+      OnCustomDrawPointer = Chart1LineSeries2CustomDrawPointer
+    end
   end
   object Button1: TButton
     Left = 17
     Height = 48
-    Top = 416
+    Top = 424
     Width = 288
     Caption = 'Записать полином'
     OnClick = Button1Click
@@ -61,7 +64,7 @@ object Form5: TForm5
   object StringGrid1: TStringGrid
     Left = 19
     Height = 216
-    Top = 144
+    Top = 152
     Width = 287
     ColCount = 3
     DefaultColWidth = 100
@@ -69,19 +72,20 @@ object Form5: TForm5
     TabOrder = 3
   end
   object Label1: TLabel
-    Left = 26
+    Left = 80
     Height = 28
-    Top = 20
+    Top = 8
     Width = 53
     Caption = 'Плата'
     Font.Height = -20
     ParentColor = False
     ParentFont = False
+    OnClick = Label1Click
   end
   object Button2: TButton
-    Left = 16
+    Left = 17
     Height = 40
-    Top = 368
+    Top = 376
     Width = 128
     Caption = 'график ADC-AA'
     OnClick = Button2Click
@@ -99,7 +103,7 @@ object Form5: TForm5
   object RadioGroup1: TRadioGroup
     Left = 17
     Height = 72
-    Top = 64
+    Top = 72
     Width = 281
     AutoFill = True
     Caption = 'Степень полинома'
@@ -126,21 +130,40 @@ object Form5: TForm5
     TabOrder = 6
   end
   object Button4: TButton
-    Left = 159
+    Left = 158
     Height = 41
-    Top = 368
+    Top = 375
     Width = 146
     Caption = 'график E-A'
     OnClick = Button4Click
     TabOrder = 7
   end
   object Button5: TButton
-    Left = 200
+    Left = 216
     Height = 41
+    Hint = 'Ошибка разности показаний Agilent - ADS (Vref = 5V)'
     Top = 16
     Width = 96
-    Caption = 'Graph Err'
+    Caption = 'Graph Err, %'
     OnClick = Button5Click
     TabOrder = 8
+  end
+  object Button6: TButton
+    Left = 17
+    Height = 25
+    Top = 40
+    Width = 60
+    Caption = 'Previous'
+    OnClick = Button6Click
+    TabOrder = 9
+  end
+  object Button7: TButton
+    Left = 136
+    Height = 25
+    Top = 40
+    Width = 60
+    Caption = 'Next'
+    OnClick = Button7Click
+    TabOrder = 10
   end
 end
