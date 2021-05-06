@@ -46,6 +46,7 @@ type
     timer: TTimer; //добавление таймера на подключение
     onTimer: boolean; //включен ли таймер
     portStatus: string; //статус порта если не удалось подключиться для отображения
+    function USER_RRCoef(answer: string):double; //пользовательские коэффициенты
     function trSPS_FILTER(setSPS, setFilter: string):string;
     procedure IntToDec (q:byte; qint :string; var dint:longint); //из любой в десятичную
     procedure DecToQ (q,dint:longint;var qint:string);
@@ -62,6 +63,7 @@ type
     procedure USER_RRAds(answer: string); //чтение ответа от ADS по пользовательским настройкам
     function RRFir(answer: string):string; //чтение данных на филтрах АЦП
     function RRFirLen(answer: string):string; //чтение длины фильтра (пока 01)
+    function USER_RRFirLen(answer: string):integer; //пользовательский ответ по фильтру
     function RRTemperature(answer: string):string; //чтение температуры
     function RRErrors(answer: string):string; //чтение ошибок на плате
     function RRSerial(answer: string):string; //чтение серийного номера
@@ -463,6 +465,28 @@ begin
  Result:= ans;
 end;
 
+function TModbus.USER_RRFirLen(answer: string):integer;
+//чтение параметров системы АЦП на текущей плате
+var res: string;
+   i: integer;
+   str: string;
+   word : string;
+begin
+ //для пользовательских настроек в не зависимости от номера фильтра (один фильтр)
+   str:=replace(answer, ' ', '');
+   if (Length(str)<4) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+
+      word := copy(str, 9, 2);
+    //  FirLenText := IntToStr(StrToInt('$' + word) + 1) ; //в текст длина
+    //  HEXFIRLen01 := '0100'+word;
+      Result :=  StrToInt('$' + word) + 1;
+
+end;
+
 function TModbus.RRFirLen(answer: string):string;
 //чтение параметров системы АЦП на текущей плате
 var res: string;
@@ -484,6 +508,34 @@ begin
 
 end;
 
+
+function TModbus.USER_RRCoef(answer: string):double;
+//чтение пользовательских параметров системы АЦП на текущей плате
+//USER(SPS + FILTERS, PGA)
+var res: string;
+   i: integer;
+  // tmp : string;
+   DR : LongInt; //DataRate
+   FR : LongInt;
+   str: string;
+   // res : string;
+   word : string;
+   tmp : Tbytes8;
+begin
+   str:=replace(answer, ' ', '');
+   res := '';
+   if (Length(str)<14) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+      for i := 0 to 7 do
+          begin
+          tmp[i] := StrToInt('$' + copy(str, 7 + 2 * i, 2));
+          res += copy(str, 7 + 2 * i, 2);
+          end;
+     Result :=  Bytes2Double(tmp);
+end;
 procedure TModbus.USER_RRAds(answer: string);
 //чтение пользовательских параметров системы АЦП на текущей плате
 //USER(SPS + FILTERS, PGA)
@@ -763,6 +815,7 @@ begin
 
      'putCoefs': res += '10' + param;
 
+     'getUserCoefs': res += '03' + param; //сюда адрес + число регистов
      'readCoefs': res += '03' + param; //сюда адрес + число регистов
 
      // $0c$06$0a$02$00$43$de$ad
@@ -775,6 +828,7 @@ begin
 
     // 1d$03$1c$00$00$08$de$ad
      'getFIRLEN' : res += '03 1C 01 00 01'; //чтение слова первого фильтра
+     'getUSER_FIRLEN': res += '03 FC 01 00 01'; //чтение слова первого фильтра (а нужен может быть второй или все 8 [восемь])
      end;
      res += ' DE AD'; //конец слова команды
      Result := res;
