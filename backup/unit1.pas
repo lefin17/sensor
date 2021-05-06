@@ -13,6 +13,7 @@ uses
   //DataPortSerial,
   // DataPort,
   strutils, dateutils, mathcore,
+  uservarsload,
   blcksock;
 
 type
@@ -90,6 +91,7 @@ type
     procedure FormCreate(Sender: TObject);
 
     procedure MenuItem10Click(Sender: TObject);
+    procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
@@ -392,8 +394,16 @@ begin
  Form2.Show;
 end;
 
+procedure TForm1.MenuItem11Click(Sender: TObject);
+begin
+  getSelectedADC(); //записать на ADC - кто из них будет в работе
+  Form6.Show;
+  //как-то по завершению применения пользовательских настроек - обновить данные в таблице
+end;
+
 procedure TForm1.MenuItem2Click(Sender: TObject);
 begin
+  getSelectedADC(); //записать на ADC - кто из них будет в работе
   Form4.Show;
 end;
 

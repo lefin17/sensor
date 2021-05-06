@@ -23,9 +23,17 @@ type
     speed: integer;
     tempWord: string; //пробная строка для отладки ответа
     tempWordPGA: string; //пробная строка для отладки ответа (PGA)
+    USER_tempWord: string; //пробная строка для отладки ответа
+    USER_tempWordPGA: string; //пробная строка для отладки ответа (PGA)
+
     HEXSPS: string; //строка для хранения информации по филтру и SPS
+    USER_HEXSPS: string; //строка для хранения информации по филтру и SPS
     HEXFIRLen01: string; //то что пишем в команду длины (с учетом фильтра) //иногда
     FirLenText: string; //то что выдаем в таблицу
+    USER_SPS: integer; //частота чтения с текущего адаптера в пользовательских настройках
+    USER_PGA: integer; //усиление в пользовательских настройках
+    USER_ByPass: integer; //включен (должен быть по умолчанию) PyPass усилителя на ADS
+    USER_Filter: integer; //пользовательский фильтр для чтения по Modbus
     SPS: integer; //частота чтения в битной сетке текущего адаптера, далее должно записываться в объект платы
     PGA: integer; //усилитель в битной сетке
     ByPass : integer; //включен ли обход усилителя на текущей плате (по которой идет опрос)
@@ -51,6 +59,7 @@ type
     function RRVersion(answer: string):string; //определение версии программы
     function RRConnectionType(answer: string):string;
     procedure RRAds(answer: string); //чтение ответа от ADS
+    procedure USER_RRAds(answer: string); //чтение ответа от ADS по пользовательским настройкам
     function RRFir(answer: string):string; //чтение данных на филтрах АЦП
     function RRFirLen(answer: string):string; //чтение длины фильтра (пока 01)
     function RRTemperature(answer: string):string; //чтение температуры
@@ -108,6 +117,7 @@ type
     VerificationDots: array of double; //экспериментальные точки
     AgilDots: array of double; //точки по данному АЦП с Agilent'а
     VoltageDots: array of double; //точки по данному измерению с AЦП платы
+    CurrentV: array of double; //точки текущего напряжения для выставления на Fluke
     Coefs: array of double; //коэффициенты полинома функции восстановления
     function fi(power: integer; x1: Double):Double; //функция по восстановлению значения
   end;
@@ -474,6 +484,49 @@ begin
 
 end;
 
+procedure TModbus.USER_RRAds(answer: string);
+//чтение пользовательских параметров системы АЦП на текущей плате
+// USER(SPS + FILTERS, PGA)
+var res: string;
+   i: integer;
+   tmp : string;
+   DR : LongInt; //DataRate
+   FR : LongInt;
+   str: string;
+   word : string;
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<14) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+
+   for i := 0 to 12 do
+    begin
+      word := copy(str, i * 4 + 9, 2);
+ //     tempWord := answer + '-' + word;
+    //  Exit;
+      case i of
+         2: begin
+            USER_HEXSPS := word;
+            DR:=round(dec_to_bin(StrToInt('$' + word))/EXP(3*LN(10)));
+            FR:=round(dec_to_bin(StrToInt('$' + word))) - DR * 1000;
+            USER_SPS := DR;
+            USER_Filter := FR;
+            USER_tempWord := word;
+         end;
+         16: begin
+           USER_ByPass := round(dec_to_bin(StrToInt('$' + word))/EXP(7 * LN(10)));
+           USER_PGA:=round(dec_to_bin(StrToInt('$' + word))) - 1000000*ByPass;
+           USER_tempWordPGA := word;
+         end;
+      end;
+    end;
+
+end;
+
+
 procedure TModbus.RRAds(answer: string);
 //чтение параметров системы АЦП на текущей плате
 var res: string;
@@ -703,6 +756,8 @@ begin
      'setEXEC': res += ' 06 10 00 00 01'; //перевод в режим EXEC
 
      'getADS' : res += ' 03 0A 00 00 13'; //чтение всех настроек ADS
+
+     'getUserADS' : res += ' 03 FA 00 00 13'; //чтение всех пользовательских настроек ADS
 
      'getADSFilters': res += ' 03 1D 00 00 20'; //Регистры данных КИХ Фильтров
 

@@ -8,7 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, tachartlazaruspkg, LazSerialPort, Unit1, Unit2, core, adc_class, Unit3,
-  Unit4, mathcore, writeSettingsADC
+  Unit4, mathcore, writeSettingsADC, UserVarsLoad
   { you can add units after this };
 
 {$R *.res}
@@ -22,6 +22,7 @@ begin
   Application.CreateForm(TForm3, Form3);
   Application.CreateForm(TForm4, Form4);
   Application.CreateForm(TForm5, Form5);
+  Application.CreateForm(TForm6, Form6);
   Application.Run;
 end.
 

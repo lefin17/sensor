@@ -279,7 +279,8 @@ object Form1: TForm1
         OnClick = MenuItem6Click
       end
       object MenuItem11: TMenuItem
-        Caption = 'Поиск с USER MEM'
+        Caption = 'USER MEMORY'
+        OnClick = MenuItem11Click
       end
       object MenuItem2: TMenuItem
         Caption = 'Поверка'
