@@ -1,17 +1,17 @@
 object Form5: TForm5
   Left = 354
-  Height = 685
+  Height = 721
   Top = 239
   Width = 1152
   Caption = 'Запись полинома на плату'
-  ClientHeight = 685
+  ClientHeight = 721
   ClientWidth = 1152
   OnCreate = FormCreate
   OnShow = FormShow
   LCLVersion = '2.0.10.0'
   object Chart1: TChart
     Left = 328
-    Height = 664
+    Height = 704
     Top = 8
     Width = 809
     AxisList = <    
@@ -36,16 +36,18 @@ object Form5: TForm5
     )
     object Chart1LineSeries1: TLineSeries
     end
-    object Chart1BubbleSeries1: TBubbleSeries
-    end
     object Chart1LineSeries2: TLineSeries
       OnCustomDrawPointer = Chart1LineSeries2CustomDrawPointer
     end
+    object Chart1LineSeries3: TLineSeries
+    end
+    object Chart1LineSeries4: TLineSeries
+    end
   end
   object Button1: TButton
-    Left = 17
+    Left = 16
     Height = 48
-    Top = 424
+    Top = 480
     Width = 288
     Caption = 'Записать полином'
     OnClick = Button1Click
@@ -54,7 +56,7 @@ object Form5: TForm5
   object Memo1: TMemo
     Left = 13
     Height = 144
-    Top = 512
+    Top = 568
     Width = 291
     Lines.Strings = (
       'Memo1'
@@ -62,19 +64,19 @@ object Form5: TForm5
     TabOrder = 2
   end
   object StringGrid1: TStringGrid
-    Left = 19
+    Left = 9
     Height = 216
-    Top = 152
-    Width = 287
+    Top = 208
+    Width = 303
     ColCount = 3
     DefaultColWidth = 100
     RowCount = 8
     TabOrder = 3
   end
   object Label1: TLabel
-    Left = 80
+    Left = 72
     Height = 28
-    Top = 8
+    Top = 40
     Width = 53
     Caption = 'Плата'
     Font.Height = -20
@@ -83,9 +85,9 @@ object Form5: TForm5
     OnClick = Label1Click
   end
   object Button2: TButton
-    Left = 17
+    Left = 19
     Height = 40
-    Top = 376
+    Top = 433
     Width = 128
     Caption = 'график ADC-AA'
     OnClick = Button2Click
@@ -94,17 +96,17 @@ object Form5: TForm5
   object Button3: TButton
     Left = 17
     Height = 25
-    Top = 480
+    Top = 536
     Width = 287
     Caption = 'Читать полином'
     OnClick = Button3Click
     TabOrder = 5
   end
   object RadioGroup1: TRadioGroup
-    Left = 17
+    Left = 9
     Height = 72
-    Top = 72
-    Width = 281
+    Top = 128
+    Width = 305
     AutoFill = True
     Caption = 'Степень полинома'
     ChildSizing.LeftRightSpacing = 6
@@ -115,7 +117,7 @@ object Form5: TForm5
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 3
     ClientHeight = 52
-    ClientWidth = 277
+    ClientWidth = 301
     Columns = 3
     ItemIndex = 0
     Items.Strings = (
@@ -130,40 +132,69 @@ object Form5: TForm5
     TabOrder = 6
   end
   object Button4: TButton
-    Left = 158
+    Left = 152
     Height = 41
-    Top = 375
+    Top = 432
     Width = 146
     Caption = 'график E-A'
     OnClick = Button4Click
     TabOrder = 7
   end
   object Button5: TButton
-    Left = 216
-    Height = 41
+    Left = 218
+    Height = 24
     Hint = 'Ошибка разности показаний Agilent - ADS (Vref = 5V)'
-    Top = 16
+    Top = 64
     Width = 96
     Caption = 'Graph Err, %'
     OnClick = Button5Click
     TabOrder = 8
   end
   object Button6: TButton
-    Left = 17
+    Left = 19
     Height = 25
-    Top = 40
+    Top = 80
     Width = 60
     Caption = 'Previous'
     OnClick = Button6Click
     TabOrder = 9
   end
   object Button7: TButton
-    Left = 136
+    Left = 128
     Height = 25
-    Top = 40
+    Top = 80
     Width = 60
     Caption = 'Next'
     OnClick = Button7Click
     TabOrder = 10
+  end
+  object Button8: TButton
+    Left = 217
+    Height = 25
+    Hint = 'Рисуем выбранный полином на графике с ошибкой по Agilent''у'
+    Top = 96
+    Width = 41
+    Caption = 'Poly'
+    OnClick = Button8Click
+    TabOrder = 11
+  end
+  object Button9: TButton
+    Left = 266
+    Height = 24
+    Hint = 'Очищаем вторую серию, для того чтоб не мешала на других графиках'
+    Top = 96
+    Width = 48
+    Caption = 'Clear'
+    OnClick = Button9Click
+    TabOrder = 12
+  end
+  object Button10: TButton
+    Left = 218
+    Height = 25
+    Top = 32
+    Width = 94
+    Caption = 'TEST'
+    OnClick = Button10Click
+    TabOrder = 13
   end
 end

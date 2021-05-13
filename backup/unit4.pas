@@ -262,7 +262,7 @@ begin
 //определение максимальной ошибки по текущей плате
       maxD := 0;
 
-      for j := 0 to LENGTH(ADS[indexADC].VerificationDots) - 1 do
+      for j := 0 to LENGTH(ADC[indexADC].VerificationDots) - 1 do
           if (maxD < ADC[indexADC].VerificationDots[j]) then maxD := ADC[indexADC].VerificationDots[j];
            StringGrid2.Cells[2, indexADC + 1] := FloatToStr(maxD); //максимальное отклонение по плате
 end;

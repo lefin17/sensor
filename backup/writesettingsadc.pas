@@ -16,20 +16,25 @@ type
 
   TForm5 = class(TForm)
     Button1: TButton;
+    Button10: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
     Button7: TButton;
+    Button8: TButton;
+    Button9: TButton;
     Chart1: TChart;
-    Chart1BubbleSeries1: TBubbleSeries;
     Chart1LineSeries1: TLineSeries;
     Chart1LineSeries2: TLineSeries;
+    Chart1LineSeries3: TLineSeries;
+    Chart1LineSeries4: TLineSeries;
     Label1: TLabel;
     Memo1: TMemo;
     RadioGroup1: TRadioGroup;
     StringGrid1: TStringGrid;
+    procedure Button10Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -37,6 +42,8 @@ type
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
     procedure Chart1LineSeries2CustomDrawPointer(ASender: TChartSeries;
       ADrawer: IChartDrawer; AIndex: Integer; ACenter: TPoint);
     procedure Label1Click(Sender: TObject);
@@ -171,6 +178,36 @@ begin
   //вывести результат команды
 end;
 
+procedure TForm5.Button10Click(Sender: TObject);
+var cmd, stringToSend, response: string;
+    res : string;
+begin
+  //добавить тестовую точку на график абсолютной ошибки
+  //читаем agilent на полном фильтре, читаем с конкретной платы
+  Agil.getVoltage(); //взять напряжение с вольтметра
+  Chart1LineSeries3.ShowPoints:=True;
+  Chart1LineSeries3.LineType:=ltNone;
+  Chart1LineSeries3.Pointer.Brush.Color:=clRed;
+  Chart1LineSeries3.ShowPoints:=True;
+  Chart1LineSeries3.LineType:=ltNone;
+  Chart1LineSeries3.Pointer.Brush.Color:=clGreen;
+
+    cmd := Modbus.cmd(IntToHEX(ADC[indexADC].Address, 2), 'getADSFilters', '');
+      stringToSend := Modbus.StrToHexStr(cmd);
+      response := Modbus.send(stringToSend);
+      res := Modbus.RRFir(response);
+//      Chart1BubbleSeries1.OverrideColor := bocPen;
+      Chart1LineSeries3.AddXY(Agil.Voltage, 25*(Agil.Voltage - Modbus.Voltage));
+      Chart1LineSeries4.AddXY(Agil.Voltage, 25*(Agil.Voltage - ADC[indexADC].fi(ADC[indexADC].PolyPower, Modbus.Voltage)));
+      Memo1.Append('modbus voltage' + FloatToStr(Modbus.Voltage));
+      Memo1.Append('Agil.Voltage' + FloatToStr(Agil.Voltage));
+      Memo1.Append('ADC.Fi*:' + FloatToStr(ADC[indexADC].fi(ADC[indexADC].PolyPower, Modbus.Voltage)));
+//      Modbus.Voltage;  // текущая ситуация
+//      Modbus.VoltageDeviation;
+
+       // Memo1.Append('unit ' + IntToStr(indexADC) + ' R*:' + response + ' V*:' +  FloatToStr(Modbus.Voltage));
+end;
+
 procedure TForm5.Button4Click(Sender: TObject);
 var j:  integer;
     x, f: double;
@@ -208,6 +245,7 @@ begin
                 //25  - это про приведение к 4 вольтам и 100%
                 f := 25*(ADC[indexAdc].AgilDots[j] -  ADC[indexAdc].VoltageDots[j]); //показания с agilentа;
                    Chart1LineSeries1.AddXY(x, f);
+
                 end;
 end;
 
@@ -236,9 +274,41 @@ begin
             indexADC := indexADC - 1;
             if (indexADC < 0) then indexADC := LENGTH(ADC) - 1;
          end;
-         Label1.Caption:=IntToStr(ADC[indexADC].Address;
+         Label1.Caption:=IntToStr(ADC[indexADC].Address);
          ADC[indexAdc].PolyPower := RadioGroup1.ItemIndex + 2;
          writePoly(ADC[indexADC].polyPower);
+end;
+
+procedure TForm5.Button8Click(Sender: TObject);
+//выводим ошибку по текущей степени полинома
+var j:  integer;
+    x, f: double;
+    Dots : integer;
+    power : integer;
+    min, max: double;
+    N: integer; //число точек для вывода графика по полиному
+begin
+  //печать графика для
+    Chart1LineSeries2.Clear;
+    Chart1LineSeries2.SeriesColor:=clLime;
+    Dots := Length(ADC[indexADC].VerificationDots);
+    min := ADC[indexADC].AgilDots[0];
+    max := ADC[indexADC].AgilDots[Dots - 1];
+    N := 1000;
+    for j := 0 to N do
+                begin
+                x:= min + (max - min) / N * j;
+                power := ADC[indexADC].PolyPower; //степень полинома
+                f := 25 * (ADC[indexADC].fi(power, x) - x);
+                Chart1LineSeries2.AddXY(x, f);
+                end;
+end;
+
+procedure TForm5.Button9Click(Sender: TObject);
+begin
+  Chart1LineSeries2.Clear;
+  Chart1LineSeries3.Clear;
+    Chart1LineSeries4.Clear;
 end;
 
 procedure TForm5.Chart1LineSeries2CustomDrawPointer(ASender: TChartSeries;

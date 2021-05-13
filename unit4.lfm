@@ -167,7 +167,7 @@ object Form4: TForm4
     TabOrder = 12
   end
   object Button10: TButton
-    Left = 262
+    Left = 264
     Height = 33
     Top = 112
     Width = 75

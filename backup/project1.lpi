@@ -105,6 +105,7 @@
         <Filename Value="uservarsload.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form6"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UserVarsLoad"/>
       </Unit9>
