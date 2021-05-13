@@ -608,7 +608,13 @@ begin
           Memo1.Append('CMD SET USER LENGTH: ' + cmd);
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
-          Memo1.Append('SET USER LEN R*: ' + response);
+          Memo1.Append('SET USER LEN F01 R*: ' + response);
+
+          cmd := Modbus.cmd(addr, 'setUSER_FIR_LENGTH', ADC[i].HEXFIRLen00); //для фильтра 01
+          Memo1.Append('CMD SET USER LENGTH: ' + cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append('SET USER LEN F00 R*: ' + response);
 
           cmd := Modbus.cmd(addr, 'setUSER_SPS_FILTER', ADC[i].HEXSPS);
           Memo1.Append('S*:' + cmd);
@@ -673,7 +679,7 @@ begin
           StringGrid1.Cells[_FIRLEN_, i + 1]:= IntToStr(setLength + 1);
           cmd := Modbus.cmd(addr, 'setFIR_LENGTH', '01 ' + qint); //для фильтра 01
           ADC[i].HEXFIRLen01:='01 00 01 02 ' + qint; // ## номер фильтра, число регистров, число байт, значение
-
+          ADC[i].HEXFIRLen00:='00 00 01 02 ' + qint; // ## номер фильтра, число регистров, число байт, значение
           Memo1.Append('CMD SET LENGTH: ' + cmd);
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
@@ -922,6 +928,7 @@ begin
                      Memo1.Append('FIRLEN R*:' + response);
                      ADC[index - 1].FIRLength := StrToInt(Modbus.RRFirLen(response));
                      ADC[index - 1].HEXFIRLen01 := Modbus.HEXFIRLen01; //записываем для пользовательской записи
+                     ADC[index - 1].HEXFIRLen00 := Modbus.HEXFIRLen00;
                      StringGrid1.Cells[_FIRLEN_, index] := Modbus.FirLenText;
                  end;
 

@@ -105,6 +105,7 @@ type
     Runtime: integer; { Время жизни платы в секундах }
     HEXSPS: string; //то что нужно вкатить при пользовательской записи
     HEXFIRLen01: string; //то что пишем в команду длины (с учетом фильтра)
+    HEXFIRLen00: string; //то что пишем в команду длины (с учетом фильтра)
     SPS: double; //есть и коды для задачи  (А он не интеger..)
     ByPass: boolean; //включен ли ByPass...
     FIRLength: integer; //длина фильтра в измерениях при данных настройках
@@ -518,7 +519,7 @@ var res: string;
    DR : LongInt; //DataRate
    FR : LongInt;
    str: string;
-   res : string;
+   // res : string;
    word : string;
    tmp : Tbytes8;
 begin
