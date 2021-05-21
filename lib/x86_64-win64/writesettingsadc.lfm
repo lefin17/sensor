@@ -197,4 +197,13 @@ object Form5: TForm5
     OnClick = Button10Click
     TabOrder = 13
   end
+  object Button11: TButton
+    Left = 219
+    Height = 25
+    Top = 7
+    Width = 91
+    Caption = 'EXEC'
+    OnClick = Button11Click
+    TabOrder = 14
+  end
 end

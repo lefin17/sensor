@@ -17,6 +17,7 @@ type
   TForm5 = class(TForm)
     Button1: TButton;
     Button10: TButton;
+    Button11: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -35,6 +36,7 @@ type
     RadioGroup1: TRadioGroup;
     StringGrid1: TStringGrid;
     procedure Button10Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -191,7 +193,7 @@ begin
   Chart1LineSeries4.ShowPoints:=True;
   Chart1LineSeries4.LineType:=ltNone;
   Chart1LineSeries4.Pointer.Brush.Color:=clGreen;
-
+    //перевести в режим EXEC... до начала работы
     cmd := Modbus.cmd(IntToHEX(ADC[indexADC].Address, 2), 'getADSFilters', '');
       stringToSend := Modbus.StrToHexStr(cmd);
       response := Modbus.send(stringToSend);
@@ -206,6 +208,24 @@ begin
 //      Modbus.VoltageDeviation;
 
        // Memo1.Append('unit ' + IntToStr(indexADC) + ' R*:' + response + ' V*:' +  FloatToStr(Modbus.Voltage));
+end;
+
+procedure TForm5.Button11Click(Sender: TObject);
+var len: integer; //число модулей для инициализации
+    addr, cmd, stringToSend, response: string; //команда на модуль
+    i: integer;
+begin
+   len := Length(ADC);
+  for i:= 0 to len - 1 do
+          begin
+          addr := IntToHex(ADC[i].Address, 2);
+          cmd := Modbus.cmd(addr, 'setEXEC', '');
+          Memo1.Append('SET EXEC: ' + IntToStr(i) + ' C*:'+ cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append('R*: ' + response);
+
+          end;
 end;
 
 procedure TForm5.Button4Click(Sender: TObject);

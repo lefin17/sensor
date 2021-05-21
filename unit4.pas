@@ -228,6 +228,7 @@ var cmd: string;
     modules: integer;
     maxD : double; // ошибка по плате
 begin
+  if (rescanrow = 0) then exit; //не работаем если не было двойного щелчка на таблицу
   //чтение одного изделия заного - нужное напряжение, нужно найти точку...
   Agil.getVoltage2(); //взять напряжение с вольтметра //без чтения и паузы
   //запуск чтения по плате
@@ -297,6 +298,10 @@ begin
           Memo1.Append('R*: ' + response);
 
           end;
+  //обнуление таблиц при инициализации
+  StringGrid1.RowCount:=1; //убиваем наполненные таблицы
+  StringGrid2.RowCount:=1;
+  StringGrid3.RowCount:=1;
 end;
 
 procedure TForm4.Button3Click(Sender: TObject);
@@ -602,7 +607,8 @@ begin
   For i := 0 to (Modbus.units - 1)  do
       begin
       //цикл по активированным платам
-      StringGrid2.Cells[0, i + 1] := IntToStr(i);
+      StringGrid2.Cells[0, i + 1] := IntToStr(i + 1);
+      StringGrid2.Cells[1, i + 1] := IntToStr(ADC[i].Address);
 
       if (not ADC[i].selected) then continue; //если плата не выбрана в главной части - не трогаем
 
@@ -625,7 +631,7 @@ begin
 
       ADC[i].VerificationDots[len] :=  abs(tmp[index - 1] - Agil.Voltage); // текущее отклонение без процентов
       ADC[i].AgilDots[len] := Agil.Voltage;
-      ADC[i].VoltageDots[len] := tmp[index];
+      ADC[i].VoltageDots[len] := tmp[index - 1];
       ADC[i].CurrentV[len] := Verification.CurrentV;
       maxD := 0;
       for j := 0 to len do

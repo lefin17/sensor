@@ -701,6 +701,7 @@ var i: integer;
 begin
    Gain := 1;
    Vref := 5;
+ //  Vref := 1;
    str:=replace(answer, ' ', '');
    if (Length(str)<8) then
       begin
@@ -711,10 +712,11 @@ begin
    s := Copy(str, 9, 6);
    b := StrToInt('$' + s);
 
-   Voltage := Vref / (Gain * 8388608) * b;   // 2^23 = 8388608
+   Voltage := b * Vref / (Gain * 8388608);
    s1 := Copy(str, 15, 8);
+   //СКО
    b := StrToInt('$' + s1);
-   VoltageDeviation := Vref / (Gain * 8388608) * b;   //Отклонение которое выдаёт плата
+   VoltageDeviation :=  b * Vref / (Gain * 8388608) ;   //Отклонение которое выдаёт плата
    res := s;
    Result := res;
 end;

@@ -107,6 +107,7 @@ var i: integer;
   delta, ui: double;
   Vmin: double;
   Vmax: double;
+  ctrlDots : integer;
 begin
   try
     IniFile := TIniFile.Create('settings.ini');
@@ -117,6 +118,12 @@ begin
 
   finally
   end;
+
+  IniFile := TIniFile.Create('settings.ini');
+ctrlDots := StrToInt(Edit2.Text);
+Verification.N := ctrlDots;
+IniFile.WriteInteger('Verification', 'Attemts', ctrlDots);
+IniFile.free;
 
 //показать точки эксперимента
   StringGrid1.RowCount := 1;
@@ -213,11 +220,11 @@ end;
 procedure TForm2.Edit2Change(Sender: TObject);
 var ctrlDots: integer;
 begin
-IniFile := TIniFile.Create('settings.ini');
+(* IniFile := TIniFile.Create('settings.ini');
 ctrlDots := StrToInt(Edit2.Text);
 Verification.N := ctrlDots;
 IniFile.WriteInteger('Verification', 'Attemts', ctrlDots);
-IniFile.free;
+IniFile.free; *)
 end;
 
 procedure TForm2.Button3Click(Sender: TObject);
@@ -240,7 +247,7 @@ IniFile.WriteString('Modbus', 'port', Modbus.port);
 
 IniFile.WriteInteger('Modbus', 'minAddr', Modbus.minAddr);
 Modbus.maxAddr:=StrToInt(Edit3.Text);
-IniFile.WriteInteger('Modbus', 'maxAddr', StrToInt(Modbus.maxAddr));
+IniFile.WriteInteger('Modbus', 'maxAddr', Modbus.maxAddr);
 IniFile.free;
 Close;
 end;

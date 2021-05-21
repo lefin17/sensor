@@ -29,6 +29,7 @@ type
     HEXSPS: string; //строка для хранения информации по филтру и SPS
     USER_HEXSPS: string; //строка для хранения информации по филтру и SPS
     HEXFIRLen01: string; //то что пишем в команду длины (с учетом фильтра) //иногда
+    HEXFIRLen00: string; //то что пишем в команду длины (с учетом фильтра) //иногда
     FirLenText: string; //то что выдаем в таблицу
     USER_SPS: integer; //частота чтения с текущего адаптера в пользовательских настройках
     USER_PGA: integer; //усиление в пользовательских настройках
@@ -505,6 +506,7 @@ begin
       word := copy(str, 9, 2);
       FirLenText := IntToStr(StrToInt('$' + word) + 1) ; //в текст длина
       HEXFIRLen01 := '0100'+word;
+      HEXFIRLen00 := '0000'+word;
       Result := FirLenText;
 
 end;
@@ -699,6 +701,7 @@ var i: integer;
 begin
    Gain := 1;
    Vref := 5;
+ //  Vref := 1;
    str:=replace(answer, ' ', '');
    if (Length(str)<8) then
       begin
@@ -709,10 +712,10 @@ begin
    s := Copy(str, 9, 6);
    b := StrToInt('$' + s);
 
-   Voltage := Vref / (Gain * 8388608) * b;   // 2^23 = 8388608
+   Voltage := b * Vref / (Gain * 8388608);
    s1 := Copy(str, 15, 8);
    b := StrToInt('$' + s1);
-   VoltageDeviation := Vref / (Gain * 8388608) * b;   //Отклонение которое выдаёт плата
+   VoltageDeviation :=  b * Vref / (Gain * 8388608) ;   //Отклонение которое выдаёт плата
    res := s;
    Result := res;
 end;
