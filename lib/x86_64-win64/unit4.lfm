@@ -1,17 +1,17 @@
 object Form4: TForm4
-  Left = 401
-  Height = 740
-  Top = 148
-  Width = 1136
+  Left = 325
+  Height = 829
+  Top = 61
+  Width = 1122
   Caption = 'Поверка'
-  ClientHeight = 740
-  ClientWidth = 1136
+  ClientHeight = 829
+  ClientWidth = 1122
   OnCreate = FormCreate
   OnShow = FormShow
   LCLVersion = '2.0.10.0'
   object StringGrid1: TStringGrid
     Left = 10
-    Height = 331
+    Height = 400
     Top = 152
     Width = 415
     ColCount = 6
@@ -47,8 +47,8 @@ object Form4: TForm4
   end
   object Memo1: TMemo
     Left = 10
-    Height = 110
-    Top = 615
+    Height = 102
+    Top = 720
     Width = 413
     Lines.Strings = (
       'Memo1'
@@ -58,7 +58,7 @@ object Form4: TForm4
   end
   object Button2: TButton
     Left = 8
-    Height = 25
+    Height = 33
     Top = 19
     Width = 263
     Caption = 'Инициализация'
@@ -85,77 +85,68 @@ object Form4: TForm4
     ParentColor = False
   end
   object StringGrid2: TStringGrid
-    Left = 448
-    Height = 684
-    Top = 36
-    Width = 320
+    Left = 432
+    Height = 794
+    Top = 24
+    Width = 336
     ColCount = 3
     DefaultColWidth = 100
     ScrollBars = ssAutoVertical
     TabOrder = 4
   end
   object Button3: TButton
-    Left = 8
+    Left = 10
     Height = 35
-    Top = 496
-    Width = 222
+    Top = 560
+    Width = 198
     Caption = 'Сохранить таблицу результатов'
     OnClick = Button3Click
     TabOrder = 5
   end
   object Button4: TButton
-    Left = 200
+    Left = 220
     Height = 32
-    Top = 544
-    Width = 243
+    Top = 600
+    Width = 205
     Caption = 'Сохранить таблицу отклонений'
     OnClick = Button4Click
     TabOrder = 6
   end
   object Button5: TButton
-    Left = 8
+    Left = 10
     Height = 33
-    Top = 536
-    Width = 96
-    Caption = 'Gauss'
+    Top = 640
+    Width = 200
+    Caption = 'Рассчитать полином'
     OnClick = Button5Click
     TabOrder = 7
   end
   object StringGrid3: TStringGrid
-    Left = 784
-    Height = 555
-    Top = 37
-    Width = 329
+    Left = 776
+    Height = 798
+    Top = 24
+    Width = 337
     ColCount = 4
     TabOrder = 8
     OnDblClick = StringGrid3DblClick
   end
   object Button6: TButton
-    Left = 200
-    Height = 27
-    Top = 580
-    Width = 239
+    Left = 220
+    Height = 33
+    Top = 640
+    Width = 205
     Caption = 'Сохранить таблицу полиномов'
     OnClick = Button6Click
     TabOrder = 9
   end
-  object Button8: TButton
-    Left = 783
-    Height = 25
-    Top = 622
-    Width = 75
-    Caption = 'Test'
-    OnClick = Button8Click
-    TabOrder = 10
-  end
   object Button7: TButton
     Left = 10
-    Height = 27
-    Top = 580
-    Width = 184
+    Height = 33
+    Top = 680
+    Width = 200
     Caption = 'Открыть файл результатов'
     OnClick = Button7Click
-    TabOrder = 11
+    TabOrder = 10
   end
   object Button9: TButton
     Left = 136
@@ -164,7 +155,7 @@ object Form4: TForm4
     Width = 116
     Caption = 'All in one'
     OnClick = Button9Click
-    TabOrder = 12
+    TabOrder = 11
   end
   object Button10: TButton
     Left = 264
@@ -173,7 +164,7 @@ object Form4: TForm4
     Width = 75
     Caption = 'Read 1 ADS'
     OnClick = Button10Click
-    TabOrder = 13
+    TabOrder = 12
   end
   object Button11: TButton
     Left = 344
@@ -181,14 +172,14 @@ object Form4: TForm4
     Top = 112
     Width = 75
     Caption = 'ReRead'
-    TabOrder = 14
+    TabOrder = 13
   end
   object SaveDialog1: TSaveDialog
-    Left = 248
-    Top = 496
+    Left = 224
+    Top = 680
   end
   object OpenDialog1: TOpenDialog
-    Left = 280
-    Top = 496
+    Left = 256
+    Top = 680
   end
 end

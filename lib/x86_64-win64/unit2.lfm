@@ -114,8 +114,9 @@ object Form2: TForm2
     Top = 207
     Width = 100
     ItemHeight = 15
-    ItemIndex = 0
+    ItemIndex = 1
     Items.Strings = (
+      '1'
       '10'
       '20'
       '30'

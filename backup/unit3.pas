@@ -111,7 +111,7 @@ begin
      end;
      Memo1.Append(msg);
      end;
-
+     end;
       //является ли нужный байт взведенным
      Memo1.Append(tmp);
      tmp:=Copy(Modbus.replace(response, ' ', ''), 4*2 + 1, 2);

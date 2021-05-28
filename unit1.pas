@@ -28,6 +28,7 @@ type
     Button13: TButton;
     Button14: TButton;
     Button15: TButton;
+    Button16: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -43,10 +44,8 @@ type
 // Serial: TBlockSerial;
     EditDevice: TEdit;
     Label1: TLabel;
-    MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
     MenuItem2: TMenuItem;
-    MenuItem9: TMenuItem;
     MainMenu1: TMainMenu;
     Memo1: TMemo;
     MenuItem1: TMenuItem;
@@ -63,6 +62,7 @@ type
     Timer1: TTimer;
     Checkbox1 : TCheckbox;
     procedure Button15Click(Sender: TObject);
+    procedure Button16Click(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
     procedure ComboBox2Change(Sender: TObject);
     procedure ComboBox3Change(Sender: TObject);
@@ -148,7 +148,7 @@ end;
 
 procedure TForm1.MenuItem3Click(Sender: TObject);
 begin
-
+  Form2.Show;
 
 end;
 
@@ -599,7 +599,7 @@ begin
       begin
           addr := IntToHex(ADC[i].Address, 2);
           ProgressBar1.Position := i;
-          Label1.Caption := IntToStr(i); //выводит поиск платы
+          Label1.Caption := IntToStr(ADC[i].Address); //выводит поиск платы
           Form1.Refresh;
           //команда на запись в пользовательскую память
           if (not ADC[i].selected) then continue;
@@ -685,6 +685,86 @@ begin
           response := Modbus.send(stringToSend);
           Memo1.Append('SET LEN R*: ' + response);
        end;
+end;
+
+procedure TForm1.Button16Click(Sender: TObject);
+var len, i: integer;
+    cmd, response, stringToSend, settings: string;
+    addr: string;
+    a, b, qint : string;
+    ulen: integer;
+begin
+   len := length(ADC);
+   //инициализируем работу с отмеченными платами
+   getSelectedADC();
+   progressBar1.Min := 0;
+   progressBar1.Max := len * 5;
+
+   for i:= 0 to len - 1 do
+       begin
+       //если не выбрана плата пропускаем
+
+       if (not ADC[i].selected) then continue;
+       //переводим в режим NORM
+       Label1.Caption := IntToStr(ADC[i].Address);
+       addr := IntToHEX(ADC[i].Address, 2);
+          cmd := Modbus.cmd(addr, 'setNORM', '');
+          Memo1.Append(cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append(response);
+          ProgressBar1.Position:=i*5 + 1; Form1.Refresh;
+       //читаем пользовательскую память по SPS
+         cmd := Modbus.cmd(addr, 'getUserADS', '');
+         Memo1.Append('gU-ADS C*:' + cmd);
+         stringToSend := Modbus.StrToHexStr(cmd);
+         response := Modbus.send(stringToSend);
+         Modbus.USER_RRAds(response);
+         //отладка
+         Memo1.Append('gU-ADS R*:' + response);
+         Memo1.Append('A*U_SPS:' + IntToStr(Modbus.USER_SPS));
+         Memo1.Append('A* U_Filter:' + IntToStr(Modbus.USER_Filter));
+         ProgressBar1.Position:=i*5 + 2; Form1.Refresh;
+       //записываем в рабочую область
+         a:= FloatToStr(modbus.trSPS(Modbus.USER_SPS));
+         b:= modbus.trFilter(Modbus.User_Filter);
+         settings := Modbus.trSPS_FILTER(a, b);
+         Memo1.Append(settings);
+
+         cmd := Modbus.cmd(addr, 'setSPS_FILTER', settings);
+         Memo1.Append(cmd);
+         stringToSend := Modbus.StrToHexStr(cmd);
+         response := Modbus.send(stringToSend);
+         Memo1.Append('SET FILTER + SPS R*: ' +  response);
+         //записываем в таблицу результатов
+         StringGrid1.Cells[_SPS_, i + 1] := a;
+         StringGrid1.Cells[_Filter_, i + 1] := b;
+         //записываем в таблицу результатов
+         ProgressBar1.Position:=i*5 + 3; Form1.Refresh;
+
+         //по длине фильтра
+         cmd := Modbus.cmd(IntToHEX(ADC[i].Address, 2), 'getUSER_FIRLEN', '');
+         Memo1.Append('gU-FL C*:' + cmd);
+         stringToSend := Modbus.StrToHexStr(cmd);
+         response := Modbus.send(stringToSend);
+         MEMO1.Append('gU-FL R*:' + response);
+         ulen := Modbus.USER_RRFirLen(response) - 1;
+         Memo1.Append(IntToStr(ulen));
+         ProgressBar1.Position:=(i*5 + 4); Form1.Refresh;
+
+         Modbus.DecToQ(16, ulen, qint);
+          while (Length(qint) < 4) do qint := '0' + qint;
+          StringGrid1.Cells[_FIRLEN_, i + 1]:= IntToStr(ulen + 1);
+          cmd := Modbus.cmd(addr, 'setFIR_LENGTH', '01 ' + qint); //для фильтра 01
+          ADC[i].HEXFIRLen01:='01 00 01 02 ' + qint; // ## номер фильтра, число регистров, число байт, значение
+          ADC[i].HEXFIRLen00:='00 00 01 02 ' + qint; // ## номер фильтра, число регистров, число байт, значение
+          Memo1.Append('CMD SET LENGTH: ' + cmd);
+          stringToSend := Modbus.StrToHexStr(cmd);
+          response := Modbus.send(stringToSend);
+          Memo1.Append('SET LEN R*: ' + response);
+
+       end;
+     progressBar1.Position := ProgressBar1.Max;
 end;
 
 procedure TForm1.ComboBox2Change(Sender: TObject);

@@ -135,7 +135,7 @@ IniFile.free;
   for i:= 0 to Verification.N - 1  do
       begin
         StringGrid1.RowCount := StringGrid1.RowCount + 1;
-        StringGrid1.Cells[0, i + 1] := IntToStr(i);
+        StringGrid1.Cells[0, i + 1] := IntToStr(i + 1);
         StringGrid1.Cells[1, i + 1] := FloatToStr(ui);
         ui += delta;
       end;

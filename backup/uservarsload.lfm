@@ -21,12 +21,13 @@ object Form6: TForm6
     Height = 348
     Top = 43
     Width = 324
+    ColCount = 2
     TabOrder = 1
   end
   object Memo1: TMemo
     Left = 8
-    Height = 162
-    Top = 448
+    Height = 130
+    Top = 480
     Width = 804
     Lines.Strings = (
       'Memo1'
@@ -51,27 +52,18 @@ object Form6: TForm6
   end
   object Button1: TButton
     Left = 8
-    Height = 30
-    Top = 408
-    Width = 144
+    Height = 38
+    Top = 432
+    Width = 480
     Caption = 'Прочитать'
     OnClick = Button1Click
     TabOrder = 3
   end
-  object Button2: TButton
-    Left = 168
-    Height = 30
-    Top = 408
-    Width = 152
-    Caption = 'Применить'
+  object ProgressBar1: TProgressBar
+    Left = 8
+    Height = 20
+    Top = 400
+    Width = 480
     TabOrder = 4
-  end
-  object Button3: TButton
-    Left = 344
-    Height = 30
-    Top = 408
-    Width = 136
-    Caption = 'Отменить'
-    TabOrder = 5
   end
 end

@@ -19,6 +19,8 @@ type
     Memo1: TMemo;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure getAddr(addr: integer);
   private
 
@@ -140,6 +142,16 @@ begin
      end;
      Memo1.Append(tmp);
      end;
+end;
+
+procedure TForm3.FormCreate(Sender: TObject);
+begin
+
+end;
+
+procedure TForm3.FormShow(Sender: TObject);
+begin
+  Memo1.Clear;
 end;
 
 end.

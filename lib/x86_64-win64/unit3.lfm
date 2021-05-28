@@ -6,6 +6,8 @@ object Form3: TForm3
   Caption = 'Чтение ошибок модуля'
   ClientHeight = 283
   ClientWidth = 586
+  OnCreate = FormCreate
+  OnShow = FormShow
   LCLVersion = '2.0.10.0'
   object Label1: TLabel
     Left = 49

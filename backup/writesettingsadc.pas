@@ -31,6 +31,7 @@ type
     Chart1LineSeries2: TLineSeries;
     Chart1LineSeries3: TLineSeries;
     Chart1LineSeries4: TLineSeries;
+    Chart1LineSeries5: TLineSeries;
     Label1: TLabel;
     Memo1: TMemo;
     RadioGroup1: TRadioGroup;
@@ -213,18 +214,19 @@ end;
 procedure TForm5.Button11Click(Sender: TObject);
 var len: integer; //число модулей для инициализации
     addr, cmd, stringToSend, response: string; //команда на модуль
+    i: integer;
 begin
-   len := Length(ADC);
-  for i:= 0 to len - 1 do
-          begin
-          addr := IntToHex(ADC[i].Address, 2);
+ //  len := Length(ADC);
+ // for i:= 0 to len - 1 do
+  //       begin
+          addr := IntToHex(ADC[indexADC].Address, 2);
           cmd := Modbus.cmd(addr, 'setEXEC', '');
           Memo1.Append('SET EXEC: ' + IntToStr(i) + ' C*:'+ cmd);
           stringToSend := Modbus.StrToHexStr(cmd);
           response := Modbus.send(stringToSend);
           Memo1.Append('R*: ' + response);
 
-          end;
+  //        end;
 end;
 
 procedure TForm5.Button4Click(Sender: TObject);
@@ -266,6 +268,10 @@ begin
                    Chart1LineSeries1.AddXY(x, f);
 
                 end;
+    Chart1LineSeries5.Clear;
+    Chart1LineSeries5.SeriesColor:=clRed;
+    Chart1LineSeries5.AddXY(Chart1LineSeries1.GetXMin, 0);
+    Chart1LineSeries5.AddXY(Chart1LineSeries1.GetXMax, 0);
 end;
 
 procedure TForm5.Button6Click(Sender: TObject);
@@ -321,6 +327,10 @@ begin
                 f := 25 * (ADC[indexADC].fi(power, x) - x);
                 Chart1LineSeries2.AddXY(x, f);
                 end;
+    Chart1LineSeries5.Clear;
+    Chart1LineSeries5.SeriesColor:=clRed;
+    Chart1LineSeries5.AddXY(Chart1LineSeries2.GetXMin, 0);
+    Chart1LineSeries5.AddXY(Chart1LineSeries2.GetXMax, 0);
 end;
 
 procedure TForm5.Button9Click(Sender: TObject);
@@ -328,6 +338,7 @@ begin
   Chart1LineSeries2.Clear;
   Chart1LineSeries3.Clear;
     Chart1LineSeries4.Clear;
+     Chart1LineSeries5.Clear;
 end;
 
 procedure TForm5.Chart1LineSeries2CustomDrawPointer(ASender: TChartSeries;

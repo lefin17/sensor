@@ -22,7 +22,7 @@ type
     Button5: TButton;
     Button6: TButton;
     Button7: TButton;
-    Button8: TButton;
+  //  Button8: TButton;
     Button9: TButton;
     Label1: TLabel;
     Label2: TLabel;
@@ -42,7 +42,7 @@ type
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
+   // procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -89,11 +89,16 @@ begin
 end;
 
 procedure TForm4.FormShow(Sender: TObject);
+var i: integer;
+    cards: integer;
 begin
       StringGrid2.Cells[0, 0] := 'index'; //максимальное отклонение по плате
       StringGrid2.Cells[1, 0] := 'Address';
       StringGrid2.Cells[2, 0] := 'MaxE';
-
+      cards := 0;
+      for i:= 0 to Length(ADC) - 1 do
+          if (ADC[i].selected) then cards += 1;
+      Label4.Caption :=  IntToStr(cards);
 end;
 
 procedure TForm4.Label3Click(Sender: TObject);
@@ -214,7 +219,7 @@ begin
     begin
 //    Verification.CurrentV += 5/(Verification.N-1);
          Verification.CurrentV += (Verification.Vmax - Verification.Vmin)/(Verification.N-1);
-    Label3.Caption := FloatToStr(Verification.CurrentV)
+    Label3.Caption := FloatToStr(Verification.CurrentV) + '[V]';
     end
     else
     Button1.Enabled := False;  // блокировка кнопки проведения эксперимента
@@ -540,7 +545,7 @@ begin
    end;
 end;
 
-procedure TForm4.Button8Click(Sender: TObject);
+(* procedure TForm4.Button8Click(Sender: TObject);
 var i : integer;
 begin
   StringGrid3.RowCount := 1;
@@ -553,7 +558,7 @@ begin
    StringGrid3.Cells[3, StringGrid3.RowCount - 1] := 'D';
    end;
 
-end;
+end; *)
 
 procedure TForm4.Button9Click(Sender: TObject);
 var i, j, min, max: integer;
@@ -646,7 +651,7 @@ begin
     begin
 //    Verification.CurrentV += 5/(Verification.N-1);
          Verification.CurrentV += (Verification.Vmax - Verification.Vmin)/(Verification.N-1);
-    Label3.Caption := FloatToStr(Verification.CurrentV)
+    Label3.Caption := FloatToStr(Verification.CurrentV) + '[V]';
     end
     else
     Button1.Enabled := False;  // блокировка кнопки проведения эксперимента

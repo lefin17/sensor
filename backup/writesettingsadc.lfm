@@ -43,6 +43,8 @@ object Form5: TForm5
     end
     object Chart1LineSeries4: TLineSeries
     end
+    object Chart1LineSeries5: TLineSeries
+    end
   end
   object Button1: TButton
     Left = 16

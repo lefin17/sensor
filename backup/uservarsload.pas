@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Grids, StdCtrls,
-  core; //ядро программы - modbus, ads, verification (калибровка)
+  ComCtrls, core; //ядро программы - modbus, ads, verification (калибровка)
 
 type
 
@@ -14,13 +14,14 @@ type
 
   TForm6 = class(TForm)
     Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
     Label1: TLabel;
     Label2: TLabel;
     Memo1: TMemo;
+    ProgressBar1: TProgressBar;
     StringGrid1: TStringGrid;
     StringGrid2: TStringGrid;
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure ShowCoefs(index: integer); //отображает коэффициенты полинома выбранного по таблице
     procedure Button1Click(Sender: TObject); //кнопка прочитать пользовательские настройки
     procedure ReadUserVars; //читать пользовательские настройки с плат (выбранных на UNIT 1)
@@ -61,6 +62,8 @@ begin
   SetLength(tmpSPS, modules); //задачем числом модулей, а загружать или нет - решает настройка..
   SetLength(tmpFilter, modules);
   SetLength(tmpFirLen, modules);
+  ProgressBar1.Min:=0;
+  ProgressBar1.Max:=(modules)*10;
   for i := 0 to modules - 1 do
       begin
          SetLength(tmpCoef[i], 8); //восемь коэффициентов полинома..
@@ -76,6 +79,7 @@ begin
          Memo1.Append('gU-ADS R*:' + response);
          Memo1.Append('A*U_SPS:' + IntToStr(Modbus.USER_SPS));
          Memo1.Append('A* U_Filter:' + IntToStr(Modbus.USER_Filter));
+         ProgressBar1.Position:=(i*10 + 1); Form6.Refresh;
          //тут нужно загнать во временные переменные
          tmpSPS[i] := Modbus.USER_SPS;
          tmpSPSstring[i] := FloatToStr(Modbus.trSPS(Modbus.USER_SPS));
@@ -85,6 +89,7 @@ begin
          Memo1.Append('gU-FL C*:' + cmd);
          stringToSend := Modbus.StrToHexStr(cmd);
          response := Modbus.send(stringToSend);
+         ProgressBar1.Position:=(i*10 + 2); Form6.Refresh;
          MEMO1.Append('gU-FL R*:' + response);
          tmpFirLen[i] := Modbus.USER_RRFirLen(response);
          //чтение коэффициентов полинома
@@ -98,6 +103,7 @@ begin
               Memo1.Append('gU-cf A*[' + IntToStr(i) + ']:' + FloatToStr(Modbus.USER_RRCoef(response)));
 //              tmpFirLen[i] := Modbus.USER_RRFirLen(response);
               tmpCoef[i][j] := Modbus.USER_RRCoef(response);
+              ProgressBar1.Position:=(i*10 + 3 + j); Form6.Refresh;
               end;
 
       end;
@@ -121,8 +127,19 @@ begin
 
 end;
 
+procedure TForm6.Button2Click(Sender: TObject);
+begin
+
+end;
+
+procedure TForm6.Button3Click(Sender: TObject);
+begin
+
+end;
+
 procedure TForm6.ShowUserVars;
-var i: integer;
+var i, j: integer;
+    maxCoef: integer;
     modules: integer;
    begin
      //показать в текущей таблице полученные значения
@@ -150,7 +167,11 @@ var i: integer;
             StringGrid1.Cells[3, i + 1] := FloatToStr(Modbus.trSPS(tmpSPS[i]));
             StringGrid1.Cells[4, i + 1] := Modbus.trFilter(tmpFilter[i]);
             StringGrid1.Cells[5, i + 1] := IntToStr(tmpFirLen[i]);
-            StringGrid1.Cells[6, i + 1] := 'COEFS'; //при нажатии - коэффициенты полинома
+            //найти максимальный действующий коэффициент и отобразить его здесь
+            maxCoef:=0
+            for j := 0 to 7 do
+                if (tmpCoef[i][j]<>0) then maxCoef := j;
+            StringGrid1.Cells[6, i + 1] := 'COEFS (' + IntToStr(maxCoef) + ')'; //при нажатии - коэффициенты полинома
          end;
    end;
 
