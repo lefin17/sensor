@@ -276,6 +276,15 @@ object Form1: TForm1
     OnClick = Button16Click
     TabOrder = 23
   end
+  object CheckBox1: TCheckBox
+    Left = 14
+    Height = 19
+    Top = 743
+    Width = 84
+    Caption = 'выбор плат'
+    OnChange = CheckBox1Change
+    TabOrder = 24
+  end
   object MainMenu1: TMainMenu
     Left = 920
     Top = 728

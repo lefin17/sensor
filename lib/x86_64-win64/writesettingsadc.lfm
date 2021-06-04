@@ -227,6 +227,7 @@ object Form5: TForm5
     Top = 480
     Width = 49
     Caption = 'WT'
+    Enabled = False
     OnClick = Button13Click
     TabOrder = 16
   end

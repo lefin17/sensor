@@ -329,12 +329,13 @@ end;
 
 procedure TForm5.Button4Click(Sender: TObject);
 var j:  integer;
-    x, f: double;
+    x, f, f2: double;
     Dots : integer;
     power : integer;
 begin
   //печать графика для
     Chart1LineSeries1.Clear;
+    Chart1LineSeries6.Clear;
     Dots := Length(ADC[indexADC].VerificationDots);
     for j := 0 to Dots - 1 do
                 begin
@@ -344,6 +345,10 @@ begin
                 //25  - это про приведение к 4 вольтам и 100%
                 f := 25*(ADC[indexAdc].AgilDots[j] - ADC[indexADC].fi(power, ADC[indexAdc].VoltageDots[j])); //показания с agilentа;
                    Chart1LineSeries1.AddXY(x, f);
+                if (Length(ADC[indexADC].UserCoefs) > 0)
+                f2 := 25*(ADC[indexAdc].AgilDots[j] - ADC[indexADC].ufi(ADC[indexAdc].VoltageDots[j])); //показания с agilentа;
+                   Chart1LineSeries6.AddXY(x, f);
+
                 end;
     Chart1LineSeries5.Clear;
     Chart1LineSeries5.SeriesColor:=clRed;

@@ -63,6 +63,7 @@ type
     Checkbox1 : TCheckbox;
     procedure Button15Click(Sender: TObject);
     procedure Button16Click(Sender: TObject);
+    procedure CheckBox1Change(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
     procedure ComboBox2Change(Sender: TObject);
     procedure ComboBox3Change(Sender: TObject);
@@ -692,7 +693,7 @@ var len, i: integer;
     cmd, response, stringToSend, settings: string;
     addr: string;
     a, b, qint : string;
-    ulen: ingeger;
+    ulen: integer;
 begin
    len := length(ADC);
    //инициализируем работу с отмеченными платами
@@ -765,6 +766,14 @@ begin
 
        end;
      progressBar1.Position := ProgressBar1.Max;
+end;
+
+procedure TForm1.CheckBox1Change(Sender: TObject);
+var len, i: integer;
+begin
+len:= Length(ADC);
+for i:= 0 to len - 1 do
+    TCheckBox(StringGrid1.Objects[1, i + 1]).Checked:= CheckBox1.Checked;
 end;
 
 procedure TForm1.ComboBox2Change(Sender: TObject);

@@ -35,6 +35,7 @@ type
     StringGrid2: TStringGrid;
     StringGrid3: TStringGrid;
     procedure Button10Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -98,7 +99,7 @@ begin
       cards := 0;
       for i:= 0 to Length(ADC) - 1 do
           if (ADC[i].selected) then cards += 1;
-      Label4.Text :=  IntToStr(cards);
+      Label4.Caption :=  IntToStr(cards);
 end;
 
 procedure TForm4.Label3Click(Sender: TObject);
@@ -273,6 +274,87 @@ begin
            StringGrid2.Cells[2, indexADC + 1] := FloatToStr(maxD); //максимальное отклонение по плате
 end;
 
+procedure TForm4.Button11Click(Sender: TObject);
+var i, j, index: integer;
+    cmd, stringToSend, response: string;
+    res : string;
+    Address: integer;
+    find: boolean;
+    index2: integer; //номер переменной в настройках платы
+    tmp: array of double; //пробные экспериментальные точки полученные по платам Москва
+    tmp_dev: array of double; //разброс
+    maxD: double;
+
+begin
+  //пересъем одного напряжения для всех плат Москва
+
+  if ((ReScanVoltage = 0) or (Modbus.units = 0)) then exit; //выходим из функции
+
+  Agil.getVoltage2(); //взять напряжение с вольтметра (первая часть команды)
+  //найти в таблице соответсвующее напряжение и адреса плат
+  SETLENGTH(tmp, LENGTH(ADC));
+  SETLENGTH(tmp_dev, LENGTH(ADC));
+
+  for i := 1 to StringGrid1.RowCount - 1 do
+      if (StrToFloat(StringGrid1.Cells[1, i]) = ReScanVoltage) then
+      begin
+      Address := StrToInt(StringGrid1.Cells[__ADDR__, i]);
+      find := false;
+      for j := 0 to Length(ADC) - 1 do
+          if ADC[j].Address = Address then begin index := j; find := true; break; end;
+      if (not find) then continue; //не нашли плату - пропускаем
+
+      cmd := Modbus.cmd(IntToHEX(ADC[index].Address, 2), 'getADSFilters', '');
+      stringToSend := Modbus.StrToHexStr(cmd);
+      response := Modbus.send(stringToSend);
+      res := Modbus.RRFir(response);
+      tmp[index] := Modbus.Voltage;  // текущая ситуация
+      tmp_dev[index] := Modbus.VoltageDeviation;
+      Memo1.Append('unit ' + IntToStr(i) + ' R*:' + response + ' V*:' +  FloatToStr(tmp[index]));
+      end;
+      Agil.getVoltage2Read(); //финализировали чтение Agilent'а
+
+      //заполнение по текущей ситуации по платам
+      for i := 1 to StringGrid1.RowCount - 1 do
+          if (StrToFloat(StringGrid1.Cells[1, i]) = ReScanVoltage) then
+          begin
+          Address := StrToInt(StringGrid1.Cells[__ADDR__, i]);
+          find := false;
+          for j := 0 to Length(ADC) - 1 do //находим индекс платы
+              if ADC[j].Address = Address then
+                 begin
+                 index := j;
+                 find := true;
+                 MEMO1.Append('index: ' + IntToStr(j));
+                 break;
+                 end;
+              if (not find) then continue; //не нашли плату - пропускаем
+              for j := 0 to Length(ADC[index].CurrentV) - 1  do //находим где ранее хранился данный тип напряжения
+              if (ADC[index].CurrentV[j] = ReScanVoltage) then
+                  begin
+                  index2 := j;
+                  break;
+                  end;
+      ADC[index].VerificationDots[index2] :=  abs(tmp[index] - Agil.Voltage); // текущее отклонение без процентов
+      ADC[index].AgilDots[index2] := Agil.Voltage;
+      ADC[index].VoltageDots[index2] := tmp[index];
+      StringGrid1.Cells[2, i] := FloatToStr(Agil.Voltage);
+      StringGrid1.Cells[4, i] := FloatToStr(tmp[index]);
+      StringGrid1.Cells[5, i] := FloatToStr(tmp_dev[index]); //отклонение
+      maxD := 0;
+      for j := 0 to LENGTH(ADC[index].VerificationDots) - 1 do
+          if (maxD < ADC[index].VerificationDots[j]) then maxD := ADC[index].VerificationDots[j];
+
+      StringGrid2.Cells[2, index + 1] := FloatToStr(maxD); //максимальное отклонение по плате
+      end;
+      //окончание чтения по Agilent'у (берем временные значения)
+     // tmp[index - 1] := Modbus.Voltage;  // текущая ситуация
+     // tmp_dev[index - 1] := Modbus.VoltageDeviation;
+     // Memo1.Append('unit ' + IntToStr(i) + ' R*:' + response + ' V*:' +  FloatToStr(tmp[index - 1]));
+
+     //определить точки по которым снимать, подать команду на чтение, записать переменные
+end;
+
 procedure TForm4.Button2Click(Sender: TObject);
 // *********** Процедура инициализации плат Москва перед считыванием значений
 var i: integer;
@@ -289,7 +371,8 @@ begin
   Label3.Caption := FloatToStr(Verification.Vmin) + ' [V]';
   Verification.currentIndex := 0;
   Label4.Caption:= IntToStr(Modbus.selectedUnits);
-  Button1.Enabled := True;
+  Button1.Enabled := True; //кнопка снятия показаний - одна плата, одно измерение Agilent'a
+  Button9.Enabled := True; //кнопка снятия показаний за один прогон Agilent'a
 
   //Перевод в режим EXEC всех плат
   len := Length(ADC);
@@ -573,7 +656,7 @@ var i, j, min, max: integer;
     len : integer; //длина эксперимента на точках
 begin
   //снять показания приборов за один прогон...
-  if (Modbus.units > 0) then
+  if (Modbus.units = 0) then exit;
  // index := 0;
 
   //тут инициализация команды на agilent..
@@ -654,7 +737,10 @@ begin
     Label3.Caption := FloatToStr(Verification.CurrentV) + '[V]';
     end
     else
-    Button1.Enabled := False;  // блокировка кнопки проведения эксперимента
+    begin
+    Button1.Enabled := False;
+    Button9.Enabled := False;// блокировка кнопки проведения эксперимента
+    end;
 end;
 
 

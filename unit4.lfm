@@ -172,6 +172,7 @@ object Form4: TForm4
     Top = 112
     Width = 75
     Caption = 'ReRead'
+    OnClick = Button11Click
     TabOrder = 13
   end
   object SaveDialog1: TSaveDialog
