@@ -45,12 +45,15 @@ object Form5: TForm5
     end
     object Chart1LineSeries5: TLineSeries
     end
+    object Chart1LineSeries6: TLineSeries
+      LinePen.Color = clTeal
+    end
   end
   object Button1: TButton
     Left = 16
     Height = 48
     Top = 480
-    Width = 288
+    Width = 234
     Caption = 'Записать полином'
     OnClick = Button1Click
     TabOrder = 1
@@ -143,11 +146,11 @@ object Form5: TForm5
     TabOrder = 7
   end
   object Button5: TButton
-    Left = 218
+    Left = 208
     Height = 24
     Hint = 'Ошибка разности показаний Agilent - ADS (Vref = 5V)'
-    Top = 64
-    Width = 96
+    Top = 66
+    Width = 98
     Caption = 'Graph Err, %'
     OnClick = Button5Click
     TabOrder = 8
@@ -171,7 +174,7 @@ object Form5: TForm5
     TabOrder = 10
   end
   object Button8: TButton
-    Left = 217
+    Left = 209
     Height = 25
     Hint = 'Рисуем выбранный полином на графике с ошибкой по Agilent''у'
     Top = 96
@@ -181,31 +184,51 @@ object Form5: TForm5
     TabOrder = 11
   end
   object Button9: TButton
-    Left = 266
+    Left = 262
     Height = 24
     Hint = 'Очищаем вторую серию, для того чтоб не мешала на других графиках'
-    Top = 96
-    Width = 48
+    Top = 7
+    Width = 42
     Caption = 'Clear'
     OnClick = Button9Click
     TabOrder = 12
   end
   object Button10: TButton
-    Left = 218
+    Left = 208
     Height = 25
-    Top = 32
-    Width = 94
+    Top = 35
+    Width = 97
     Caption = 'TEST'
     OnClick = Button10Click
     TabOrder = 13
   end
   object Button11: TButton
-    Left = 219
-    Height = 25
+    Left = 208
+    Height = 24
     Top = 7
-    Width = 91
+    Width = 42
     Caption = 'EXEC'
     OnClick = Button11Click
     TabOrder = 14
+  end
+  object Button12: TButton
+    Left = 254
+    Height = 25
+    Hint = 'Построение полинома на базе записанных на плату коэффициентов'
+    Top = 96
+    Width = 52
+    Caption = 'U-Poly'
+    OnClick = Button12Click
+    TabOrder = 15
+  end
+  object Button13: TButton
+    Left = 255
+    Height = 44
+    Top = 480
+    Width = 49
+    Caption = 'WT'
+    Enabled = False
+    OnClick = Button13Click
+    TabOrder = 16
   end
 end

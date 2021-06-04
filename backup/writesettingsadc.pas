@@ -18,6 +18,8 @@ type
     Button1: TButton;
     Button10: TButton;
     Button11: TButton;
+    Button12: TButton;
+    Button13: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -32,12 +34,15 @@ type
     Chart1LineSeries3: TLineSeries;
     Chart1LineSeries4: TLineSeries;
     Chart1LineSeries5: TLineSeries;
+    Chart1LineSeries6: TLineSeries;
     Label1: TLabel;
     Memo1: TMemo;
     RadioGroup1: TRadioGroup;
     StringGrid1: TStringGrid;
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -137,6 +142,7 @@ var i: integer;
     b: array of byte;
     c: byte;
     cmd : string;
+    t: integer;
     addr, param, stringToSend, response : string; //адрес устройства в hex
 begin
   //шаг 1. -> в цикле преобразовать Double в HEX
@@ -175,7 +181,21 @@ begin
          response := Modbus.send(stringToSend);
          Memo1.Append(response);
       end;
+  //запись в пользовательскую память времени записи полинома
+   cmd := Modbus.cmd(addr, 'getRunningTime', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     t := Modbus.RRRuningTime(response); //вычисляем нужные параметры даты
+  //запись
+   param := Modbus.runTimeBC + Modbus.getUserDate(); //тут бы их вычитать в чистом виде + подготовить дату
 
+   cmd := Modbus.cmd(addr, 'setUSER_AFTER_CLBR', param);
+         Memo1.Append('SET UAC*: ' + cmd);
+         stringToSend := Modbus.StrToHexStr(cmd);
+         response := Modbus.send(stringToSend);
+         Memo1.Append('R*:' + response);
 
   //послать команду на запись
   //вывести результат команды
@@ -229,6 +249,84 @@ begin
   //        end;
 end;
 
+procedure TForm5.Button12Click(Sender: TObject);
+//рисуем пользовательский полином в диапазоне прочитанных данных на agilent'e
+var j:  integer;
+    x, f: double;
+    Dots : integer;
+    power : integer;
+    min, max: double;
+    N: integer; //число точек для вывода графика по полиному
+    cmd, stringToSend, response : string;
+begin
+    SetLength(ADC[indexADC].UserCoefs, 8);
+    for j:= 0 to 7 do
+              begin  //чтение коэффициентов полинома из пользовательской памяти только по выбранной плате
+              cmd := Modbus.cmd(IntToHEX(ADC[indexADC].Address, 2), 'getUserCoefs', 'F7 ' + IntToStr(j) + '0 00 04'); //четыре слова по два байта на чтение коэффициента
+              Memo1.Append('gU-Cf C*:' + cmd);
+              stringToSend := Modbus.StrToHexStr(cmd);
+              response := Modbus.send(stringToSend);
+              MEMO1.Append('gU-FL R*:' + response);
+              Memo1.Append('gU-cf A*[' + IntToStr(indexADC) + ']:' + FloatToStr(Modbus.USER_RRCoef(response)));
+//              tmpFirLen[i] := Modbus.USER_RRFirLen(response);
+              ADC[indexADC].UserCoefs[j] := Modbus.USER_RRCoef(response);
+            //  ProgressBar1.Position:=(i*10 + 3 + j); Form6.Refresh;
+              end;
+  //печать графика для
+    //читаем коэффициенты полинома текущей платы
+    Chart1LineSeries2.Clear;
+    Chart1LineSeries2.SeriesColor:=clLime;
+    Dots := Length(ADC[indexADC].VerificationDots);
+    min := ADC[indexADC].AgilDots[0];
+    max := ADC[indexADC].AgilDots[Dots - 1];
+    N := 1000;
+    for j := 0 to N do
+                begin
+                x:= min + (max - min) / N * j;
+                power := ADC[indexADC].PolyPower; //степень полинома
+                f := 25 * (ADC[indexADC].ufi(x) - x);
+                Chart1LineSeries6.AddXY(x, f);
+                end;
+    //y-координатный ноль (горизонтальная линия)
+    Chart1LineSeries5.Clear;
+    Chart1LineSeries5.SeriesColor:=clRed;
+    Chart1LineSeries5.AddXY(Chart1LineSeries6.GetXMin, 0);
+    Chart1LineSeries5.AddXY(Chart1LineSeries6.GetXMax, 0);
+
+end;
+
+procedure TForm5.Button13Click(Sender: TObject);
+var addr, UDate, Utime :string; //в байтах
+    cmd, stringToSend, response, param: string;
+    t :  integer;
+begin
+  //запись времени
+     addr := IntToHex(ADC[indexADC].Address, 2);
+           //перевод платы в режим Norm
+           cmd := Modbus.cmd(addr, 'setNorm', '');
+           stringToSend := Modbus.StrToHexStr(cmd);
+           response := Modbus.send(stringToSend);
+           Memo1.Append(response);
+
+  //текущее время работы
+    cmd := Modbus.cmd(addr, 'getRunningTime', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     t := Modbus.RRRuningTime(response); //вычисляем нужные параметры даты
+  //запись
+   param := Modbus.runTimeBC + Modbus.getUserDate(); //тут бы их вычитать в чистом виде + подготовить дату
+
+   cmd := Modbus.cmd(addr, 'setUSER_AFTER_CLBR', param);
+         Memo1.Append('SET UAC*: ' + cmd);
+         stringToSend := Modbus.StrToHexStr(cmd);
+         response := Modbus.send(stringToSend);
+         Memo1.Append('R*:' + response);
+  //чтение
+  //
+end;
+
 procedure TForm5.Button4Click(Sender: TObject);
 var j:  integer;
     x, f: double;
@@ -247,6 +345,10 @@ begin
                 f := 25*(ADC[indexAdc].AgilDots[j] - ADC[indexADC].fi(power, ADC[indexAdc].VoltageDots[j])); //показания с agilentа;
                    Chart1LineSeries1.AddXY(x, f);
                 end;
+    Chart1LineSeries5.Clear;
+    Chart1LineSeries5.SeriesColor:=clRed;
+    Chart1LineSeries5.AddXY(Chart1LineSeries1.GetXMin, 0);
+    Chart1LineSeries5.AddXY(Chart1LineSeries1.GetXMax, 0);
 end;
 
 procedure TForm5.Button5Click(Sender: TObject);
@@ -339,6 +441,7 @@ begin
   Chart1LineSeries3.Clear;
     Chart1LineSeries4.Clear;
      Chart1LineSeries5.Clear;
+       Chart1LineSeries6.Clear;
 end;
 
 procedure TForm5.Chart1LineSeries2CustomDrawPointer(ASender: TChartSeries;

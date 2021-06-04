@@ -19,6 +19,10 @@ type
     controlDots: integer; //число контрольных точек по напряжению
     controlDotsPerDot: integer; //число контрольных снятий каждой точки
     items: array[0..256] of byte; //массив объектов найденых на шине
+
+    runTime: integer; //время в секундах работы платы
+    runTimeU: integer; //время в секундах работы платы до записи коэффициентов полинома
+    runTimeBC: string; //время в байтах до калибровки (из функции текущего времени)
     port: string; //номер порта
     speed: integer;
     tempWord: string; //пробная строка для отладки ответа
@@ -56,9 +60,11 @@ type
     function Bytes2Double(a: TBytes8): Double; //преобразование байт в массив
     function Double2Bytes(d: Double): TBytes8;
     function cmd(addr, command, param: string):string;
+    function getUserDate():string; //берем текущее время в строке для записи на плату
     function Send(data: string): string;
     function RRRuningTime(answer: string):integer; //определение времени наработки на отказ (RR -  Read Result)
     function RRVersion(answer: string):string; //определение версии программы
+    function RRUserRunTime(answer: string):string; // в пользовательской памяти, работа на отказ после калибровки
     function RRConnectionType(answer: string):string;
     procedure RRAds(answer: string); //чтение ответа от ADS
     procedure USER_RRAds(answer: string); //чтение ответа от ADS по пользовательским настройкам
@@ -115,6 +121,8 @@ type
     PGA: integer; //значение усилителя
     SerialNumber: string; //серийный номер объекта
     PolyPower: integer; //текущая степень полинома карты
+  //  runTime: integer; //время в секундах работы платы
+    runTimeU: integer; //время в секундах работы платы до записи коэффициентов полинома
     ErrorCounter: integer; //счетчик ошибок
     Errors: string; // ошибки нужно будет вывести таблицей в порядке возникновения
     virt: boolean; //режим виртуализации - если виртуальное - не посылать на объект и дать эхо ответ как будто живое устройство
@@ -123,7 +131,9 @@ type
     VoltageDots: array of double; //точки по данному измерению с AЦП платы
     CurrentV: array of double; //точки текущего напряжения для выставления на Fluke
     Coefs: array of double; //коэффициенты полинома функции восстановления
+    UserCoefs: array of double;  //коэффициенты записанные на плату
     function fi(power: integer; x1: Double):Double; //функция по восстановлению значения
+    function ufi(x1: Double):Double; //функция по восстановлению значения
   end;
 
 const figure: string [36]='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'; //преобразование чисел
@@ -168,6 +178,23 @@ begin
  for i := power - 1 downto 0 do p := Coefs[i] + x1*p;
  fi:=p;
 end;
+
+function TADC.ufi(x1: Double):Double;
+{Аппроксимирующая функция по найденным коэффициентам МНК}
+{power - степень полинома, Coefs - вектор коэффициентов,
+ x1 - точка, в которой ищем значение}
+var i:integer;
+    p:Double;
+    power: integer;
+begin
+ power := 7;
+ ufi:= 0;
+ if (Length(UserCoefs) < 8) then Exit; //не должно работать...  защита от переполнения
+ p := UserCoefs[power];
+ for i := power - 1 downto 0 do p := UserCoefs[i] + x1*p;
+ ufi:=p;
+end;
+
 
 procedure TAgilent.getLastError(error: integer);
 begin
@@ -623,6 +650,64 @@ begin
 
 end;
 
+function TModbus.RRUserRunTime(answer: string):string;
+var res: string;
+   str, time: string;
+   H, Y, m, d, i, s, s2: string;
+   j, code: integer;
+   d2: integer;
+begin
+   str:=replace(answer, ' ', '');
+   if (Length(str)<14) then
+      begin
+           res := '0';
+           Exit; //ошибка чтения ответа
+      end;
+
+
+//   version := 'Ver: ' + Copy(str, 21, 2);
+
+   Y := copy(str, 7 * 2 + 1, 4); //год выпуска платы
+   m := copy(str, 9 * 2 + 1, 2); //месяц выпуска
+   d := copy(str, 10 * 2 + 1, 2); //день выпуска платы
+   s := copy(str, 16 * 2 + 1, 2); //время в секундах сборки платы
+   i := copy(str, 15 * 2 + 1, 2); //время в минутах
+   H := copy(str, 14 * 2 + 1, 2); //время в часах
+   res := Y + '-' + m + '-' + d + ' ' + H + ':' + i + ':' + s;
+
+   s2 := '';
+   for j:= 6 downto 3 do
+     s2 += Copy(str, j * 2 + 1, 2);
+     val('$' + s2, d2, code);
+     if (code <> 0) then d2 := 0;
+     runTimeU := d2;
+//     res := intToStr(round(d2 / 60 /60)); //время наработки платы в часах до записи коэффициентов(целое число пока)
+     Result := res;
+
+end;
+
+function TModbus.getUserDate():string;
+var res:string;
+   year, month,day:word;
+   hr, min, sec, ms: word;
+begin
+  DecodeDate(Date,year,month,day);
+  res := intToStr(year);
+  if (Length(intToStr(month)) = 1) then res += '0';
+  res += intToStr(month);
+  if (Length(intToStr(day)) = 1) then res += '0';
+  res += intToStr(Day);
+  res += 'FF'; //разделитель
+  DecodeTime(Time,hr, min, sec, ms);
+  if (Length(intToStr(Hr)) = 1) then res += '0';
+  res += intToStr(Hr);
+  if (Length(intToStr(min)) = 1) then res += '0';
+  res += intToStr(min);
+  if (Length(intToStr(sec)) = 1) then  res += '0';
+  res += intToStr(sec);
+  Result := res;
+end;
+
 function TModbus.RRVersion(answer: string):string;
 var res: string;
    str, version : string;
@@ -658,10 +743,12 @@ begin
            Exit; //ошибка чтения ответа
       end;
    s := '';
+   runTimeBC := Copy(str, 7, 8); //это можно напрямую писать в память пользовательскую
    for i:= 6 downto 3 do
      s += Copy(str, i * 2 + 1, 2);
      val('$' + s, res, i);
      if (i <> 0) then res := 0;
+     runTime := res;
      res := round(res / 60 /60); //время наработки платы в часах (целое число пока)
      Result := res;
 end;
@@ -714,6 +801,7 @@ begin
 
    Voltage := b * Vref / (Gain * 8388608);
    s1 := Copy(str, 15, 8);
+   //СКО
    b := StrToInt('$' + s1);
    VoltageDeviation :=  b * Vref / (Gain * 8388608) ;   //Отклонение которое выдаёт плата
    res := s;
@@ -794,6 +882,10 @@ begin
      'temp': res := 'AA BB';
 
      'getRunningTime': res += ' 03 01 C0 00 02';   //время наработки на отказ
+
+     'getUSER_AFTER_CLBR': res += ' 03 F1 C0 00 06'; // время наработки с момента калибровки + дата калибровки
+
+     'setUSER_AFTER_CLBR' : res += '10 F1 C0 00 06 0C ' + param; //сюда байт фильтра (Пользовательская память)
 
      'getVersion': res += ' 03 02 00 00 04'; //запрос на чтение версии ПО и времени сборки
 

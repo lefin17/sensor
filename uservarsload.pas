@@ -34,6 +34,8 @@ type
     tmpFilter: array of integer;//настройки фильтра в побитной сетке
     tmpFirLen: array of integer; //длина фильтра
     tmpCoef: array of array of double; //то что выводить по коэффициентам полинома
+    tmpTime: array of integer;  //время работы после калибровки
+    tmpDate: array of string; //дата и время калибровки
   public
 
   end;
@@ -52,6 +54,11 @@ procedure TForm6.ReadUserVars;
 var i, j: integer;
     modules: integer;
     cmd, stringToSend, response, res: string;
+    CDate: string; //дата калибровки
+    UTime : integer; //время до калибровки
+    totalTime: integer; //время наработы на отказ всего
+    inTime: integer; //время работы после калибровки
+    t: integer;
 begin
   //цикл по активным платам
   modules := Length(ADC);
@@ -62,6 +69,8 @@ begin
   SetLength(tmpSPS, modules); //задачем числом модулей, а загружать или нет - решает настройка..
   SetLength(tmpFilter, modules);
   SetLength(tmpFirLen, modules);
+  SetLength(tmpTime, modules); //время работы после калибровки
+   SetLength(tmpDate, modules);
   ProgressBar1.Min:=0;
   ProgressBar1.Max:=(modules)*10;
   for i := 0 to modules - 1 do
@@ -92,6 +101,28 @@ begin
          ProgressBar1.Position:=(i*10 + 2); Form6.Refresh;
          MEMO1.Append('gU-FL R*:' + response);
          tmpFirLen[i] := Modbus.USER_RRFirLen(response);
+         //время работы платы с момента прошивки
+         cmd := Modbus.cmd(IntToHEX(ADC[i].Address, 2), 'getRunningTime', '');
+                     Memo1.Append(cmd);
+                     stringToSend := Modbus.StrToHexStr(cmd);
+                     response := Modbus.send(stringToSend);
+                     Memo1.Append(response);
+                     //ADC[index - 1].Runtime := Modbus.RRRuningTime(response);
+                     t := Modbus.RRRuningTime(response);
+                     TotalTime := Modbus.Runtime;
+                 //  StringGrid1.Cells[_RUNTIME_, index] := IntToStr(Modbus.RRRuningTime(response));
+         //функция имеет информативный карактер
+         cmd := Modbus.cmd(IntToHEX(ADC[i].Address, 2), 'getUSER_AFTER_CLBR', '');
+         Memo1.Append('gU-FL C*:' + cmd);
+         stringToSend := Modbus.StrToHexStr(cmd);
+         response := Modbus.send(stringToSend);
+//       ProgressBar1.Position:=(i*10 + 2); Form6.Refresh;
+         MEMO1.Append('gU-FL R*:' + response);
+         tmpDate[i] := Modbus.RRUserRunTime(response);  //дата калибровки (возвращается функцией)
+         UTime := Modbus.runTimeU;               //время работы до начала калибровки
+         tmpTime[i] := round((totalTime - UTime) / 60 /60);
+
+//       tmpFirLen[i] := Modbus.USER_RRFirLen(response);
          //чтение коэффициентов полинома
          for j:= 0 to 7 do
               begin  //чтение коэффициентов полинома из пользовательской памяти
@@ -159,6 +190,10 @@ var i, j: integer;
      StringGrid1.ColWidths[5] := 70;
      StringGrid1.Cells[6,0] := 'Coef';
      StringGrid1.ColWidths[6] := 70;
+     StringGrid1.Cells[7,0] := 'C_Date'; //дата и время калибровки
+     StringGrid1.ColWidths[7] := 110;
+     StringGrid1.Cells[8,0] := 'C_Time'; //время работы платы с момента последней калибровки
+     StringGrid1.ColWidths[8] := 70;
      for i := 0 to modules - 1 do
          begin
             StringGrid1.Cells[0, i + 1] := IntToStr(i);
@@ -172,6 +207,8 @@ var i, j: integer;
             for j := 0 to 7 do
                 if (tmpCoef[i][j]<>0) then maxCoef := j;
             StringGrid1.Cells[6, i + 1] := 'COEFS (' + IntToStr(maxCoef) + ')'; //при нажатии - коэффициенты полинома
+            StringGrid1.Cells[7, i + 1] := tmpDate[i]; //время работы после проведения калибровки в часах
+            StringGrid1.Cells[8, i + 1] := IntToStr(tmpTime[i]); //дата и время проведения калибровки
          end;
    end;
 
