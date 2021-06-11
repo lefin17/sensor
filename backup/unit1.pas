@@ -1042,7 +1042,7 @@ end; *)
 
 procedure TForm1.MenuItem4Click(Sender: TObject);
 begin
-
+  //Application.terminate;
 end;
 
 procedure TForm1.StringGrid1Click(Sender: TObject);

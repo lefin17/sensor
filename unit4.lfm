@@ -1,7 +1,7 @@
 object Form4: TForm4
-  Left = 325
+  Left = 350
   Height = 829
-  Top = 61
+  Top = 155
   Width = 1122
   Caption = 'Поверка'
   ClientHeight = 829

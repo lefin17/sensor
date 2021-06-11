@@ -17,8 +17,6 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
-    ComboBox2: TComboBox;
-    ComboBox3: TComboBox;
     ComboBox4: TComboBox;
     Edit1: TEdit;
     Edit2: TEdit;
@@ -27,13 +25,11 @@ type
     Edit5: TEdit;
     Edit6: TEdit;
     Edit7: TEdit;
-    Label1: TLabel;
+    GroupBox1: TGroupBox;
     Label10: TLabel;
     Label11: TLabel;
     Label12: TLabel;
     Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
@@ -41,6 +37,7 @@ type
     Label9: TLabel;
     StringGrid1: TStringGrid;
     procedure Button4Click(Sender: TObject);
+    procedure ComboBox2Change(Sender: TObject);
     procedure Edit4Change(Sender: TObject);
     procedure Edit5Change(Sender: TObject);
     procedure Edit6Change(Sender: TObject);
@@ -139,6 +136,11 @@ IniFile.free;
         StringGrid1.Cells[1, i + 1] := FloatToStr(ui);
         ui += delta;
       end;
+end;
+
+procedure TForm2.ComboBox2Change(Sender: TObject);
+begin
+
 end;
 
 procedure TForm2.Edit5Change(Sender: TObject);

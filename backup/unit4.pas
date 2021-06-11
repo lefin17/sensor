@@ -478,7 +478,7 @@ begin
          Dots := Length(ADC[i].VerificationDots); //длина массива точек измерения
          if (Dots < power + 1) then
             begin
-            Memo1.Append('Не достаточно точек измерения');
+            Memo1.Append('Недостаточно точек измерения');
             continue;
             end;
            // mnk := NILL;
