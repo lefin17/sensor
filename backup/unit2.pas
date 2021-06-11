@@ -26,6 +26,7 @@ type
     Edit6: TEdit;
     Edit7: TEdit;
     GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
     Label10: TLabel;
     Label11: TLabel;
     Label12: TLabel;

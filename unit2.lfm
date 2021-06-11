@@ -48,6 +48,7 @@ object Form2: TForm2
     Height = 23
     Top = 272
     Width = 80
+    Enabled = False
     OnChange = Edit4Change
     TabOrder = 2
     Text = 'Edit4'
@@ -80,7 +81,7 @@ object Form2: TForm2
   object Edit6: TEdit
     Left = 20
     Height = 23
-    Top = 424
+    Top = 416
     Width = 88
     OnChange = Edit6Change
     TabOrder = 4
@@ -99,8 +100,8 @@ object Form2: TForm2
     Left = 20
     Height = 25
     Top = 456
-    Width = 183
-    Caption = 'Применить и показать точки'
+    Width = 275
+    Caption = 'Применить и показать точки эксперимента'
     OnClick = Button4Click
     TabOrder = 6
   end
